@@ -48,7 +48,7 @@ class ExamAccessController extends Controller
 
         if ($participant->session === null) {
             return back()->withErrors([
-                'session' => 'Anda belum dimasukkan ke sesi ujian. Hubungi admin.',
+                'session' => 'Anda belum dimasukkan ke sesi tes. Hubungi admin.',
             ])->withInput();
         }
 

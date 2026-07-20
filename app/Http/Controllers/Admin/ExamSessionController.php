@@ -87,7 +87,7 @@ class ExamSessionController extends Controller
     public function destroy(ExamSession $session): RedirectResponse
     {
         if ($session->attempts()->exists()) {
-            return back()->withErrors(['session' => 'Sesi tidak dapat dihapus karena sudah memiliki riwayat pengerjaan ujian.']);
+            return back()->withErrors(['session' => 'Sesi tidak dapat dihapus karena sudah memiliki riwayat pengerjaan tes.']);
         }
 
         $session->delete();
@@ -147,7 +147,7 @@ class ExamSessionController extends Controller
 
         $message = "Aksi massal selesai: {$deletedCount} sesi dihapus.";
         if ($skippedCount > 0) {
-            $message .= " {$skippedCount} sesi dilewati karena sudah memiliki riwayat pengerjaan ujian.";
+            $message .= " {$skippedCount} sesi dilewati karena sudah memiliki riwayat pengerjaan tes.";
         }
 
         return back()->with('success', $message);
@@ -261,7 +261,7 @@ class ExamSessionController extends Controller
             $message .= " {$skippedAlreadyInSession} peserta dilewati karena sudah berada di sesi ini.";
         }
         if ($skippedActiveAttempt > 0) {
-            $message .= " {$skippedActiveAttempt} peserta dilewati karena sedang mengerjakan ujian.";
+            $message .= " {$skippedActiveAttempt} peserta dilewati karena sedang mengerjakan tes.";
         }
         if ($skippedCodeConflict > 0) {
             $message .= " {$skippedCodeConflict} peserta dilewati karena kode bentrok pada sesi tujuan.";
@@ -304,7 +304,7 @@ class ExamSessionController extends Controller
 
         return redirect()
             ->route('admin.instructions.index', ['session_id' => $session->id])
-            ->with('success', 'Petunjuk ujian berhasil diperbarui.');
+            ->with('success', 'Petunjuk tes berhasil diperbarui.');
     }
 
 }

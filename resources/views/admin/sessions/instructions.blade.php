@@ -1,7 +1,7 @@
 <x-layouts.admin
     title="Panduan Tes Peserta"
     heading="Panduan Tes Peserta"
-    subtitle="Kelola isi petunjuk ujian yang tampil di halaman akses ujian peserta."
+    subtitle="Kelola isi petunjuk tes yang tampil di halaman akses tes peserta."
 >
     <x-slot:actions>
         <a href="{{ route('admin.sessions.index') }}" class="btn btn-ghost">Kembali ke Manajemen Sesi</a>
@@ -9,7 +9,7 @@
 
     @if ($sessions->isEmpty())
         <div class="alert warning">
-            Belum ada sesi ujian. Buat sesi terlebih dahulu sebelum mengatur petunjuk ujian.
+            Belum ada sesi tes. Buat sesi terlebih dahulu sebelum mengatur petunjuk tes.
         </div>
     @else
         <section class="admin-form-card">
@@ -56,9 +56,9 @@
                             placeholder="Contoh:
 1. Pastikan identitas sudah sesuai.
 2. Kerjakan soal secara berurutan.
-3. Dilarang menutup browser selama ujian."
+3. Dilarang menutup browser selama tes."
                         >{{ old('instructions', $selectedSession->instructions) }}</textarea>
-                        <small class="field-help">Peserta akan melihat konten ini di halaman Akses Ujian sebelum input token.</small>
+                        <small class="field-help">Peserta akan melihat konten ini di halaman Akses Tes sebelum input token.</small>
                     </label>
 
                     <button type="submit" class="btn btn-primary">Simpan Petunjuk</button>

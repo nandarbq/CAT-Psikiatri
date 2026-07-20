@@ -1,5 +1,5 @@
 <x-layouts.admin
-    title="Detail Hasil Ujian"
+    title="Detail Hasil Tes"
     heading="Detail Jawaban Peserta"
     :subtitle="$attempt->participant->name.' • '.$attempt->session->title"
 >

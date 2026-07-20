@@ -1,7 +1,7 @@
 <x-layouts.admin
     title="Lokasi RSUD"
     heading="Pengaturan Lokasi RSUD"
-    subtitle="Atur titik pusat dan radius geofence satu kali untuk semua sesi ujian mode radius."
+    subtitle="Atur titik pusat dan radius geofence satu kali untuk semua sesi tes mode radius."
 >
     <section class="admin-form-card location-picker-card">
         <form method="POST" action="{{ route('admin.location-settings.update') }}" class="location-picker-grid">

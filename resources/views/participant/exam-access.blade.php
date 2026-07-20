@@ -1,11 +1,11 @@
-<x-layouts.app title="Akses Ujian">
+<x-layouts.app title="Akses Tes">
     <section class="panel participant-panel">
         @include('participant.partials.nav')
 
         <div class="participant-hero">
-            <h1 class="title-xl">Akses Sesi Ujian</h1>
+            <h1 class="title-xl">Akses Sesi Tes</h1>
             <p class="subtitle">
-                Halo {{ $participant->name }}, baca petunjuk ujian dengan teliti sebelum memulai.
+                Halo {{ $participant->name }}, baca petunjuk tes dengan teliti sebelum memulai.
             </p>
         </div>
 
@@ -15,23 +15,23 @@
 
         <section class="participant-info-grid">
             <article class="participant-card">
-                <h2>Petunjuk Ujian</h2>
+                <h2>Petunjuk Tes</h2>
                 @if ($session === null)
-                    <p class="participant-muted">Anda belum terdaftar pada sesi ujian. Hubungi admin.</p>
+                    <p class="participant-muted">Anda belum terdaftar pada sesi tes. Hubungi admin.</p>
                 @else
                     <p class="participant-muted"><strong>Sesi:</strong> {{ $session->title }}</p>
                     @if (filled($session->instructions))
                         <div class="participant-instruction-text">{!! nl2br(e((string) $session->instructions)) !!}</div>
                     @else
-                        <p class="participant-muted">Petunjuk ujian dari admin belum tersedia.</p>
+                        <p class="participant-muted">Petunjuk tes dari admin belum tersedia.</p>
                     @endif
                 @endif
             </article>
 
             <article class="participant-card">
-                <h2>Input Token Ujian</h2>
+                <h2>Input Token Tes</h2>
                 @if (! $hasSession)
-                    <div class="alert warning">Form token belum tersedia karena Anda belum dimasukkan ke sesi ujian.</div>
+                    <div class="alert warning">Form token belum tersedia karena Anda belum dimasukkan ke sesi tes.</div>
                 @elseif (! $tokenBypassEnabled && ! $hasSessionToken)
                     <div class="alert warning">Token sesi belum dibuat oleh admin.</div>
                 @else
@@ -45,7 +45,7 @@
                         @csrf
                         @if (! $tokenBypassEnabled)
                             <label class="field">
-                                <span>Token Ujian (6 digit)</span>
+                                <span>Token Tes (6 digit)</span>
                                 <input
                                     type="text"
                                     name="token"
@@ -67,7 +67,7 @@
                         <p class="save-status" id="location-status">
                             {{ $requiresLocation ? 'Meminta akses lokasi perangkat...' : 'Sesi online: akses lokasi tidak diperlukan.' }}
                         </p>
-                        <button type="submit" class="btn btn-primary" @disabled(! $canStartExam)>Mulai / Lanjutkan Ujian</button>
+                        <button type="submit" class="btn btn-primary" @disabled(! $canStartExam)>Mulai / Lanjutkan Tes</button>
                     </form>
                 @endif
             </article>
@@ -133,7 +133,7 @@
                     setStatus('Lokasi terdeteksi. Anda dapat melanjutkan.', 'success');
                 })
                 .catch(() => {
-                    setStatus('Lokasi belum tersedia. Izinkan akses lokasi sebelum mulai ujian.', 'error');
+                    setStatus('Lokasi belum tersedia. Izinkan akses lokasi sebelum mulai tes.', 'error');
                 });
         })();
     </script>

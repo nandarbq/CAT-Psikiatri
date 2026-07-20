@@ -1,7 +1,7 @@
 <x-layouts.admin
     title="Manajemen Token Tes"
     heading="Master Token Tes"
-    subtitle="Kelola token unik 6 digit per sesi ujian."
+    subtitle="Kelola token unik 6 digit per sesi tes."
 >
     <x-slot:actions>
         <a href="{{ route('admin.tokens.bulk.form') }}" class="btn btn-ghost">Buat Token Beberapa Sesi</a>

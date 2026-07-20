@@ -9,7 +9,7 @@
         </div>
         <p class="admin-kicker">Sistem CAT Psikiatri</p>
         <h1 class="admin-title">Masuk Admin</h1>
-        <p class="admin-subtitle">Masuk sebagai admin untuk mengelola proses ujian.</p>
+        <p class="admin-subtitle">Masuk sebagai admin untuk mengelola proses tes.</p>
 
         @if ($errors->any())
             <div class="alert error">{{ $errors->first() }}</div>

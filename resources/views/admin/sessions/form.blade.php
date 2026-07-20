@@ -1,7 +1,7 @@
 <x-layouts.admin
     :title="$isEdit ? 'Ubah Sesi Tes' : 'Buat Sesi Tes'"
     :heading="$isEdit ? 'Ubah Sesi Tes' : 'Buat Sesi Tes'"
-    subtitle="Konfigurasi waktu ujian, mode akses, dan durasi pengerjaan."
+    subtitle="Konfigurasi waktu tes, mode akses, dan durasi pengerjaan."
 >
     <x-slot:actions>
         @if ($isEdit)
@@ -11,7 +11,7 @@
     </x-slot:actions>
 
     @if ($hasAttempts)
-        <div class="alert warning">Sesi ini sudah memiliki riwayat pengerjaan ujian. Waktu mulai, waktu selesai, durasi, dan konfigurasi akses dikunci.</div>
+        <div class="alert warning">Sesi ini sudah memiliki riwayat pengerjaan tes. Waktu mulai, waktu selesai, durasi, dan konfigurasi akses dikunci.</div>
     @endif
 
     <section class="admin-form-card">
@@ -74,8 +74,8 @@
             </div>
             <label class="field">
                 <span>Panduan Tes untuk Peserta</span>
-                <textarea class="input" name="instructions" rows="6" placeholder="Tulis petunjuk pengerjaan, ketentuan waktu, dan larangan selama ujian...">{{ old('instructions', $session->instructions) }}</textarea>
-                <small class="field-help">Konten ini akan ditampilkan di halaman akses ujian peserta.</small>
+                <textarea class="input" name="instructions" rows="6" placeholder="Tulis petunjuk pengerjaan, ketentuan waktu, dan larangan selama tes...">{{ old('instructions', $session->instructions) }}</textarea>
+                <small class="field-help">Konten ini akan ditampilkan di halaman akses tes peserta.</small>
             </label>
 
             <button class="btn btn-primary" type="submit">{{ $isEdit ? 'Simpan Perubahan' : 'Buat Sesi' }}</button>

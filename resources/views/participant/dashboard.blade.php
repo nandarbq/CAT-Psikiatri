@@ -8,7 +8,7 @@
 
         @if ($hasIncompleteProfile)
             <div class="alert warning">
-                Data diri Anda belum lengkap. Mohon cek dan lengkapi NIK, Nama, TTL, Alamat, serta Keperluan sebelum akses ujian.
+                Data diri Anda belum lengkap. Mohon cek dan lengkapi NIK, Nama, TTL, Alamat, serta Keperluan sebelum akses tes.
             </div>
         @endif
 
@@ -42,7 +42,7 @@
 
             <div class="participant-main-column">
                 <article class="participant-card participant-card-status">
-                    <h2>Status Akses Ujian</h2>
+                    <h2>Status Akses Tes</h2>
                     <div class="participant-status-box is-{{ $accessTone }}">
                         <div class="participant-status-head">
                             <span class="participant-status-icon" aria-hidden="true"></span>
@@ -52,7 +52,7 @@
                         </div>
                         <p class="participant-status-text">{{ $accessText }}</p>
                     </div>
-                    <a href="{{ route('exam.access') }}" class="btn btn-primary participant-card-cta">Buka Halaman Akses Ujian</a>
+                    <a href="{{ route('exam.access') }}" class="btn btn-primary participant-card-cta">Buka Halaman Akses Tes</a>
                 </article>
 
                 <form method="POST" action="{{ route('participant.logout') }}" class="logout-box">

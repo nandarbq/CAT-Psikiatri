@@ -1,5 +1,5 @@
 @include('exam.partials.runner', [
-    'pageTitle' => 'Sesi Ujian',
+    'pageTitle' => 'Sesi Tes',
     'questions' => $questions,
     'answers' => $answers,
     'currentIndex' => $currentIndex,

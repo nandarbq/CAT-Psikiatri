@@ -94,6 +94,10 @@ Ini memastikan dependency resolution mengikuti target XAMPP PHP 8.2 walaupun CLI
   - URL Login: `/login`
   - Username: `admin01`
   - Password: `password123`
+- Dokter:
+  - URL Login: `/login`
+  - Username: `dokter01`
+  - Password: `password123`
 
 ## Struktur penting
 

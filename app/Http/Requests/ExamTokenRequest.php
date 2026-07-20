@@ -49,7 +49,7 @@ class ExamTokenRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'token.digits' => 'Token ujian harus berupa 6 digit angka.',
+            'token.digits' => 'Token tes harus berupa 6 digit angka.',
             'session_id.unique' => 'Sesi ini sudah memiliki token. Silakan ubah token yang sudah ada.',
         ];
     }

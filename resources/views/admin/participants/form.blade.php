@@ -1,14 +1,14 @@
 <x-layouts.admin
     :title="$isEdit ? 'Ubah Peserta' : 'Buat Akun Peserta'"
     :heading="$isEdit ? 'Ubah Peserta' : 'Buat Akun Peserta'"
-    subtitle="Data peserta dipakai untuk autentikasi dan mapping sesi ujian."
+    subtitle="Data peserta dipakai untuk autentikasi dan mapping sesi tes."
 >
     <x-slot:actions>
         <a href="{{ route('admin.participants.index') }}" class="btn btn-ghost">Kembali ke Daftar</a>
     </x-slot:actions>
 
     @if ($hasAttempts)
-        <div class="alert warning">Peserta ini punya riwayat pengerjaan ujian. Pindah sesi hanya diizinkan bila tidak ada ujian yang masih berjalan.</div>
+        <div class="alert warning">Peserta ini punya riwayat pengerjaan tes. Pindah sesi hanya diizinkan bila tidak ada tes yang masih berjalan.</div>
     @endif
     @if ($isEdit)
         <div class="alert warning">Jika peserta dipindah ke sesi lain, status selesai akan di-reset untuk sesi baru.</div>
@@ -35,7 +35,7 @@
             <div class="field">
                 <span>Kode Peserta (Legacy)</span>
                 <div class="input" style="display: flex; align-items: center; min-height: 44px;">Dikelola otomatis oleh sistem</div>
-                <small class="field-help">Token ujian dibuat terpisah lewat menu Token Ujian (berlaku per sesi).</small>
+                <small class="field-help">Token tes dibuat terpisah lewat menu Token Tes (berlaku per sesi).</small>
             </div>
             <label class="field"><span>Nama</span><input class="input" type="text" name="name" required value="{{ old('name', $participant->name) }}"></label>
             <label class="field"><span>Tempat Lahir</span><input class="input" type="text" name="birth_place" value="{{ old('birth_place', $participant->birth_place) }}"></label>

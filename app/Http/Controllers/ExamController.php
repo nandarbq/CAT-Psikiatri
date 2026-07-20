@@ -32,6 +32,14 @@ class ExamController extends Controller
             ->orderBy('order_no')
             ->get(['id', 'category', 'question', 'order_no']);
 
+        // Urutan soal diacak per peserta (per attempt) supaya peserta yang duduk
+        // berdekatan tidak melihat soal yang sama di layar yang sama pada saat
+        // yang sama — mengurangi peluang saling contek. Seed dikunci ke ID
+        // attempt supaya urutannya tetap konsisten setiap kali halaman di-reload
+        // atau tes dilanjutkan, bukan acak ulang tiap request.
+        $randomizer = new \Random\Randomizer(new \Random\Engine\Mt19937($attempt->id));
+        $questions = collect($randomizer->shuffleArray($questions->all()));
+
         $answers = $attempt->answers()
             ->get(['question_id', 'answer'])
             ->mapWithKeys(fn ($item): array => [(int) $item->question_id => (bool) $item->answer])
@@ -119,7 +127,7 @@ class ExamController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Ujian berhasil disubmit.',
+            'message' => 'Tes berhasil disubmit.',
             'redirect' => route('exam.complete'),
         ]);
     }

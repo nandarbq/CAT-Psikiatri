@@ -27,7 +27,7 @@ class ParticipantPortalController extends Controller
         $hasExamAccess = $hasSession && ($hasSessionToken || $tokenBypassEnabled);
 
         $accessTone = 'danger';
-        $accessText = 'Anda belum dimasukkan ke sesi ujian. Hubungi admin untuk penjadwalan sesi.';
+        $accessText = 'Anda belum dimasukkan ke sesi tes. Hubungi admin untuk penjadwalan sesi.';
 
         if ($hasSession && ! $hasExamAccess) {
             $accessTone = 'warning';
@@ -36,7 +36,7 @@ class ParticipantPortalController extends Controller
 
         if ($hasExamAccess) {
             $accessTone = 'success';
-            $accessText = "Anda sudah dapat mengakses ujian pada sesi {$participant->session?->title}.";
+            $accessText = "Anda sudah dapat mengakses tes pada sesi {$participant->session?->title}.";
             if ($tokenBypassEnabled) {
                 $accessText .= ' Mode bypass token sedang aktif untuk testing.';
             }

@@ -1,7 +1,7 @@
 <x-layouts.admin
     title="Pengaturan"
     heading="Pengaturan"
-    subtitle="Kelola profil akun Anda dan lokasi RSUD untuk validasi akses ujian onsite."
+    subtitle="Kelola profil akun Anda dan lokasi RSUD untuk validasi akses tes onsite."
 >
     <div class="settings-tabs" role="tablist" aria-label="Tab Pengaturan">
         <a

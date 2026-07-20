@@ -49,7 +49,7 @@ class ExamGuard
         }
 
         if ($attempt === null || (int) $attempt->participant_id !== $participantId) {
-            return $this->deny($request, 'Akses ujian tidak valid. Silakan mulai lagi dari halaman akses ujian.');
+            return $this->deny($request, 'Akses tes tidak valid. Silakan mulai lagi dari halaman akses tes.');
         }
 
         $attemptSessionToken = is_string($attempt->session_token ?? null)
@@ -81,7 +81,7 @@ class ExamGuard
                 $accuracy,
             );
         } catch (ValidationException $exception) {
-            return $this->deny($request, collect($exception->errors())->flatten()->first() ?? 'Akses ujian ditolak.');
+            return $this->deny($request, collect($exception->errors())->flatten()->first() ?? 'Akses tes ditolak.');
         }
 
         $request->attributes->set('examAttempt', $attempt);

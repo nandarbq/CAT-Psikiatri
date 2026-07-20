@@ -32,19 +32,19 @@ class StartExamService
 
             if ($tokenRecord === null) {
                 throw ValidationException::withMessages([
-                    'token' => 'Token ujian tidak valid.',
+                    'token' => 'Token tes tidak valid.',
                 ]);
             }
 
             if (! $tokenRecord->is_active) {
                 throw ValidationException::withMessages([
-                    'token' => 'Token ujian nonaktif. Hubungi admin.',
+                    'token' => 'Token tes nonaktif. Hubungi admin.',
                 ]);
             }
 
             if ($tokenRecord->expires_at !== null && now()->greaterThan($tokenRecord->expires_at)) {
                 throw ValidationException::withMessages([
-                    'token' => 'Token ujian sudah kedaluwarsa.',
+                    'token' => 'Token tes sudah kedaluwarsa.',
                 ]);
             }
         }

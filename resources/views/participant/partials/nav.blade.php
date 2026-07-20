@@ -14,7 +14,7 @@
             Ubah Data Diri
         </a>
         <a href="{{ route('exam.access') }}" class="participant-nav-link {{ request()->routeIs('exam.access') ? 'is-active' : '' }}">
-            Akses Ujian
+            Akses Tes
         </a>
     </nav>
 </header>

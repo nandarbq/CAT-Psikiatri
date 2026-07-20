@@ -1,7 +1,7 @@
 <x-layouts.admin
     :title="$isEdit ? 'Ubah Token Sesi' : 'Buat Token Sesi'"
     :heading="$isEdit ? 'Ubah Token Sesi' : 'Buat Token Sesi'"
-    subtitle="Atur token unik 6 digit yang berlaku untuk satu sesi ujian."
+    subtitle="Atur token unik 6 digit yang berlaku untuk satu sesi tes."
 >
     <x-slot:actions>
         <a href="{{ route('admin.tokens.index') }}" class="btn btn-ghost">Kembali ke Daftar</a>

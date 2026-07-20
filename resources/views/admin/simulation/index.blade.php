@@ -1,7 +1,7 @@
 <x-layouts.admin
     title="Simulasi Tes"
     heading="Simulasi Tes Admin"
-    subtitle="Gunakan halaman ini untuk menguji UI/UX ujian, timer, navigasi soal, dan submit jawaban."
+    subtitle="Gunakan halaman ini untuk menguji UI/UX tes, timer, navigasi soal, dan submit jawaban."
 >
     @if ($simulation)
         @php

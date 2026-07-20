@@ -1,9 +1,9 @@
 @php
-    $pageTitle = $pageTitle ?? 'Sesi Ujian';
+    $pageTitle = $pageTitle ?? 'Sesi Tes';
     $brandKicker = $brandKicker ?? 'RSUD Blambangan';
     $brandName = $brandName ?? 'CAT Psikiatri';
-    $examKicker = $examKicker ?? 'Ujian Berbantuan Komputer';
-    $sessionTitle = $sessionTitle ?? 'Sesi Ujian';
+    $examKicker = $examKicker ?? 'Tes Berbantuan Komputer';
+    $sessionTitle = $sessionTitle ?? 'Sesi Tes';
     $metaChips = is_array($metaChips ?? null) ? $metaChips : [];
     $saveUrl = $saveUrl ?? route('exam.save-answer');
     $submitUrl = $submitUrl ?? route('exam.submit');
@@ -11,9 +11,9 @@
     $requiresLocation = (bool) ($requiresLocation ?? false);
     $backUrl = $backUrl ?? null;
     $backLabel = $backLabel ?? 'Kembali';
-    $finishButtonText = $finishButtonText ?? 'Akhiri Ujian';
-    $confirmSubmitTitle = $confirmSubmitTitle ?? 'Akhiri ujian sekarang?';
-    $confirmSubmitConfirmButton = $confirmSubmitConfirmButton ?? 'Ya, akhiri ujian';
+    $finishButtonText = $finishButtonText ?? 'Akhiri Tes';
+    $confirmSubmitTitle = $confirmSubmitTitle ?? 'Akhiri tes sekarang?';
+    $confirmSubmitConfirmButton = $confirmSubmitConfirmButton ?? 'Ya, akhiri tes';
     $confirmSubmitCancelButton = $confirmSubmitCancelButton ?? 'Lanjut mengerjakan';
     $confirmSubmitTail = $confirmSubmitTail ?? 'Setelah diakhiri, jawaban tidak bisa diubah lagi.';
     $submitFailureStatus = $submitFailureStatus ?? 'Pengiriman jawaban akhir gagal. Pastikan koneksi stabil lalu ulangi.';
@@ -250,9 +250,9 @@
                 showUnansweredOnly: false,
                 questionNavMediaQuery: null,
                 questionNavMediaQueryHandler: null,
-                finishButtonText: config.finishButtonText ?? 'Akhiri Ujian',
-                confirmSubmitTitle: config.confirmSubmitTitle ?? 'Akhiri ujian sekarang?',
-                confirmSubmitConfirmButton: config.confirmSubmitConfirmButton ?? 'Ya, akhiri ujian',
+                finishButtonText: config.finishButtonText ?? 'Akhiri Tes',
+                confirmSubmitTitle: config.confirmSubmitTitle ?? 'Akhiri tes sekarang?',
+                confirmSubmitConfirmButton: config.confirmSubmitConfirmButton ?? 'Ya, akhiri tes',
                 confirmSubmitCancelButton: config.confirmSubmitCancelButton ?? 'Lanjut mengerjakan',
                 confirmSubmitTail: config.confirmSubmitTail ?? 'Setelah diakhiri, jawaban tidak bisa diubah lagi.',
                 submitFailureStatus: config.submitFailureStatus ?? 'Pengiriman jawaban akhir gagal. Pastikan koneksi stabil lalu ulangi.',
@@ -761,7 +761,7 @@
 
     <div id="exam-lockdown-overlay" class="exam-lockdown-overlay" hidden>
         <div class="exam-lockdown-card">
-            <p class="exam-lockdown-title">Anda meninggalkan halaman ujian</p>
+            <p class="exam-lockdown-title">Anda meninggalkan halaman tes</p>
             <p class="exam-lockdown-text">Sistem mendeteksi Anda berpindah tab/aplikasi lain. Kembali ke halaman ini untuk melanjutkan pengerjaan. Aktivitas ini tercatat oleh sistem.</p>
             <button type="button" class="btn btn-primary" id="exam-lockdown-resume">Kembali Mengerjakan</button>
         </div>

@@ -17,7 +17,7 @@
         <article class="stat-card">
             <p class="stat-card-label">Sedang Mengerjakan</p>
             <p class="stat-card-value">{{ $stats['in_progress'] }}</p>
-            <p class="stat-card-hint">percobaan ujian berjalan</p>
+            <p class="stat-card-hint">percobaan tes berjalan</p>
         </article>
         <article class="stat-card">
             <p class="stat-card-label">Selesai Hari Ini</p>
@@ -77,7 +77,7 @@
             </div>
 
             @if ($recentAttempts->isEmpty())
-                <p class="participant-muted">Belum ada aktivitas percobaan ujian.</p>
+                <p class="participant-muted">Belum ada aktivitas percobaan tes.</p>
             @else
                 <ul class="dashboard-activity-list">
                     @foreach ($recentAttempts as $attempt)

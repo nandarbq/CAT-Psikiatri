@@ -155,7 +155,7 @@ class ParticipantController extends Controller
         if ($sessionChanged && $participant->attempts()->where('is_submitted', false)->exists()) {
             return back()
                 ->withInput()
-                ->withErrors(['participant' => 'Peserta sedang mengerjakan ujian sehingga tidak bisa dipindah sesi.']);
+                ->withErrors(['participant' => 'Peserta sedang mengerjakan tes sehingga tidak bisa dipindah sesi.']);
         }
 
         if ($sessionChanged) {
@@ -187,7 +187,7 @@ class ParticipantController extends Controller
     public function destroy(Participant $participant): RedirectResponse
     {
         if ($participant->attempts()->exists()) {
-            return back()->withErrors(['participant' => 'Peserta tidak dapat dihapus karena sudah memiliki riwayat pengerjaan ujian.']);
+            return back()->withErrors(['participant' => 'Peserta tidak dapat dihapus karena sudah memiliki riwayat pengerjaan tes.']);
         }
 
         $participant->delete();
@@ -234,7 +234,7 @@ class ParticipantController extends Controller
 
         $message = "Aksi massal selesai: {$deletedCount} peserta dihapus.";
         if ($skippedCount > 0) {
-            $message .= " {$skippedCount} peserta dilewati karena sudah memiliki riwayat pengerjaan ujian.";
+            $message .= " {$skippedCount} peserta dilewati karena sudah memiliki riwayat pengerjaan tes.";
         }
 
         return back()->with('success', $message);

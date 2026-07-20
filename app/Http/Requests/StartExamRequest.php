@@ -37,7 +37,7 @@ class StartExamRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'token.digits' => 'Token ujian harus berupa 6 digit angka.',
+            'token.digits' => 'Token tes harus berupa 6 digit angka.',
         ];
     }
 }

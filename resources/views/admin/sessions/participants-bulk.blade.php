@@ -37,7 +37,7 @@
 
     <section class="admin-form-card">
         <p><strong>Sesi Tujuan:</strong> {{ $session->title }}</p>
-        <small class="field-help">Akun yang masih mengerjakan ujian atau punya kode bentrok pada sesi tujuan akan otomatis dilewati.</small>
+        <small class="field-help">Akun yang masih mengerjakan tes atau punya kode bentrok pada sesi tujuan akan otomatis dilewati.</small>
 
         <form method="POST" action="{{ route('admin.sessions.participants.bulk.store', $session) }}" class="form-grid" data-bulk-participant-pick-form>
             @csrf

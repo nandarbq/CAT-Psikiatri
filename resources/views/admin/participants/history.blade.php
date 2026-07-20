@@ -1,7 +1,7 @@
 <x-layouts.admin
     title="Riwayat Peserta"
     heading="Riwayat Peserta"
-    subtitle="Riwayat sesi dan progres ujian untuk satu peserta."
+    subtitle="Riwayat sesi dan progres tes untuk satu peserta."
 >
     <x-slot:actions>
         <a href="{{ route('admin.participants.index') }}" class="btn btn-ghost">Kembali ke Manajemen Peserta</a>

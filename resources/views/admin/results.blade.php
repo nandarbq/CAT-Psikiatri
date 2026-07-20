@@ -1,5 +1,5 @@
 <x-layouts.admin
-    title="Hasil Ujian"
+    title="Hasil Tes"
     heading="Monitoring Hasil Peserta"
     subtitle="Pantau progres pengerjaan, status pengumpulan jawaban, dan ekspor data."
 >
@@ -8,7 +8,7 @@
         <a href="{{ route('admin.results.export.excel') }}" class="btn btn-primary">Ekspor Excel</a>
     </x-slot:actions>
 
-    <div class="table-wrap" role="region" aria-label="Daftar hasil ujian">
+    <div class="table-wrap" role="region" aria-label="Daftar hasil tes">
         <table class="data-table">
             <thead>
             <tr>
@@ -38,7 +38,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7">Belum ada data pengerjaan ujian.</td>
+                    <td colspan="7">Belum ada data pengerjaan tes.</td>
                 </tr>
             @endforelse
             </tbody>

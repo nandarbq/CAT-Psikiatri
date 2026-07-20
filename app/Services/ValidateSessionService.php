@@ -19,19 +19,19 @@ class ValidateSessionService
 
         if (! $session->status) {
             throw ValidationException::withMessages([
-                'session' => 'Sesi ujian saat ini tidak aktif.',
+                'session' => 'Sesi tes saat ini tidak aktif.',
             ]);
         }
 
         if ($now->lt(CarbonImmutable::instance($session->start_time))) {
             throw ValidationException::withMessages([
-                'session' => 'Sesi ujian belum dimulai.',
+                'session' => 'Sesi tes belum dimulai.',
             ]);
         }
 
         if ($now->gt(CarbonImmutable::instance($session->end_time))) {
             throw ValidationException::withMessages([
-                'session' => 'Sesi ujian sudah berakhir.',
+                'session' => 'Sesi tes sudah berakhir.',
             ]);
         }
     }
@@ -78,7 +78,7 @@ class ValidateSessionService
     {
         if ($attempt->is_submitted) {
             throw ValidationException::withMessages([
-                'attempt' => 'Ujian sudah disubmit dan terkunci.',
+                'attempt' => 'Tes sudah disubmit dan terkunci.',
             ]);
         }
 
@@ -92,7 +92,7 @@ class ValidateSessionService
 
         if (CarbonImmutable::now()->gt($effectiveDeadline)) {
             throw ValidationException::withMessages([
-                'attempt' => 'Waktu ujian habis.',
+                'attempt' => 'Waktu tes habis.',
             ]);
         }
     }
@@ -112,7 +112,7 @@ class ValidateSessionService
         $rawDuration = $attempt->session->duration_minutes;
         if (! is_numeric($rawDuration) || (float) $rawDuration <= 0) {
             throw ValidationException::withMessages([
-                'session' => 'Durasi sesi ujian tidak valid. Hubungi admin.',
+                'session' => 'Durasi sesi tes tidak valid. Hubungi admin.',
             ]);
         }
 

@@ -1,7 +1,7 @@
 <x-layouts.admin
     title="Manajemen Sesi"
     heading="Manajemen Sesi"
-    subtitle="Atur jadwal ujian, mode akses, status sesi, dan aksi massal."
+    subtitle="Atur jadwal tes, mode akses, status sesi, dan aksi massal."
 >
     <x-slot:actions>
         <a href="{{ route('admin.instructions.index') }}" class="btn btn-ghost">Atur Panduan Tes</a>
