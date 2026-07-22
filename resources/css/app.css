@@ -172,6 +172,16 @@ body {
     gap: 0.75rem;
 }
 
+.brand-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.brand-header .auth-split-kicker {
+    margin: 0;
+}
+
 .auth-split-logo {
     width: 56px;
     height: 56px;

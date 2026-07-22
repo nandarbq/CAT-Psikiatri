@@ -2,34 +2,69 @@
     <section class="auth-split">
         <div class="auth-split-brand">
             <div class="auth-split-brand-inner">
-                <img src="{{ asset('assets/logo-rsud-blambangan.png') }}" alt="Logo RSUD Blambangan" class="auth-split-logo">
-                <p class="auth-split-kicker">RSUD Blambangan</p>
-                <h1 class="auth-split-title">Sistem CAT Psikiatri</h1>
+
+                <div class="brand-header">
+                    <img
+                        src="{{ asset('assets/logo-rsud-blambangan.png') }}"
+                        alt="Logo RSUD Blambangan"
+                        class="auth-split-logo"
+                    >
+
+                    <p class="auth-split-kicker">
+                        RSUD BLAMBANGAN BANYUWANGI
+                    </p>
+                </div>
+
+                <h1 class="auth-split-title">
+                    Sistem CAT Psikiatri
+                </h1>
+
                 <p class="auth-split-desc">
-                    Computer Assisted Test untuk pemeriksaan psikiatri. Masuk menggunakan akun peserta
-                    atau akun admin untuk melanjutkan.
+                    Computer Assisted Test untuk pemeriksaan psikiatri.
+                    Masuk menggunakan akun peserta atau akun admin untuk
+                    melanjutkan.
                 </p>
+
             </div>
         </div>
 
         <div class="auth-split-form">
             <div class="auth-split-form-inner">
                 <p class="auth-split-form-kicker">Selamat Datang</p>
-                <h2 class="title-xl">Masuk ke Akun Anda</h2>
-                <p class="subtitle">Gunakan username dan password. Sistem akan otomatis mengarahkan Anda sebagai peserta atau admin.</p>
+
+                <h2 class="title-xl">
+                    Masuk ke Akun Anda
+                </h2>
+
+                <p class="subtitle">
+                    Gunakan username dan password. Sistem akan otomatis
+                    mengarahkan Anda sebagai peserta atau admin.
+                </p>
 
                 @if ($errors->any())
-                    <div class="alert error">{{ $errors->first() }}</div>
+                    <div class="alert error">
+                        {{ $errors->first() }}
+                    </div>
                 @endif
 
                 <form method="POST" action="{{ route('participant.login.submit') }}" class="form-grid">
                     @csrf
+
                     <label class="field">
                         <span>Username</span>
-                        <input type="text" name="username" value="{{ old('username') }}" required autocomplete="username" class="input">
+                        <input
+                            type="text"
+                            name="username"
+                            value="{{ old('username') }}"
+                            required
+                            autocomplete="username"
+                            class="input"
+                        >
                     </label>
+
                     <label class="field">
                         <span>Password</span>
+
                         <div class="password-input-wrap">
                             <input
                                 type="password"
@@ -39,6 +74,7 @@
                                 class="input password-input"
                                 data-password-input
                             >
+
                             <button
                                 type="button"
                                 class="password-toggle-btn"
@@ -50,7 +86,10 @@
                             </button>
                         </div>
                     </label>
-                    <button type="submit" class="btn btn-primary">Masuk Sistem</button>
+
+                    <button type="submit" class="btn btn-primary">
+                        Masuk Sistem
+                    </button>
                 </form>
             </div>
         </div>
@@ -69,11 +108,13 @@
                 <path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6z"></path>
                 <circle cx="12" cy="12" r="3"></circle>
             `;
+
             const eyeOffMarkup = `
                 <path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6z"></path>
                 <circle cx="12" cy="12" r="3"></circle>
                 <path d="M4 4l16 16"></path>
             `;
+
             const setIcon = (isRevealed) => {
                 icon.innerHTML = isRevealed ? eyeMarkup : eyeOffMarkup;
             };
@@ -82,9 +123,17 @@
 
             toggle.addEventListener('click', () => {
                 const reveal = input.type === 'password';
+
                 input.type = reveal ? 'text' : 'password';
-                toggle.setAttribute('aria-label', reveal ? 'Sembunyikan password' : 'Lihat password');
-                toggle.setAttribute('aria-pressed', reveal ? 'true' : 'false');
+                toggle.setAttribute(
+                    'aria-label',
+                    reveal ? 'Sembunyikan password' : 'Lihat password'
+                );
+                toggle.setAttribute(
+                    'aria-pressed',
+                    reveal ? 'true' : 'false'
+                );
+
                 setIcon(reveal);
             });
         })();
