@@ -1,7 +1,7 @@
 <x-layouts.admin
     title="Simulasi Tes"
     heading="Simulasi Tes Admin"
-    subtitle="Gunakan halaman ini untuk menguji UI/UX tes, timer, navigasi soal, dan submit jawaban."
+    subtitle="Halaman ini bertujuan untuk menguji UI/UX tes, timer, navigasi soal, dan submit jawaban."
 >
     @if ($simulation)
         @php
@@ -13,7 +13,7 @@
 
         <div class="participant-info-grid" style="margin-bottom: 1rem;">
             <article class="participant-card">
-                <h3 class="title-md" style="margin: 0;">Sesi Simulasi Terakhir</h3>
+                <h3 class="title-md" style="margin: 0;">Riwayat simulasi tes</h3>
                 <p class="subtitle" style="margin: 0;">{{ $isSubmitted ? 'Status: Sudah Disubmit' : 'Status: Sedang Berjalan' }}</p>
                 <p style="margin: 0;">Modul: <strong>{{ $simulation['module_name'] ?? '-' }}</strong></p>
                 <p style="margin: 0;">Jumlah soal: <strong>{{ $questionCount }}</strong></p>
