@@ -7,6 +7,7 @@ namespace Tests\Feature;
 use App\Models\ExamSession;
 use App\Models\ExamLocationSetting;
 use App\Models\ExamToken;
+use App\Models\Module;
 use App\Models\Participant;
 use App\Models\Question;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -20,8 +21,14 @@ class ParticipantExamFlowTest extends TestCase
 
     public function test_participant_can_login_start_exam_autosave_and_submit(): void
     {
+        $module = Module::query()->create([
+            'name' => 'Modul General',
+            'status' => true,
+        ]);
+
         $session = ExamSession::query()->create([
             'title' => 'Session Test',
+            'module_id' => $module->id,
             'start_time' => now()->subHour(),
             'end_time' => now()->addHour(),
             'duration_minutes' => 60,
@@ -48,7 +55,7 @@ class ParticipantExamFlowTest extends TestCase
         ]);
 
         $question = Question::query()->create([
-            'category' => 'General',
+            'module_id' => $module->id,
             'question' => 'Pertanyaan tes?',
             'order_no' => 1,
             'is_active' => true,
@@ -101,8 +108,21 @@ class ParticipantExamFlowTest extends TestCase
             'allowed_radius_meters' => 500,
         ]);
 
+        $module = Module::query()->create([
+            'name' => 'Modul Radius',
+            'status' => true,
+        ]);
+
+        Question::query()->create([
+            'module_id' => $module->id,
+            'question' => 'Pertanyaan radius?',
+            'order_no' => 1,
+            'is_active' => true,
+        ]);
+
         $session = ExamSession::query()->create([
             'title' => 'Session Radius RSUD',
+            'module_id' => $module->id,
             'start_time' => now()->subHour(),
             'end_time' => now()->addHour(),
             'duration_minutes' => 60,
@@ -154,8 +174,14 @@ class ParticipantExamFlowTest extends TestCase
             'allowed_radius_meters' => 500,
         ]);
 
+        $module = Module::query()->create([
+            'name' => 'Modul Radius Guard',
+            'status' => true,
+        ]);
+
         $session = ExamSession::query()->create([
             'title' => 'Session Radius Guard',
+            'module_id' => $module->id,
             'start_time' => now()->subHour(),
             'end_time' => now()->addHour(),
             'duration_minutes' => 60,
@@ -183,7 +209,7 @@ class ParticipantExamFlowTest extends TestCase
         ]);
 
         $question = Question::query()->create([
-            'category' => 'General',
+            'module_id' => $module->id,
             'question' => 'Pertanyaan guard?',
             'order_no' => 1,
             'is_active' => true,

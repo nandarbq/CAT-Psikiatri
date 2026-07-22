@@ -14,87 +14,32 @@
             answers: @js($reviewAnswers),
             answeredAt: @js($reviewAnsweredAt),
         })"
-        class="exam-shell exam-modern exam-review-shell"
+        class="exam-shell review-v2-shell"
     >
-        <header class="exam-header">
-            <div class="exam-header-main">
-                <p class="exam-kicker">Tinjau Jawaban Peserta</p>
-                <h2 class="exam-session-title">{{ $attempt->session->title }}</h2>
-                <div class="exam-meta-row">
-                    <span class="exam-chip">Peserta: {{ $attempt->participant->name }}</span>
-                    <span class="exam-chip">Pengerjaan #{{ $attempt->id }}</span>
-                    <span class="exam-chip">{{ $attempt->is_submitted ? 'Sudah Dikirim' : 'Belum Dikirim' }}</span>
-                </div>
-            </div>
-            <div class="exam-timer-card">
-                <p class="time-caption">Ringkasan Jawaban</p>
-                <strong class="time-value" x-text="`${answeredCount}/${questions.length}`"></strong>
-                <p class="time-subcaption" x-text="`${unansweredCount} soal belum dijawab`"></p>
-                <p class="review-summary-breakdown" x-text="`YA: ${yesCount} • TIDAK: ${noCount}`"></p>
+        <header class="review-v2-header">
+            <p class="exam-kicker">Tinjau Jawaban Peserta</p>
+            <h2 class="exam-session-title">{{ $attempt->session->title }}</h2>
+            <div class="exam-meta-row">
+                <span class="exam-chip">Peserta: {{ $attempt->participant->name }}</span>
+                <span class="exam-chip">Pengerjaan #{{ $attempt->id }}</span>
+                <span class="exam-chip">{{ $attempt->is_submitted ? 'Sudah Dikirim' : 'Belum Dikirim' }}</span>
             </div>
         </header>
 
-        <div class="exam-workspace">
-            <section class="exam-main">
-                <div class="progress-wrap">
-                    <div class="progress-label">
-                        <span x-text="`Soal ${currentQuestionNumber} dari ${questions.length}`"></span>
-                        <span x-text="`${answeredCount} terjawab • ${unansweredCount} belum`"></span>
-                    </div>
-                    <div class="progress-bar" role="progressbar" :aria-valuenow="progressPercent" aria-valuemin="0" aria-valuemax="100">
+        <div class="review-v2-grid">
+            <div class="review-v2-main">
+                <div class="review-v2-progress">
+                    <div class="review-v2-progress-track" role="progressbar" :aria-valuenow="progressPercent" aria-valuemin="0" aria-valuemax="100">
                         <span :style="`width:${progressPercent}%`"></span>
                     </div>
+                    <p class="review-v2-progress-label" x-text="`${answeredCount} Terjawab - ${unansweredCount} Belum`"></p>
                 </div>
 
-                <article class="question-card review-question-card" x-show="currentQuestion" x-ref="questionCard">
-                    <div class="question-head">
-                        <span class="question-number-badge" x-text="`No. ${currentQuestionNumber}`"></span>
-                        <p class="question-category" x-text="currentQuestion?.category || 'Umum'"></p>
-                    </div>
-                    <h3 class="question-text" x-text="currentQuestion?.question"></h3>
-
-                    <div class="answer-grid">
-                        <button
-                            type="button"
-                            class="btn-answer"
-                            :class="isAnswered(true) ? 'active-yes' : ''"
-                            disabled
-                        >YA</button>
-                        <button
-                            type="button"
-                            class="btn-answer"
-                            :class="isAnswered(false) ? 'active-no' : ''"
-                            disabled
-                        >TIDAK</button>
-                    </div>
-
-                    <p class="save-status" :class="answerStatusType" x-text="answerStatusLabel"></p>
-                    <p class="review-answer-time" x-show="currentAnsweredAt">
-                        Dijawab pada: <strong x-text="currentAnsweredAt"></strong>
-                    </p>
-                </article>
-
-                <div class="exam-actions">
-                    <button type="button" class="btn btn-ghost" @click="prevQuestion" :disabled="currentIndex === 0">Sebelumnya</button>
-                    <button type="button" class="btn btn-ghost" @click="nextQuestion" :disabled="currentIndex >= questions.length - 1">Berikutnya</button>
-                </div>
-            </section>
-
-            <aside class="exam-sidebar-nav" aria-label="Navigasi nomor soal">
-                <div class="question-nav-header">
-                    <strong>Navigasi Soal</strong>
-                    <div class="legend-wrap">
-                        <span class="legend-item"><i class="legend-dot active"></i>Aktif</span>
-                        <span class="legend-item"><i class="legend-dot yes"></i>YA</span>
-                        <span class="legend-item"><i class="legend-dot no"></i>TIDAK</span>
-                        <span class="legend-item"><i class="legend-dot empty"></i>Belum</span>
-                    </div>
-                </div>
-                <div class="question-grid">
+                <div class="review-v2-pillrow" aria-label="Navigasi nomor soal">
                     <template x-for="(question, index) in questions" :key="question.id">
                         <button
                             type="button"
-                            class="question-pill"
+                            class="review-v2-pill"
                             :class="questionStateClass(index)"
                             :aria-current="index === currentIndex ? 'true' : 'false'"
                             :aria-label="`Buka soal nomor ${index + 1}`"
@@ -103,6 +48,65 @@
                         ></button>
                     </template>
                 </div>
+
+                <article class="review-v2-card" x-show="currentQuestion" x-ref="questionCard">
+                    <p class="review-v2-card-label" x-text="`Soal Pertanyaan No.${currentQuestionNumber}`"></p>
+                    <p class="review-v2-card-question" x-text="currentQuestion?.question"></p>
+                </article>
+
+                <div class="review-v2-answers">
+                    <button
+                        type="button"
+                        class="review-v2-answer-btn"
+                        :class="isAnswered(true) ? 'is-yes-active' : ''"
+                        disabled
+                    >Ya</button>
+                    <button
+                        type="button"
+                        class="review-v2-answer-btn"
+                        :class="isAnswered(false) ? 'is-no-active' : ''"
+                        disabled
+                    >Tidak</button>
+                </div>
+
+                <div class="review-v2-footer">
+                    <p class="review-v2-time" x-text="currentAnsweredAt ? `Terjawab pada pukul ${currentAnsweredAt}` : 'Peserta belum menjawab soal ini'"></p>
+                    <div class="review-v2-nav-btns">
+                        <button type="button" class="btn btn-ghost" @click="prevQuestion" :disabled="currentIndex === 0">Sebelumnya</button>
+                        <button type="button" class="review-v2-next-btn" @click="nextQuestion" :disabled="currentIndex >= questions.length - 1">Selanjutnya</button>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="review-v2-summary" aria-label="Ringkasan jawaban">
+                <h3 class="review-v2-summary-title">Ringkasan Jawaban</h3>
+
+                <div class="review-v2-donut-wrap">
+                    <div class="review-v2-donut" :style="donutStyle">
+                        <div class="review-v2-donut-inner">
+                            <strong x-text="`${answeredCount}/${questions.length}`"></strong>
+                            <span>Terjawab</span>
+                        </div>
+                    </div>
+                </div>
+
+                <ul class="review-v2-legend">
+                    <li>
+                        <span class="review-v2-dot is-yes"></span>
+                        <span class="review-v2-legend-label">Jawaban Ya</span>
+                        <b x-text="yesCount"></b>
+                    </li>
+                    <li>
+                        <span class="review-v2-dot is-no"></span>
+                        <span class="review-v2-legend-label">Jawaban Tidak</span>
+                        <b x-text="noCount"></b>
+                    </li>
+                    <li>
+                        <span class="review-v2-dot is-empty"></span>
+                        <span class="review-v2-legend-label">Belum jawab</span>
+                        <b x-text="unansweredCount"></b>
+                    </li>
+                </ul>
             </aside>
         </div>
     </section>
@@ -152,40 +156,20 @@
                     return Math.round((this.answeredCount / this.questions.length) * 100);
                 },
 
+                get donutStyle() {
+                    const total = this.questions.length || 1;
+                    const yesEnd = (this.yesCount / total) * 100;
+                    const noEnd = yesEnd + (this.noCount / total) * 100;
+
+                    return `background: conic-gradient(#3E8A5D 0% ${yesEnd}%, #C76A60 ${yesEnd}% ${noEnd}%, #E1E9E8 ${noEnd}% 100%)`;
+                },
+
                 get currentAnsweredAt() {
                     if (!this.currentQuestion) {
                         return null;
                     }
 
                     return this.answeredAt[this.currentQuestion.id] ?? null;
-                },
-
-                get answerStatusType() {
-                    if (!this.currentQuestion) {
-                        return 'idle';
-                    }
-
-                    const answer = this.answers[this.currentQuestion.id];
-
-                    if (typeof answer === 'undefined') {
-                        return 'idle';
-                    }
-
-                    return 'success';
-                },
-
-                get answerStatusLabel() {
-                    if (!this.currentQuestion) {
-                        return 'Tidak ada soal untuk ditampilkan.';
-                    }
-
-                    const answer = this.answers[this.currentQuestion.id];
-
-                    if (typeof answer === 'undefined') {
-                        return 'Peserta belum menjawab soal ini.';
-                    }
-
-                    return answer ? 'Jawaban peserta: YA' : 'Jawaban peserta: TIDAK';
                 },
 
                 isAnswered(value) {

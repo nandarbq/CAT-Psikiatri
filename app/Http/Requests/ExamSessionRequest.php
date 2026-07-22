@@ -23,6 +23,7 @@ class ExamSessionRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:255'],
+            'module_id' => ['required', 'integer', 'exists:modules,id'],
             'start_time' => ['required', 'date'],
             'end_time' => ['required', 'date', 'after:start_time'],
             'duration_minutes' => ['required', 'integer', 'min:1', 'max:360'],

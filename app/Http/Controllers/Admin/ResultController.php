@@ -34,17 +34,19 @@ class ResultController extends Controller
         ]);
 
         $answersByQuestionId = $attempt->answers->keyBy('question_id');
+        $moduleName = (string) ($attempt->session?->module?->name ?? 'Modul');
 
         $reviewQuestions = Question::query()
+            ->where('module_id', $attempt->session->module_id)
             ->where('is_active', true)
             ->orderBy('order_no')
-            ->get(['id', 'category', 'question', 'order_no'])
-            ->map(function (Question $question) use ($answersByQuestionId): array {
+            ->get(['id', 'question', 'order_no'])
+            ->map(function (Question $question) use ($answersByQuestionId, $moduleName): array {
                 $answer = $answersByQuestionId->get($question->id);
 
                 return [
                     'id' => (int) $question->id,
-                    'category' => $question->category,
+                    'category' => $moduleName,
                     'question' => ($answer?->question_snapshot !== null && $answer->question_snapshot !== '')
                         ? $answer->question_snapshot
                         : $question->question,
@@ -61,7 +63,7 @@ class ResultController extends Controller
             ->values()
             ->map(fn ($answer, int $index): array => [
                 'id' => (int) $answer->question_id,
-                'category' => $answer->question?->category ?? 'Arsip Soal',
+                'category' => 'Arsip Soal',
                 'question' => $answer->question_snapshot,
                 'order_no' => $reviewQuestions->count() + $index + 1,
                 'answer' => $answer->answer,

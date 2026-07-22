@@ -53,7 +53,7 @@
 
 <div class="admin-nav-group">
     <span class="admin-nav-section">Materi Tes</span>
-    <a href="{{ route('admin.questions.index') }}" class="admin-nav-link {{ request()->routeIs('admin.questions*') ? 'is-active' : '' }}" title="Pustaka Soal">
+    <a href="{{ route('admin.modules.index') }}" class="admin-nav-link {{ request()->routeIs('admin.modules*') || request()->routeIs('admin.questions*') ? 'is-active' : '' }}" title="Pustaka Soal">
         <span class="admin-nav-link-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" role="presentation" focusable="false">
                 <path d="M6 2h9l5 5v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1zM14 2v6h6M8 12h8M8 16h8M8 8h3"></path>
@@ -61,13 +61,13 @@
         </span>
         <span class="admin-nav-link-label">Pustaka Soal</span>
     </a>
-    <a href="{{ route('admin.categories.index') }}" class="admin-nav-link {{ request()->routeIs('admin.categories*') ? 'is-active' : '' }}" title="Kategori">
+    <a href="{{ route('admin.simulation.index') }}" class="admin-nav-link {{ request()->routeIs('admin.simulation*') ? 'is-active' : '' }}" title="Simulasi Tes">
         <span class="admin-nav-link-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" role="presentation" focusable="false">
-                <path d="M3 3h8v8H3zM13 3h8v8h-8zM3 13h8v8H3zM13 13h8v8h-8z"></path>
+                <path d="M10 3h4M9 3h6M9 8h6M7 8h10M8 8l1 12h6l1-12M6 20h12"></path>
             </svg>
         </span>
-        <span class="admin-nav-link-label">Kategori</span>
+        <span class="admin-nav-link-label">Simulasi Tes</span>
     </a>
 </div>
 
@@ -80,14 +80,6 @@
             </svg>
         </span>
         <span class="admin-nav-link-label">Admin</span>
-    </a>
-    <a href="{{ route('admin.simulation.index') }}" class="admin-nav-link {{ request()->routeIs('admin.simulation*') ? 'is-active' : '' }}" title="Simulasi Tes">
-        <span class="admin-nav-link-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" role="presentation" focusable="false">
-                <path d="M10 3h4M9 3h6M9 8h6M7 8h10M8 8l1 12h6l1-12M6 20h12"></path>
-            </svg>
-        </span>
-        <span class="admin-nav-link-label">Simulasi Tes</span>
     </a>
     <a href="{{ route('admin.settings.index') }}" class="admin-nav-link {{ request()->routeIs('admin.settings*') ? 'is-active' : '' }}" title="Pengaturan">
         <span class="admin-nav-link-icon" aria-hidden="true">

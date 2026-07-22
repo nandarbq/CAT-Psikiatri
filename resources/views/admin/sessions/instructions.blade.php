@@ -61,8 +61,18 @@
                         <small class="field-help">Peserta akan melihat konten ini di halaman Akses Tes sebelum input token.</small>
                     </label>
 
-                    <button type="submit" class="btn btn-primary">Simpan Petunjuk</button>
+                    <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+                        <button type="submit" class="btn btn-primary">Simpan Petunjuk</button>
+                    </div>
                 </form>
+
+                @if (filled($selectedSession->instructions))
+                    <form method="POST" action="{{ route('admin.instructions.destroy', $selectedSession) }}" class="inline-form" data-confirm-message="Hapus panduan tes untuk sesi ini?" data-confirm-title="Konfirmasi Hapus" style="margin-top: 0.75rem;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-ghost">Hapus Panduan</button>
+                    </form>
+                @endif
             </section>
         @endif
     @endif

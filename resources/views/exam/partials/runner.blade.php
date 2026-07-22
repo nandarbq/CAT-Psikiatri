@@ -123,8 +123,26 @@
                 <p class="save-status" :class="statusType" x-text="saveStatus" aria-live="polite"></p>
 
                 <div class="exam-actions">
-                    <button type="button" class="btn btn-ghost" @click="prevQuestion" :disabled="currentIndex === 0 || isSaving || isSubmitting">Sebelumnya</button>
-                    <button type="button" class="btn btn-ghost" @click="nextQuestion" :disabled="currentIndex >= questions.length - 1 || isSaving || isSubmitting">Berikutnya</button>
+                    <button
+                        type="button"
+                        class="exam-nav-icon-btn"
+                        @click="prevQuestion"
+                        :disabled="currentIndex === 0 || isSaving || isSubmitting"
+                        title="Soal sebelumnya"
+                        aria-label="Soal sebelumnya"
+                    >
+                        <svg viewBox="0 0 24 24" role="presentation" focusable="false"><path d="M15 6l-6 6 6 6"></path></svg>
+                    </button>
+                    <button
+                        type="button"
+                        class="exam-nav-icon-btn"
+                        @click="nextQuestion"
+                        :disabled="currentIndex >= questions.length - 1 || isSaving || isSubmitting"
+                        title="Soal berikutnya"
+                        aria-label="Soal berikutnya"
+                    >
+                        <svg viewBox="0 0 24 24" role="presentation" focusable="false"><path d="M9 6l6 6-6 6"></path></svg>
+                    </button>
                 </div>
             </section>
 
@@ -569,11 +587,35 @@
                         this.answers[this.currentQuestion.id] = answer;
                         this.saveStatus = 'Tersimpan.';
                         this.statusType = 'success';
+
+                        if (this.answeredCount >= this.questions.length) {
+                            // Every question has an answer now — leave fullscreen
+                            // automatically so the finish/submit dialog is visible
+                            // without the participant needing to press Esc.
+                            this.exitFullscreenIfActive();
+                        }
+
+                        if (this.currentIndex < this.questions.length - 1) {
+                            window.setTimeout(() => {
+                                this.nextQuestion();
+                            }, 350);
+                        }
                     } catch (error) {
                         this.saveStatus = 'Gagal menyimpan. Coba lagi.';
                         this.statusType = 'error';
                     } finally {
                         this.isSaving = false;
+                    }
+                },
+
+                exitFullscreenIfActive() {
+                    if (typeof window.__examExitFullscreen === 'function') {
+                        window.__examExitFullscreen();
+                        return;
+                    }
+
+                    if (document.fullscreenElement) {
+                        document.exitFullscreen().catch(() => {});
                     }
                 },
 
@@ -671,6 +713,12 @@
                             throw new Error(data.message ?? 'Pengiriman jawaban akhir gagal.');
                         }
 
+                        // Tes sudah berhasil dikirim ke server: matikan proteksi
+                        // "tinggalkan halaman" dan keluar dari fullscreen sebelum
+                        // redirect, supaya browser tidak menampilkan dialog
+                        // konfirmasi native yang bisa membatalkan kepindahan halaman.
+                        window.__examSubmitted = true;
+                        this.exitFullscreenIfActive();
                         window.location.href = data.redirect;
                     } catch {
                         this.saveStatus = this.submitFailureStatus;
@@ -774,13 +822,32 @@
             const examSection = document.querySelector('.exam-shell');
             if (!overlay || !examSection) return;
 
-            const showOverlay = () => { overlay.hidden = false; };
+            const showOverlay = () => {
+                if (Date.now() < window.__examLockdownSuppressUntil) {
+                    return;
+                }
+                overlay.hidden = false;
+            };
             const hideOverlay = () => { overlay.hidden = true; };
+
+            window.__examLockdownSuppressUntil = 0;
+
+            // Exposed so the exam engine can leave fullscreen (e.g. once every
+            // question is answered, or right before the post-submit redirect)
+            // without that programmatic exit being mistaken for the participant
+            // switching tabs/apps.
+            window.__examExitFullscreen = () => {
+                window.__examLockdownSuppressUntil = Date.now() + 800;
+                if (document.fullscreenElement) {
+                    return document.exitFullscreen().catch(() => {});
+                }
+                return Promise.resolve();
+            };
 
             resumeBtn?.addEventListener('click', () => {
                 hideOverlay();
-                if (examSection.requestFullscreen && !document.fullscreenElement) {
-                    examSection.requestFullscreen().catch(() => {});
+                if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(() => {});
                 }
             });
 
@@ -821,14 +888,25 @@
             });
 
             window.addEventListener('beforeunload', (event) => {
+                // Once the exam has been submitted successfully we want the
+                // redirect to results/login to happen without the native
+                // "leave site?" prompt — cancelling that prompt used to leave
+                // the participant stuck on a finished exam page.
+                if (window.__examSubmitted) {
+                    return;
+                }
                 event.preventDefault();
                 event.returnValue = '';
             });
 
-            if (examSection.requestFullscreen) {
+            if (document.documentElement.requestFullscreen) {
                 const tryFullscreen = () => {
+                    // Fullscreen the whole page (not just the exam card) so that
+                    // dialogs/alerts appended to <body> — like the "Akhiri Tes"
+                    // confirmation — stay visible and clickable while fullscreen
+                    // is active, instead of being hidden until Esc is pressed.
                     if (!document.fullscreenElement) {
-                        examSection.requestFullscreen().catch(() => {});
+                        document.documentElement.requestFullscreen().catch(() => {});
                     }
                     document.removeEventListener('click', tryFullscreen);
                 };

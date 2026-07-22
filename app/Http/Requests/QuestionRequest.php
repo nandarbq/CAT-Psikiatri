@@ -20,10 +20,14 @@ class QuestionRequest extends FormRequest
      */
     public function rules(): array
     {
-        $maxOrder = max(1, (int) Question::query()->count());
+        /** @var Question|null $question */
+        $question = $this->route('question');
+        $moduleId = $question?->module_id;
+        $maxOrder = $moduleId !== null
+            ? max(1, (int) Question::query()->where('module_id', $moduleId)->count())
+            : 1;
 
         return [
-            'category_id' => ['required', 'integer', 'exists:master_categories,id'],
             'question' => ['required', 'string', 'max:10000'],
             'order_no' => ['required', 'integer', 'min:1', 'max:'.$maxOrder],
             'is_active' => ['required', 'boolean'],

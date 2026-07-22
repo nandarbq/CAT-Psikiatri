@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ExamSessionRequest;
 use App\Models\ExamSession;
+use App\Models\Module;
 use App\Models\Participant;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
@@ -45,6 +46,7 @@ class ExamSessionController extends Controller
             'session' => new ExamSession(),
             'hasAttempts' => false,
             'isEdit' => false,
+            'moduleOptions' => Module::query()->orderBy('name')->get(['id', 'name', 'status']),
         ]);
     }
 
@@ -61,6 +63,7 @@ class ExamSessionController extends Controller
             'session' => $session,
             'hasAttempts' => $session->attempts()->exists(),
             'isEdit' => true,
+            'moduleOptions' => Module::query()->orderBy('name')->get(['id', 'name', 'status']),
         ]);
     }
 
@@ -72,11 +75,12 @@ class ExamSessionController extends Controller
             || ! CarbonImmutable::parse($session->end_time)->equalTo(CarbonImmutable::parse((string) $payload['end_time']))
             || (int) $session->duration_minutes !== (int) $payload['duration_minutes'];
         $accessConfigChanged = ($session->access_mode ?? ExamSession::ACCESS_MODE_ONLINE) !== (string) $payload['access_mode'];
+        $moduleChanged = (int) $session->module_id !== (int) $payload['module_id'];
 
-        if ($hasAttempts && ($timeConfigChanged || $accessConfigChanged)) {
+        if ($hasAttempts && ($timeConfigChanged || $accessConfigChanged || $moduleChanged)) {
             return back()
                 ->withInput()
-                ->withErrors(['session' => 'Sesi yang sudah memiliki riwayat pengerjaan tidak boleh mengubah waktu mulai, waktu selesai, durasi, atau konfigurasi akses lokasi.']);
+                ->withErrors(['session' => 'Sesi yang sudah memiliki riwayat pengerjaan tidak boleh mengubah waktu mulai, waktu selesai, durasi, modul soal, atau konfigurasi akses lokasi.']);
         }
 
         $session->update($payload);
@@ -305,6 +309,15 @@ class ExamSessionController extends Controller
         return redirect()
             ->route('admin.instructions.index', ['session_id' => $session->id])
             ->with('success', 'Petunjuk tes berhasil diperbarui.');
+    }
+
+    public function destroyInstructions(ExamSession $session): RedirectResponse
+    {
+        $session->update(['instructions' => null]);
+
+        return redirect()
+            ->route('admin.instructions.index', ['session_id' => $session->id])
+            ->with('success', 'Panduan tes berhasil dihapus.');
     }
 
 }

@@ -14,8 +14,7 @@ class Question extends Model
     use HasFactory;
 
     protected $fillable = [
-        'category',
-        'category_id',
+        'module_id',
         'question',
         'order_no',
         'is_active',
@@ -33,8 +32,8 @@ class Question extends Model
         return $this->hasMany(ParticipantAnswer::class, 'question_id');
     }
 
-    public function masterCategory(): BelongsTo
+    public function module(): BelongsTo
     {
-        return $this->belongsTo(MasterCategory::class, 'category_id');
+        return $this->belongsTo(Module::class, 'module_id');
     }
 }

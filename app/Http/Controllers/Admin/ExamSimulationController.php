@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Module;
+use App\Models\Question;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,28 +22,55 @@ class ExamSimulationController extends Controller
     {
         return view('admin.simulation.index', [
             'simulation' => $this->readSimulation($request),
+            'modules' => Module::query()
+                ->withCount('activeQuestions')
+                ->orderBy('name')
+                ->get(),
         ]);
     }
 
     public function start(Request $request): RedirectResponse
     {
         $payload = $request->validate([
+            'module_id' => ['required', 'integer', 'exists:modules,id'],
             'duration_minutes' => ['required', 'integer', 'min:1', 'max:300'],
-            'question_count' => ['required', 'integer', 'min:5', 'max:200'],
         ]);
 
+        $module = Module::query()->findOrFail((int) $payload['module_id']);
+
+        $questions = Question::query()
+            ->where('module_id', $module->id)
+            ->where('is_active', true)
+            ->orderBy('order_no')
+            ->get(['id', 'question', 'order_no'])
+            ->map(fn (Question $question): array => [
+                'id' => (int) $question->id,
+                'category' => $module->name,
+                'question' => $question->question,
+                'order_no' => (int) $question->order_no,
+            ])
+            ->values()
+            ->all();
+
+        if ($questions === []) {
+            return back()->withErrors([
+                'module_id' => 'Modul yang dipilih belum memiliki soal aktif. Tambahkan soal terlebih dahulu.',
+            ]);
+        }
+
         $durationMinutes = (int) $payload['duration_minutes'];
-        $questionCount = (int) $payload['question_count'];
         $startedAt = now();
         $deadlineAt = (clone $startedAt)->addMinutes($durationMinutes);
 
         $simulation = [
             'id' => (string) Str::uuid(),
+            'module_id' => $module->id,
+            'module_name' => $module->name,
             'started_at' => $startedAt->toIso8601String(),
             'deadline_at' => $deadlineAt->toIso8601String(),
             'duration_minutes' => $durationMinutes,
-            'question_count' => $questionCount,
-            'questions' => $this->generateQuestions($questionCount),
+            'question_count' => count($questions),
+            'questions' => $questions,
             'answers' => [],
             'current_index' => 0,
             'is_submitted' => false,
@@ -52,7 +81,7 @@ class ExamSimulationController extends Controller
 
         return redirect()
             ->route('admin.simulation.run')
-            ->with('success', "Simulasi baru dimulai: {$questionCount} soal, {$durationMinutes} menit.");
+            ->with('success', "Simulasi baru dimulai: modul {$module->name}, ".count($questions)." soal, {$durationMinutes} menit.");
     }
 
     public function run(Request $request): View|RedirectResponse
@@ -61,7 +90,7 @@ class ExamSimulationController extends Controller
         if ($simulation === null) {
             return redirect()
                 ->route('admin.simulation.index')
-                ->withErrors(['simulation' => 'Belum ada simulasi aktif. Atur durasi dan jumlah soal terlebih dahulu.']);
+                ->withErrors(['simulation' => 'Belum ada simulasi aktif. Pilih modul terlebih dahulu.']);
         }
 
         if ((bool) ($simulation['is_submitted'] ?? false) === true) {
@@ -81,6 +110,7 @@ class ExamSimulationController extends Controller
             'durationMinutes' => (int) ($simulation['duration_minutes'] ?? 0),
             'questionCount' => (int) ($simulation['question_count'] ?? count($questions)),
             'startedAt' => (string) ($simulation['started_at'] ?? now()->toIso8601String()),
+            'moduleName' => (string) ($simulation['module_name'] ?? 'Modul'),
         ]);
     }
 
@@ -213,53 +243,6 @@ class ExamSimulationController extends Controller
             'scorePercent' => $scorePercent,
             'durationUsedSeconds' => $durationUsedSeconds,
         ]);
-    }
-
-    /**
-     * @return array<int, array{id:int,category:string,question:string,order_no:int}>
-     */
-    private function generateQuestions(int $count): array
-    {
-        $categories = ['Atensi', 'Konsistensi', 'Stabilitas Emosi', 'Daya Tahan', 'Adaptasi'];
-        $stems = [
-            'Saya merasa mampu mempertahankan fokus kerja meskipun ada gangguan kecil di sekitar.',
-            'Saya cenderung meninjau ulang keputusan penting sebelum mengeksekusinya.',
-            'Saya tetap tenang ketika menerima tekanan target yang ketat dari atasan.',
-            'Saya dapat menyelesaikan tugas dengan ritme yang konsisten sampai batas waktu.',
-            'Saya cepat menyesuaikan diri ketika prioritas kerja berubah secara mendadak.',
-            'Saya masih bisa berpikir jernih saat menghadapi beberapa tugas sekaligus.',
-            'Saya mengelola energi dengan baik agar produktif dari awal sampai akhir jam kerja.',
-            'Saya berusaha menjaga kualitas hasil kerja meskipun waktu pengerjaan terbatas.',
-        ];
-
-        $questions = [];
-        for ($i = 1; $i <= $count; $i++) {
-            $category = $categories[($i - 1) % count($categories)];
-            $stem = $stems[($i - 1) % count($stems)];
-            $variation = $this->loremVariation($i);
-
-            $questions[] = [
-                'id' => $i,
-                'category' => $category,
-                'question' => "Simulasi #{$i}. {$stem} {$variation}",
-                'order_no' => $i,
-            ];
-        }
-
-        return $questions;
-    }
-
-    private function loremVariation(int $seed): string
-    {
-        $variants = [
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-            'Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-            'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-            'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
-            'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-        ];
-
-        return $variants[$seed % count($variants)];
     }
 
     /**

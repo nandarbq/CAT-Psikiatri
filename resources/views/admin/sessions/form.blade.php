@@ -26,6 +26,23 @@
                 <input class="input" type="text" name="title" required value="{{ old('title', $session->title) }}">
             </label>
             <label @class(['field', 'is-disabled' => $hasAttempts])>
+                <span>Modul Soal</span>
+                <select class="input" name="module_id" required @disabled($hasAttempts)>
+                    <option value="">Pilih Modul</option>
+                    @foreach ($moduleOptions as $moduleOption)
+                        <option value="{{ $moduleOption->id }}" @selected((string) old('module_id', $session->module_id) === (string) $moduleOption->id)>
+                            {{ $moduleOption->name }}{{ $moduleOption->status ? '' : ' (Nonaktif)' }}
+                        </option>
+                    @endforeach
+                </select>
+                @if ($moduleOptions->isEmpty())
+                    <small class="field-help">Belum ada modul soal. Buat modul terlebih dahulu di menu Pustaka Soal.</small>
+                @endif
+                @if ($hasAttempts)
+                    <input type="hidden" name="module_id" value="{{ old('module_id', $session->module_id) }}">
+                @endif
+            </label>
+            <label @class(['field', 'is-disabled' => $hasAttempts])>
                 <span>Waktu Mulai</span>
                 <input class="input" type="datetime-local" name="start_time" required value="{{ old('start_time', optional($session->start_time)->format('Y-m-d\TH:i')) }}" @disabled($hasAttempts)>
                 @if ($hasAttempts)

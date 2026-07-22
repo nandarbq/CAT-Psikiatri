@@ -10,19 +10,19 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('master_categories', function (Blueprint $table): void {
+        Schema::create('modules', function (Blueprint $table): void {
             $table->id();
-            $table->string('name', 120)->unique();
-            $table->string('slug', 140)->unique();
-            $table->boolean('is_active')->default(true);
+            $table->string('name', 150);
+            $table->text('description')->nullable();
+            $table->boolean('status')->default(true);
             $table->timestamps();
 
-            $table->index(['is_active', 'name']);
+            $table->index(['status', 'name']);
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('master_categories');
+        Schema::dropIfExists('modules');
     }
 };

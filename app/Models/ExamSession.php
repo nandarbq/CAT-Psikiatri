@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ExamSession extends Model
@@ -18,6 +19,7 @@ class ExamSession extends Model
 
     protected $fillable = [
         'title',
+        'module_id',
         'start_time',
         'end_time',
         'duration_minutes',
@@ -39,6 +41,11 @@ class ExamSession extends Model
     public function isOnsiteRadiusOnly(): bool
     {
         return $this->access_mode === self::ACCESS_MODE_ONSITE_RADIUS;
+    }
+
+    public function module(): BelongsTo
+    {
+        return $this->belongsTo(Module::class, 'module_id');
     }
 
     public function participants(): HasMany

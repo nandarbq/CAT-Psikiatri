@@ -8,6 +8,7 @@ use App\Models\ExamAttempt;
 use App\Models\ExamLocationSetting;
 use App\Models\ExamSession;
 use App\Models\ExamToken;
+use App\Models\Module;
 use App\Models\Participant;
 use App\Models\ParticipantAnswer;
 use App\Models\Question;
@@ -35,6 +36,22 @@ class AdminAuthTest extends TestCase
         $this->actingAs($admin);
     }
 
+    private ?int $defaultModuleId = null;
+
+    private function defaultModuleId(): int
+    {
+        if ($this->defaultModuleId !== null) {
+            return $this->defaultModuleId;
+        }
+
+        $module = Module::query()->firstOrCreate(
+            ['name' => 'Modul Uji Coba'],
+            ['status' => true],
+        );
+
+        return $this->defaultModuleId = $module->id;
+    }
+
     public function test_guest_is_redirected_to_admin_login_for_protected_routes(): void
     {
         $this->get('/admin/sessions')->assertRedirect(route('participant.login'));
@@ -60,7 +77,7 @@ class AdminAuthTest extends TestCase
         $this->get(route('admin.settings.index', ['tab' => 'location']))->assertOk();
         $this->get('/admin/participants')->assertOk();
         $this->get('/admin/tokens')->assertOk();
-        $this->get('/admin/questions')->assertOk();
+        $this->get('/admin/modules')->assertOk();
     }
 
     public function test_admin_can_export_summary_csv_and_excel(): void
@@ -69,6 +86,7 @@ class AdminAuthTest extends TestCase
 
         $session = ExamSession::query()->create([
             'title' => 'Sesi Export',
+            'module_id' => $this->defaultModuleId(),
             'start_time' => now()->subHour(),
             'end_time' => now()->addHour(),
             'duration_minutes' => 60,
@@ -88,7 +106,7 @@ class AdminAuthTest extends TestCase
         ]);
 
         $question = Question::query()->create([
-            'category' => 'General',
+            'module_id' => $session->module_id,
             'question' => 'Q?',
             'order_no' => 1,
             'is_active' => true,
@@ -143,6 +161,7 @@ class AdminAuthTest extends TestCase
 
         $session = ExamSession::query()->create([
             'title' => 'Sesi Ditutup',
+            'module_id' => $this->defaultModuleId(),
             'start_time' => now()->subHours(2),
             'end_time' => now()->addHour(),
             'duration_minutes' => 60,
@@ -192,6 +211,7 @@ class AdminAuthTest extends TestCase
 
         $session = ExamSession::query()->create([
             'title' => 'Sesi Dibuka Ulang',
+            'module_id' => $this->defaultModuleId(),
             'start_time' => now()->subHours(2),
             'end_time' => now()->addHour(),
             'duration_minutes' => 60,
@@ -219,6 +239,7 @@ class AdminAuthTest extends TestCase
 
         $sourceSession = ExamSession::query()->create([
             'title' => 'Sesi Sumber',
+            'module_id' => $this->defaultModuleId(),
             'start_time' => now()->subHour(),
             'end_time' => now()->addHour(),
             'duration_minutes' => 60,
@@ -227,6 +248,7 @@ class AdminAuthTest extends TestCase
         ]);
         $targetSession = ExamSession::query()->create([
             'title' => 'Sesi Tujuan',
+            'module_id' => $this->defaultModuleId(),
             'start_time' => now()->subHour(),
             'end_time' => now()->addHours(2),
             'duration_minutes' => 90,
@@ -286,6 +308,7 @@ class AdminAuthTest extends TestCase
 
         $sourceSession = ExamSession::query()->create([
             'title' => 'Sesi Sumber Locked',
+            'module_id' => $this->defaultModuleId(),
             'start_time' => now()->subHour(),
             'end_time' => now()->addHour(),
             'duration_minutes' => 60,
@@ -294,6 +317,7 @@ class AdminAuthTest extends TestCase
         ]);
         $targetSession = ExamSession::query()->create([
             'title' => 'Sesi Tujuan Locked',
+            'module_id' => $this->defaultModuleId(),
             'start_time' => now()->subHour(),
             'end_time' => now()->addHours(2),
             'duration_minutes' => 90,
@@ -342,6 +366,7 @@ class AdminAuthTest extends TestCase
 
         $sessionA = ExamSession::query()->create([
             'title' => 'Sesi A',
+            'module_id' => $this->defaultModuleId(),
             'start_time' => now()->subHour(),
             'end_time' => now()->addHour(),
             'duration_minutes' => 60,
@@ -349,6 +374,7 @@ class AdminAuthTest extends TestCase
         ]);
         $sessionB = ExamSession::query()->create([
             'title' => 'Sesi B',
+            'module_id' => $this->defaultModuleId(),
             'start_time' => now()->subHour(),
             'end_time' => now()->addHours(2),
             'duration_minutes' => 90,
@@ -404,6 +430,7 @@ class AdminAuthTest extends TestCase
 
         $sessionA = ExamSession::query()->create([
             'title' => 'Sesi Lama',
+            'module_id' => $this->defaultModuleId(),
             'start_time' => now()->subHours(3),
             'end_time' => now()->subHour(),
             'duration_minutes' => 60,
@@ -411,6 +438,7 @@ class AdminAuthTest extends TestCase
         ]);
         $sessionB = ExamSession::query()->create([
             'title' => 'Sesi Baru',
+            'module_id' => $this->defaultModuleId(),
             'start_time' => now()->subHour(),
             'end_time' => now()->addHours(2),
             'duration_minutes' => 90,
@@ -466,6 +494,7 @@ class AdminAuthTest extends TestCase
 
         $session = ExamSession::query()->create([
             'title' => 'Locked Session',
+            'module_id' => $this->defaultModuleId(),
             'start_time' => now()->subHour(),
             'end_time' => now()->addHour(),
             'duration_minutes' => 60,
@@ -518,6 +547,7 @@ class AdminAuthTest extends TestCase
 
         $session = ExamSession::query()->create([
             'title' => 'Token Session',
+            'module_id' => $this->defaultModuleId(),
             'start_time' => now()->subHour(),
             'end_time' => now()->addHour(),
             'duration_minutes' => 60,
@@ -564,6 +594,7 @@ class AdminAuthTest extends TestCase
 
         $sessionA = ExamSession::query()->create([
             'title' => 'Session A',
+            'module_id' => $this->defaultModuleId(),
             'start_time' => now()->subHour(),
             'end_time' => now()->addHour(),
             'duration_minutes' => 60,
@@ -571,6 +602,7 @@ class AdminAuthTest extends TestCase
         ]);
         $sessionB = ExamSession::query()->create([
             'title' => 'Session B',
+            'module_id' => $this->defaultModuleId(),
             'start_time' => now()->subHour(),
             'end_time' => now()->addHour(),
             'duration_minutes' => 60,

@@ -27,10 +27,20 @@ class ExamController extends Controller
             return redirect()->route('exam.access');
         }
 
+        $moduleName = (string) ($attempt->session?->module?->name ?? 'Modul');
+
         $questions = Question::query()
+            ->where('module_id', $attempt->session->module_id)
             ->where('is_active', true)
             ->orderBy('order_no')
-            ->get(['id', 'category', 'question', 'order_no']);
+            ->get(['id', 'question', 'order_no'])
+            ->map(fn (Question $question): array => [
+                'id' => (int) $question->id,
+                'category' => $moduleName,
+                'question' => $question->question,
+                'order_no' => (int) $question->order_no,
+            ])
+            ->all();
 
         // Urutan soal diacak per peserta (per attempt) supaya peserta yang duduk
         // berdekatan tidak melihat soal yang sama di layar yang sama pada saat
@@ -38,14 +48,14 @@ class ExamController extends Controller
         // attempt supaya urutannya tetap konsisten setiap kali halaman di-reload
         // atau tes dilanjutkan, bukan acak ulang tiap request.
         $randomizer = new \Random\Randomizer(new \Random\Engine\Mt19937($attempt->id));
-        $questions = collect($randomizer->shuffleArray($questions->all()));
+        $questions = collect($randomizer->shuffleArray($questions));
 
         $answers = $attempt->answers()
             ->get(['question_id', 'answer'])
             ->mapWithKeys(fn ($item): array => [(int) $item->question_id => (bool) $item->answer])
             ->all();
 
-        $currentIndex = max(0, $questions->search(fn (Question $question): bool => $question->order_no === $attempt->current_question));
+        $currentIndex = max(0, $questions->search(fn (array $question): bool => $question['order_no'] === $attempt->current_question));
         $sessionAttemptNumber = ExamAttempt::query()
             ->where('participant_id', $attempt->participant_id)
             ->where('session_id', $attempt->session_id)

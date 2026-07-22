@@ -18,28 +18,26 @@
     >
         <aside class="admin-topbar" :class="[menuOpen ? 'is-open' : '', collapsed ? 'is-collapsed' : '']">
             <div class="admin-topbar-row">
-                <div class="admin-topbar-row-head">
-                    <div class="admin-brand">
-                        <img src="{{ asset('assets/logo-rsud-blambangan.png') }}" alt="Logo RSUD Blambangan" class="admin-brand-logo">
-                        <div class="admin-brand-meta">
-                            <p class="admin-brand-mark">RSUD Blambangan</p>
-                            <strong>Psikiatri CAT &middot; Panel Admin</strong>
-                        </div>
+                <div class="admin-brand">
+                    <img src="{{ asset('assets/logo-rsud-blambangan.png') }}" alt="Logo RSUD Blambangan" class="admin-brand-logo">
+                    <div class="admin-brand-meta">
+                        <p class="admin-brand-mark">RSUD Blambangan</p>
+                        <strong>Psikiatri CAT &middot; Panel Admin</strong>
                     </div>
-
-                    <button
-                        type="button"
-                        class="admin-sidebar-collapse-btn"
-                        @click="collapsed = !collapsed; localStorage.setItem('admin_sidebar_collapsed', collapsed ? '1' : '0')"
-                        :aria-expanded="String(!collapsed)"
-                        :title="collapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'"
-                        :aria-label="collapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'"
-                    >
-                        <svg class="admin-sidebar-collapse-icon" :class="collapsed ? 'is-collapsed' : ''" viewBox="0 0 24 24" role="presentation" focusable="false">
-                            <path d="M15 6l-6 6 6 6"></path>
-                        </svg>
-                    </button>
                 </div>
+
+                <button
+                    type="button"
+                    class="admin-sidebar-collapse-btn"
+                    @click="collapsed = !collapsed; localStorage.setItem('admin_sidebar_collapsed', collapsed ? '1' : '0')"
+                    :aria-expanded="String(!collapsed)"
+                    :title="collapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'"
+                    :aria-label="collapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'"
+                >
+                    <svg class="admin-sidebar-collapse-icon" :class="collapsed ? 'is-collapsed' : ''" viewBox="0 0 24 24" role="presentation" focusable="false">
+                        <path d="M15 6l-6 6 6 6"></path>
+                    </svg>
+                </button>
             </div>
 
             <nav id="admin-topbar-nav" class="admin-topbar-nav" :class="menuOpen ? 'is-open' : ''" aria-label="Navigasi Admin">

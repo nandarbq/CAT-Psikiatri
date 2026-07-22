@@ -13,6 +13,9 @@ return new class extends Migration
         Schema::create('exam_sessions', function (Blueprint $table): void {
             $table->id();
             $table->string('title');
+            $table->foreignId('module_id')
+                ->constrained('modules')
+                ->restrictOnDelete();
             $table->dateTime('start_time');
             $table->dateTime('end_time');
             $table->unsignedInteger('duration_minutes');

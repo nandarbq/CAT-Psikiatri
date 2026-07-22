@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Models\ExamAttempt;
 use App\Models\ExamToken;
 use App\Models\Participant;
+use App\Models\Question;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -50,6 +51,18 @@ class StartExamService
         }
 
         $this->validateSessionService->ensureSessionActive($participant->session);
+
+        $hasActiveQuestions = Question::query()
+            ->where('module_id', $participant->session->module_id)
+            ->where('is_active', true)
+            ->exists();
+
+        if (! $hasActiveQuestions) {
+            throw ValidationException::withMessages([
+                'session' => 'Modul soal pada sesi ini belum memiliki soal aktif. Hubungi admin.',
+            ]);
+        }
+
         $this->validateSessionService->ensureSessionLocationAccess(
             $participant->session,
             $this->toNullableFloat($request->input('latitude')),

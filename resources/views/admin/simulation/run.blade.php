@@ -10,8 +10,9 @@
     'backUrl' => route('admin.simulation.index'),
     'backLabel' => 'Kembali ke Pengaturan',
     'examKicker' => 'Mode Pengujian Admin',
-    'sessionTitle' => 'Simulasi Tes Internal',
+    'sessionTitle' => 'Simulasi Tes Internal — '.$moduleName,
     'metaChips' => [
+        'Modul: '.$moduleName,
         'Durasi: '.$durationMinutes.' menit',
         'Jumlah Soal: '.$questionCount,
     ],

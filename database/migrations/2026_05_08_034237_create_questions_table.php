@@ -12,13 +12,15 @@ return new class extends Migration
     {
         Schema::create('questions', function (Blueprint $table): void {
             $table->id();
-            $table->string('category')->nullable();
+            $table->foreignId('module_id')
+                ->constrained('modules')
+                ->restrictOnDelete();
             $table->text('question');
             $table->unsignedInteger('order_no');
             $table->boolean('is_active')->default(true);
             $table->timestamps();
 
-            $table->index(['is_active', 'order_no']);
+            $table->index(['module_id', 'is_active', 'order_no']);
         });
     }
 

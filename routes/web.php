@@ -8,7 +8,7 @@ use App\Http\Controllers\Admin\ExamSessionController;
 use App\Http\Controllers\Admin\ExamSimulationController;
 use App\Http\Controllers\Admin\SystemSettingController;
 use App\Http\Controllers\Admin\ExamTokenController;
-use App\Http\Controllers\Admin\MasterCategoryController;
+use App\Http\Controllers\Admin\ModuleController;
 use App\Http\Controllers\Admin\ParticipantController;
 use App\Http\Controllers\Admin\QuestionController;
 use App\Http\Controllers\Admin\ResultController;
@@ -85,6 +85,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         });
         Route::get('/instructions', [ExamSessionController::class, 'instructions'])->name('instructions.index');
         Route::put('/instructions/{session}', [ExamSessionController::class, 'updateInstructions'])->name('instructions.update');
+        Route::delete('/instructions/{session}', [ExamSessionController::class, 'destroyInstructions'])->name('instructions.destroy');
         Route::get('/sessions/{session}/participants/bulk', [ExamSessionController::class, 'participantsBulkForm'])->name('sessions.participants.bulk.form');
         Route::post('/sessions/{session}/participants/bulk', [ExamSessionController::class, 'participantsBulkStore'])->name('sessions.participants.bulk.store');
         Route::post('/sessions/{session}/status', [ExamSessionController::class, 'updateStatus'])->name('sessions.status');
@@ -103,12 +104,12 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::get('/tokens/bulk', [ExamTokenController::class, 'bulkForm'])->name('tokens.bulk.form');
         Route::post('/tokens/bulk', [ExamTokenController::class, 'bulk'])->name('tokens.bulk');
         Route::post('/tokens/generate', [ExamTokenController::class, 'generate'])->name('tokens.generate');
-        Route::resource('categories', MasterCategoryController::class)->except(['show'])->parameters([
-            'categories' => 'category',
-        ]);
-        Route::post('/categories/bulk', [MasterCategoryController::class, 'bulk'])->name('categories.bulk');
-        Route::resource('questions', QuestionController::class)->except(['show']);
+        Route::post('/modules/{module}/status', [ModuleController::class, 'updateStatus'])->name('modules.status');
+        Route::post('/modules/{module}/questions', [ModuleController::class, 'addQuestions'])->name('modules.questions.store');
+        Route::resource('modules', ModuleController::class)->except(['show']);
         Route::post('/questions/reorder', [QuestionController::class, 'reorder'])->name('questions.reorder');
-        Route::post('/questions/bulk', [QuestionController::class, 'bulk'])->name('questions.bulk');
+        Route::get('/questions/{question}/edit', [QuestionController::class, 'edit'])->name('questions.edit');
+        Route::put('/questions/{question}', [QuestionController::class, 'update'])->name('questions.update');
+        Route::delete('/questions/{question}', [QuestionController::class, 'destroy'])->name('questions.destroy');
     });
 });

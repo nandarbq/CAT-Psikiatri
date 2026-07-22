@@ -7,7 +7,7 @@ namespace Database\Seeders;
 use App\Models\ExamSession;
 use App\Models\ExamLocationSetting;
 use App\Models\ExamToken;
-use App\Models\MasterCategory;
+use App\Models\Module;
 use App\Models\Participant;
 use App\Models\Question;
 use App\Models\User;
@@ -37,9 +37,39 @@ class DatabaseSeeder extends Seeder
             ],
         );
 
+        $module = Module::query()->updateOrCreate(
+            ['name' => 'Modul Umum'],
+            [
+                'description' => 'Modul soal contoh untuk pengujian sistem CAT Psikiatri.',
+                'status' => true,
+            ],
+        );
+
+        foreach ([
+            'Saya merasa mudah fokus dalam pekerjaan harian.',
+            'Saya sering menunda tugas sampai mendekati tenggat waktu.',
+            'Saya nyaman bekerja sama dalam tim.',
+            'Saya mudah merasa cemas saat menghadapi perubahan.',
+            'Saya bisa mempertahankan rutinitas kerja dengan konsisten.',
+            'Saya cenderung mengambil keputusan dengan cepat.',
+            'Saya menikmati tantangan yang membutuhkan analisis mendalam.',
+            'Saya sering merasa lelah meskipun pekerjaan belum banyak.',
+            'Saya tetap tenang saat menerima kritik.',
+            'Saya mampu menyelesaikan tugas sesuai prioritas.',
+        ] as $index => $text) {
+            Question::query()->updateOrCreate(
+                ['module_id' => $module->id, 'order_no' => $index + 1],
+                [
+                    'question' => $text,
+                    'is_active' => true,
+                ],
+            );
+        }
+
         $session = ExamSession::query()->updateOrCreate(
             ['title' => 'CAT Psikiatri Session A'],
             [
+                'module_id' => $module->id,
                 'start_time' => now()->subHour(),
                 'end_time' => now()->addHours(3),
                 'duration_minutes' => 90,
@@ -75,37 +105,6 @@ class DatabaseSeeder extends Seeder
             'is_active' => true,
             'expires_at' => null,
         ])->save();
-
-        $generalCategory = MasterCategory::query()->updateOrCreate(
-            ['slug' => 'general'],
-            [
-                'name' => 'General',
-                'is_active' => true,
-            ],
-        );
-
-        foreach ([
-            'Saya merasa mudah fokus dalam pekerjaan harian.',
-            'Saya sering menunda tugas sampai mendekati tenggat waktu.',
-            'Saya nyaman bekerja sama dalam tim.',
-            'Saya mudah merasa cemas saat menghadapi perubahan.',
-            'Saya bisa mempertahankan rutinitas kerja dengan konsisten.',
-            'Saya cenderung mengambil keputusan dengan cepat.',
-            'Saya menikmati tantangan yang membutuhkan analisis mendalam.',
-            'Saya sering merasa lelah meskipun pekerjaan belum banyak.',
-            'Saya tetap tenang saat menerima kritik.',
-            'Saya mampu menyelesaikan tugas sesuai prioritas.',
-        ] as $index => $text) {
-            Question::query()->updateOrCreate(
-                ['order_no' => $index + 1],
-                [
-                    'category_id' => $generalCategory->id,
-                    'category' => 'General',
-                    'question' => $text,
-                    'is_active' => true,
-                ],
-            );
-        }
     }
 
     private function resolveSeedToken(string $preferredToken, ?int $ignoreId = null): string
