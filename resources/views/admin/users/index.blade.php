@@ -1,7 +1,7 @@
 <x-layouts.admin
     title="Manajemen Admin"
     heading="Manajemen Admin"
-    subtitle="Kelola akun operator internal. Akun peserta tetap dikelola pada menu Peserta."
+    subtitle="Admin dapat menambahkan akun admin lain. Akun peserta tetap dikelola pada menu Peserta."
 >
     <x-slot:actions>
         <a href="{{ route('admin.users.create') }}" class="btn btn-primary">Buat Akun Admin</a>
