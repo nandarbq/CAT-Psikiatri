@@ -172,14 +172,25 @@ body {
     gap: 0.75rem;
 }
 
+.auth-split-brand-header {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+}
+
+.auth-split-brand-header-text {
+    display: grid;
+    gap: 0.3rem;
+}
+
 .auth-split-logo {
     width: 56px;
     height: 56px;
+    flex-shrink: 0;
     object-fit: contain;
     border-radius: 0.6rem;
     background: #FFFFFF;
     padding: 0.4rem;
-    margin-bottom: 0.4rem;
 }
 
 .auth-split-kicker {

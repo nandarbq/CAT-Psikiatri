@@ -2,9 +2,13 @@
     <section class="auth-split">
         <div class="auth-split-brand">
             <div class="auth-split-brand-inner">
-                <img src="{{ asset('assets/logo-rsud-blambangan.png') }}" alt="Logo RSUD Blambangan" class="auth-split-logo">
-                <p class="auth-split-kicker">RSUD Blambangan</p>
-                <h1 class="auth-split-title">Sistem CAT Psikiatri</h1>
+                <div class="auth-split-brand-header">
+                    <img src="{{ asset('assets/logo-rsud-blambangan.png') }}" alt="Logo RSUD Blambangan" class="auth-split-logo">
+                    <div class="auth-split-brand-header-text">
+                        <p class="auth-split-kicker">RSUD Blambangan</p>
+                        <h1 class="auth-split-title">Sistem CAT Psikiatri</h1>
+                    </div>
+                </div>
                 <p class="auth-split-desc">
                     Computer Assisted Test untuk pemeriksaan psikiatri. Masuk menggunakan akun peserta
                     atau akun admin untuk melanjutkan.
