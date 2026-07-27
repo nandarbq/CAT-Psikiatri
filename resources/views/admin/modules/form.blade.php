@@ -147,7 +147,7 @@
             <form method="POST" action="{{ route('admin.modules.questions.store', $module) }}" class="form-grid" data-question-builder-form>
                 @csrf
 
-                <div class="question-builder-list" data-question-list>
+                <div class="question-builder-list" data-question-list data-start-number="{{ $existingQuestions->count() }}">
                     <article class="question-builder-item" data-row draggable="true">
                         <div class="question-builder-head">
                             <div class="question-builder-head-meta">
@@ -156,7 +156,7 @@
                                     <span class="question-builder-drag-text">Geser</span>
                                 </button>
                                 <div>
-                                <strong>Pertanyaan <span data-row-number>1</span></strong>
+                                <strong>Pertanyaan <span data-row-number>{{ $existingQuestions->count() + 1 }}</span></strong>
                                 <p class="question-builder-summary" data-row-summary></p>
                                 </div>
                             </div>
@@ -199,6 +199,7 @@
                 if (!list || !(addBtn instanceof HTMLButtonElement)) return;
 
                 let nextIndex = list.querySelectorAll('[data-row]').length;
+                const startNumber = Number.parseInt(list.dataset.startNumber ?? '0', 10) || 0;
 
                 const rowTemplate = (index) => `
                     <article class="question-builder-item" data-row draggable="true">
@@ -241,7 +242,7 @@
                     rows.forEach((row, index) => {
                         const number = row.querySelector('[data-row-number]');
                         if (number) {
-                            number.textContent = String(index + 1);
+                            number.textContent = String(startNumber + index + 1);
                         }
                         syncSummary(row);
                     });
