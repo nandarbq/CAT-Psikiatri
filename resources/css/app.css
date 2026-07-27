@@ -2499,7 +2499,7 @@ body.is-full-bleed .admin-content {
     }
 
     .admin-topbar,
-    body.is-full-bleed .admin-topbar {
+    body.is-full-bleed .admin-topbar { 
         position: fixed;
         top: 0;
         left: 0;
