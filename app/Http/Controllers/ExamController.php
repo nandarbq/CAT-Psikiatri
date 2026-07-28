@@ -55,7 +55,22 @@ class ExamController extends Controller
             ->mapWithKeys(fn ($item): array => [(int) $item->question_id => (bool) $item->answer])
             ->all();
 
-        $currentIndex = max(0, $questions->search(fn (array $question): bool => $question['order_no'] === $attempt->current_question));
+        // `current_question` disimpan sebagai order_no ASLI (bukan posisi di
+        // urutan acak), sehingga posisinya di $questions (yang sudah diacak
+        // per attempt) bisa jatuh di mana saja. Itu benar untuk melanjutkan
+        // ke soal yang terakhir dikerjakan. Tapi untuk attempt yang BARU
+        // dimulai (belum ada jawaban sama sekali, current_question masih
+        // default = 1), soal dengan order_no asli 1 bisa jatuh di posisi
+        // acak manapun (mis. ~180 dari 350) — bukan di awal. Jadi kalau
+        // belum ada jawaban tersimpan, selalu mulai dari soal pertama pada
+        // urutan acak milik peserta ini.
+        if ($answers === []) {
+            $currentIndex = 0;
+        } else {
+            $foundIndex = $questions->search(fn (array $question): bool => $question['order_no'] === $attempt->current_question);
+            $currentIndex = $foundIndex === false ? 0 : $foundIndex;
+        }
+
         $sessionAttemptNumber = ExamAttempt::query()
             ->where('participant_id', $attempt->participant_id)
             ->where('session_id', $attempt->session_id)
