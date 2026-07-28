@@ -556,9 +556,21 @@
                         return;
                     }
 
+                    const question = this.currentQuestion;
+                    const answeredIndex = this.currentIndex;
+                    const previousAnswer = this.answers[question.id];
+                    const hadPreviousAnswer = typeof previousAnswer !== 'undefined';
+
                     this.isSaving = true;
                     this.saveStatus = 'Menyimpan...';
                     this.statusType = 'saving';
+
+                    // Optimistic update: reflect the pilihan (dan hitungan
+                    // "terjawab/belum") seketika saat diklik, jangan menunggu
+                    // respons jaringan selesai dulu — supaya tidak terasa
+                    // lambat/lag saat koneksi lelet. Kalau simpan gagal,
+                    // nilainya dikembalikan lagi di blok catch di bawah.
+                    this.answers[question.id] = answer;
 
                     try {
                         const location = this.requiresLocation ? await this.getLocationForFastSave() : null;
@@ -574,7 +586,7 @@
                                 ...(location ? this.toLocationHeaders(location) : {}),
                             },
                             body: JSON.stringify({
-                                question_id: this.currentQuestion.id,
+                                question_id: question.id,
                                 answer: answer,
                             }),
                         });
@@ -584,7 +596,6 @@
                             throw new Error(data.message ?? 'Gagal menyimpan jawaban.');
                         }
 
-                        this.answers[this.currentQuestion.id] = answer;
                         this.saveStatus = 'Tersimpan.';
                         this.statusType = 'success';
 
@@ -595,12 +606,19 @@
                             this.exitFullscreenIfActive();
                         }
 
-                        if (this.currentIndex < this.questions.length - 1) {
+                        if (this.currentIndex === answeredIndex && this.currentIndex < this.questions.length - 1) {
                             window.setTimeout(() => {
                                 this.nextQuestion();
                             }, 350);
                         }
                     } catch (error) {
+                        // Rollback the optimistic update so counters/nav dots
+                        // match what's actually saved on the server.
+                        if (hadPreviousAnswer) {
+                            this.answers[question.id] = previousAnswer;
+                        } else {
+                            delete this.answers[question.id];
+                        }
                         this.saveStatus = 'Gagal menyimpan. Coba lagi.';
                         this.statusType = 'error';
                     } finally {
