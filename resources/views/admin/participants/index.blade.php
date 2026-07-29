@@ -13,6 +13,17 @@
             <span>Cari Nama / Username / NIK Peserta</span>
             <input class="input" type="text" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Cari peserta...">
         </label>
+        <label class="field">
+            <span>Sesi Tes</span>
+            <select class="input" name="session_id">
+                <option value="">Sesi</option>
+                @foreach ($sessionOptions as $sessionOption)
+                    <option value="{{ $sessionOption->id }}" @selected((string) ($filters['session_id'] ?? '') === (string) $sessionOption->id)>
+                        {{ $sessionOption->title }}
+                    </option>
+                @endforeach
+            </select>
+        </label>
         <div class="filter-actions">
             <button type="submit" class="btn btn-primary">Terapkan</button>
             <a href="{{ route('admin.participants.index') }}" class="btn btn-ghost">Atur Ulang</a>
@@ -27,6 +38,7 @@
                 <th>Nama</th>
                 <th>Username</th>
                 <th>NIK</th>
+                <th>Sesi</th>
                 <th>Aksi</th>
             </tr>
             </thead>
@@ -37,6 +49,7 @@
                     <td>{{ $participant->name }}</td>
                     <td>{{ $participant->username }}</td>
                     <td>{{ $participant->nik }}</td>
+                    <td>{{ $participant->session->title ?? '-' }}</td>
                     <td>
                         <div class="table-actions">
                             <a href="{{ route('admin.participants.history', $participant) }}" class="table-link">Riwayat</a>
@@ -50,7 +63,7 @@
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="5">Belum ada peserta.</td></tr>
+                <tr><td colspan="6">Belum ada peserta.</td></tr>
             @endforelse
             </tbody>
         </table>

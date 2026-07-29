@@ -138,8 +138,7 @@
                 </div>
             </div>
 
-            <small class="field-help">`code` peserta akan dibuat otomatis oleh sistem, status selesai otomatis `Belum`.</small>
-
+            
             <div class="bulk-create-card-list" data-rows>
                 @foreach ($rows as $index => $row)
                     <article class="bulk-create-card" data-row>

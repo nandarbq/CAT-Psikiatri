@@ -20,8 +20,9 @@ class ParticipantController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = Participant::query();
+        $query = Participant::query()->with('session');
         $keyword = trim((string) $request->query('q', ''));
+        $sessionId = $request->query('session_id');
 
         if ($keyword !== '') {
             $query->where(function ($inner) use ($keyword): void {
@@ -31,10 +32,16 @@ class ParticipantController extends Controller
             });
         }
 
+        if ($sessionId !== null && $sessionId !== '') {
+            $query->where('session_id', (int) $sessionId);
+        }
+
         return view('admin.participants.index', [
             'participants' => $query->latest('id')->paginate(15)->withQueryString(),
+            'sessionOptions' => ExamSession::query()->orderBy('start_time')->get(['id', 'title']),
             'filters' => [
                 'q' => $keyword,
+                'session_id' => $sessionId,
             ],
         ]);
     }
