@@ -1,62 +1,59 @@
-<x-layouts.app title="Masuk Sistem">
-    <section class="auth-split">
-        <div class="auth-split-brand">
-            <div class="auth-split-brand-inner">
-                <div class="auth-split-brand-header">
-                    <img src="{{ asset('assets/logo-rsud-blambangan.png') }}" alt="Logo RSUD Blambangan" class="auth-split-logo">
-                    <div class="auth-split-brand-header-text">
-                        <p class="auth-split-kicker">RSUD Blambangan</p>
-                        <h1 class="auth-split-title">Sistem CAT Psikiatri</h1>
+<x-layouts.app title="Masuk Sistem" :full-bleed="true">
+    <section class="auth-hero">
+        <div class="auth-hero-card">
+            <div class="auth-hero-brand">
+                <img src="{{ asset('assets/logo-rsud-blambangan.png') }}" alt="Logo RSUD Blambangan" class="auth-hero-logo">
+                <p class="auth-hero-kicker">RSUD Blambangan</p>
+                <h1 class="auth-hero-title">Sistem CAT Psikiatri</h1>
+            </div>
+
+            <p class="auth-hero-subtitle">Masuk ke akun Anda</p>
+
+            @if ($errors->any())
+                <div class="auth-hero-alert">{{ $errors->first() }}</div>
+            @endif
+
+            <form method="POST" action="{{ route('participant.login.submit') }}" class="auth-hero-form">
+                @csrf
+                <label class="auth-hero-field">
+                    <span class="auth-hero-field-label">Username</span>
+                    <input
+                        type="text"
+                        name="username"
+                        value="{{ old('username') }}"
+                        required
+                        autocomplete="username"
+                        class="auth-hero-input"
+                        placeholder="Masukkan username"
+                    >
+                </label>
+                <label class="auth-hero-field">
+                    <span class="auth-hero-field-label">Password</span>
+                    <div class="auth-hero-password-wrap">
+                        <input
+                            type="password"
+                            name="password"
+                            required
+                            autocomplete="current-password"
+                            class="auth-hero-input auth-hero-password-input"
+                            placeholder="Masukkan password"
+                            data-password-input
+                        >
+                        <button
+                            type="button"
+                            class="auth-hero-password-toggle"
+                            aria-label="Lihat password"
+                            aria-pressed="false"
+                            data-password-toggle
+                        >
+                            <svg viewBox="0 0 24 24" aria-hidden="true" data-password-icon></svg>
+                        </button>
                     </div>
-                </div>
-                <p class="auth-split-desc">
-                    Computer Assisted Test untuk pemeriksaan psikiatri. Masuk menggunakan akun peserta
-                    atau akun admin untuk melanjutkan.
-                </p>
-            </div>
-        </div>
+                </label>
+                <button type="submit" class="auth-hero-submit">Masuk Sistem</button>
+            </form>
 
-        <div class="auth-split-form">
-            <div class="auth-split-form-inner">
-                <p class="auth-split-form-kicker">Selamat Datang</p>
-                <h2 class="title-xl">Masuk ke Akun Anda</h2>
-                <p class="subtitle">Gunakan username dan password. Sistem akan otomatis mengarahkan Anda sebagai peserta atau admin.</p>
-
-                @if ($errors->any())
-                    <div class="alert error">{{ $errors->first() }}</div>
-                @endif
-
-                <form method="POST" action="{{ route('participant.login.submit') }}" class="form-grid">
-                    @csrf
-                    <label class="field">
-                        <span>Username</span>
-                        <input type="text" name="username" value="{{ old('username') }}" required autocomplete="username" class="input">
-                    </label>
-                    <label class="field">
-                        <span>Password</span>
-                        <div class="password-input-wrap">
-                            <input
-                                type="password"
-                                name="password"
-                                required
-                                autocomplete="current-password"
-                                class="input password-input"
-                                data-password-input
-                            >
-                            <button
-                                type="button"
-                                class="password-toggle-btn"
-                                aria-label="Lihat password"
-                                aria-pressed="false"
-                                data-password-toggle
-                            >
-                                <svg viewBox="0 0 24 24" aria-hidden="true" data-password-icon></svg>
-                            </button>
-                        </div>
-                    </label>
-                    <button type="submit" class="btn btn-primary">Masuk Sistem</button>
-                </form>
-            </div>
+            <p class="auth-hero-footnote">Gunakan akun peserta atau admin. Sistem akan mengarahkan otomatis.</p>
         </div>
     </section>
 
