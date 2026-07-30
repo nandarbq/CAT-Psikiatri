@@ -96,7 +96,7 @@
 
             <section class="admin-content">
                 <div class="admin-page-header">
-                    <div>
+                    <div class="admin-page-header-info">
                         <p class="admin-kicker">Sistem CAT Psikiatri</p>
                         <h1 class="admin-title">{{ $heading }}</h1>
                         @if ($subtitle)
