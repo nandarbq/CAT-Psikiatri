@@ -1,14 +1,10 @@
 <x-layouts.app title="Akses Tes">
-    <section class="panel participant-panel">
-        @include('participant.partials.nav')
-
-        <div class="participant-hero">
-            <h1 class="title-xl">Akses Sesi Tes</h1>
-            <p class="subtitle">
-                Halo {{ $participant->name }}, baca petunjuk tes dengan teliti sebelum memulai.
-            </p>
-        </div>
-
+    <x-participant-shell
+        :participant="$participant"
+        eyebrow="Akses Tes"
+        heading="Akses Sesi Tes"
+        description="Baca petunjuk tes dengan teliti sebelum memulai."
+    >
         @if ($errors->any())
             <div class="alert error">{{ $errors->first() }}</div>
         @endif
@@ -72,12 +68,7 @@
                 @endif
             </article>
         </section>
-
-        <form method="POST" action="{{ route('participant.logout') }}" class="logout-box">
-            @csrf
-            <button type="submit" class="btn btn-ghost">Keluar</button>
-        </form>
-    </section>
+    </x-participant-shell>
 
     <script>
         (() => {

@@ -1,17 +1,13 @@
 <x-layouts.app title="Ubah Data Diri Peserta">
-    <section class="panel participant-panel">
-        @include('participant.partials.nav')
-
+    <x-participant-shell
+        :participant="$participant"
+        eyebrow="Data Diri"
+        heading="Ubah Data Diri"
+        description="Pastikan data berikut sesuai dokumen Anda: NIK, Nama, TTL, Alamat, dan Keperluan."
+    >
         @if ($errors->any())
             <div class="alert error">{{ $errors->first() }}</div>
         @endif
-
-        <div class="participant-hero">
-            <h1 class="title-xl">Ubah Data Diri</h1>
-            <p class="subtitle">
-                Pastikan data berikut sesuai dokumen Anda: NIK, Nama, TTL, Alamat, dan Keperluan.
-            </p>
-        </div>
 
         <section class="participant-card">
             <form method="POST" action="{{ route('participant.profile.update') }}" class="form-grid">
@@ -46,6 +42,5 @@
                 <button type="submit" class="btn btn-primary">Simpan Data Diri</button>
             </form>
         </section>
-    </section>
+    </x-participant-shell>
 </x-layouts.app>
-

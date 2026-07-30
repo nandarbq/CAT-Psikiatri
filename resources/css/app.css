@@ -16,9 +16,18 @@
     box-sizing: border-box;
 }
 
+html {
+    scrollbar-width: none;
+}
+
+html::-webkit-scrollbar {
+    display: none;
+}
+
 body {
     margin: 0;
     min-height: 100vh;
+    overflow-x: hidden;
     display: flex;
     flex-direction: column;
     font-family: 'Plus Jakarta Sans', sans-serif;
@@ -349,67 +358,351 @@ body {
     padding: 1.2rem;
 }
 
-.participant-header {
+/* ---------------------------------------------------------------- */
+/* Participant portal — light sticky topbar + colorful hero banner   */
+/* with inline horizontal progress. Deliberately not a sidebar       */
+/* layout, so it reads differently from the admin panel.             */
+/* ---------------------------------------------------------------- */
+
+.ppage {
+    width: min(100%, 1080px);
+    margin: 0 auto;
     display: grid;
-    gap: 0.9rem;
+    gap: 1.3rem;
+    padding-top: 4.75rem;
 }
 
-.participant-brand {
-    margin-bottom: 0;
-}
-
-.participant-nav {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.4rem;
-    border-bottom: 1px solid #E1E9E8;
-    padding-bottom: 0;
-}
-
-.participant-nav-link {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    min-height: 38px;
-    padding: 0.3rem 0.05rem 0.75rem;
-    border-radius: 0;
-    border: none;
-    background: transparent;
-    color: #5C7278;
-    font-size: 0.9rem;
-    font-weight: 600;
-    letter-spacing: 0.01em;
-    text-decoration: none;
-    transition: color 0.2s ease;
-}
-
-.participant-nav-link::after {
-    content: '';
-    position: absolute;
+.ppage-topbar {
+    position: fixed;
+    top: 0;
     left: 0;
     right: 0;
-    bottom: -1px;
-    height: 2px;
-    background: #237871;
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.2s ease;
+    z-index: 50;
+    background: #FFFFFF;
+    border-bottom: 1px solid #E1E9E8;
+    box-shadow: 0 10px 26px rgb(35 120 113 / 0.08);
 }
 
-.participant-nav-link:hover {
-    background: transparent;
-    color: #1C5E58;
+.ppage-topbar-inner {
+    width: min(100%, 1080px);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    padding: 0.65rem 1.1rem;
 }
 
-.participant-nav-link.is-active {
-    border-color: transparent;
-    background: transparent;
-    color: #1C5E58;
+.ppage-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-shrink: 0;
+}
+
+.ppage-brand-logo {
+    width: 38px;
+    height: 38px;
+    object-fit: contain;
+    border-radius: 0.5rem;
+    background: #FFFFFF;
+    border: 1px solid #E1E9E8;
+    padding: 0.2rem;
+}
+
+.ppage-brand-text {
+    display: grid;
+    gap: 0.05rem;
+    line-height: 1.15;
+}
+
+.ppage-brand-kicker {
+    margin: 0;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #237871;
+}
+
+.ppage-brand-name {
+    margin: 0;
     font-weight: 800;
+    font-size: 0.92rem;
+    color: #17272A;
 }
 
-.participant-nav-link.is-active::after {
-    transform: scaleX(1);
+.ppage-tabs {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    flex: 1;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.ppage-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.ppage-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    white-space: nowrap;
+    padding: 0.5rem 0.85rem;
+    border-radius: 0.6rem;
+    color: #5C7278;
+    font-size: 0.88rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.ppage-tab-icon {
+    display: inline-flex;
+    width: 1.05rem;
+    height: 1.05rem;
+    opacity: 0.75;
+}
+
+.ppage-tab-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.ppage-tab:hover {
+    background: #EAF1F0;
+    color: #1C5E58;
+}
+
+.ppage-tab.is-active {
+    background: linear-gradient(135deg, #237871 0%, #164743 100%);
+    color: #F3F7F7;
+    box-shadow: 0 8px 16px rgb(35 120 113 / 0.25);
+}
+
+.ppage-tab.is-active .ppage-tab-icon {
+    opacity: 1;
+}
+
+.ppage-profile {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    flex-shrink: 0;
+    padding-left: 0.6rem;
+    border-left: 1px solid #E1E9E8;
+}
+
+.ppage-avatar {
+    width: 2.15rem;
+    height: 2.15rem;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(160deg, #237871, #1C5E58);
+    color: #F3F7F7;
+    font-size: 0.78rem;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+
+.ppage-profile-name {
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: #17272A;
+    max-width: 13rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ppage-logout.btn-ghost {
+    width: 2.3rem;
+    height: 2.3rem;
+    min-height: 0;
+    padding: 0;
+    border-radius: 50%;
+    background: #EAF1F0;
+    border-color: #CFE2DF;
+    color: #164743;
+}
+
+.ppage-logout.btn-ghost:hover {
+    background: #DCEFEC;
+    border-color: #3AA79D;
+    color: #1C5E58;
+}
+
+.ppage-logout svg {
+    width: 1.05rem;
+    height: 1.05rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.ppage-main {
+    display: grid;
+    gap: 1.2rem;
+}
+
+.ppage-hero {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.4rem;
+    border-radius: 1.2rem;
+    padding: 1.7rem 1.9rem;
+    color: #F3F7F7;
+    background: linear-gradient(135deg, #1C5E58 0%, #123736 120%);
+    box-shadow: 0 22px 44px rgb(18 55 54 / 0.2);
+    overflow: hidden;
+}
+
+.ppage-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 8% 20%, rgb(47 143 134 / 0.4), transparent 42%),
+        radial-gradient(circle at 96% 100%, rgb(47 143 134 / 0.22), transparent 45%);
+    pointer-events: none;
+}
+
+.ppage-hero-text {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: 0.35rem;
+    max-width: 28rem;
+}
+
+.ppage-hero-eyebrow {
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: #9FC3BE;
+}
+
+.ppage-hero-title {
+    margin: 0;
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(1.4rem, 2.6vw, 1.85rem);
+    line-height: 1.25;
+    color: #FFFFFF;
+}
+
+.ppage-hero-desc {
+    margin: 0;
+    color: rgb(243 247 247 / 0.82);
+    font-size: 0.92rem;
+    line-height: 1.55;
+}
+
+.ppage-steps {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.ppage-step {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+}
+
+.ppage-step:not(:last-child)::after {
+    content: '';
+    width: 1.6rem;
+    height: 1px;
+    margin: 0 0.3rem;
+    background: rgb(255 255 255 / 0.25);
+}
+
+.ppage-step-dot {
+    width: 1.9rem;
+    height: 1.9rem;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 800;
+    background: rgb(255 255 255 / 0.1);
+    border: 1px solid rgb(255 255 255 / 0.28);
+    color: rgb(243 247 247 / 0.65);
+    flex-shrink: 0;
+}
+
+.ppage-step-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: rgb(243 247 247 / 0.6);
+    white-space: nowrap;
+}
+
+.ppage-step.is-current .ppage-step-dot {
+    background: #F3F7F7;
+    border-color: #F3F7F7;
+    color: #164743;
+}
+
+.ppage-step.is-current .ppage-step-label {
+    color: #FFFFFF;
+}
+
+.ppage-step.is-done .ppage-step-dot {
+    background: #2F8F86;
+    border-color: #2F8F86;
+    color: #F3F7F7;
+}
+
+.ppage-step.is-done .ppage-step-label {
+    color: rgb(243 247 247 / 0.85);
+}
+
+@media (max-width: 760px) {
+    .ppage {
+        padding-top: 8.5rem;
+    }
+
+    .ppage-topbar-inner {
+        flex-wrap: wrap;
+    }
+
+    .ppage-tabs {
+        order: 3;
+        width: 100%;
+        border-top: 1px solid #E1E9E8;
+        padding-top: 0.5rem;
+    }
+
+    .ppage-profile-name {
+        display: none;
+    }
+
+    .ppage-hero {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .ppage-steps {
+        flex-wrap: wrap;
+    }
 }
 
 .participant-hero {
@@ -421,70 +714,6 @@ body {
     display: grid;
     gap: 0.9rem;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-}
-
-.participant-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.3fr);
-    gap: 1.1rem;
-    align-items: start;
-}
-
-.participant-identity-card {
-    border: 1px solid #E1E9E8;
-    border-radius: 0.7rem;
-    background: linear-gradient(175deg, #FFFFFF 0%, #EAF1F0 130%);
-    padding: 1.4rem 1.3rem;
-    display: grid;
-    gap: 0.65rem;
-    justify-items: start;
-}
-
-.participant-avatar-circle {
-    width: 3.4rem;
-    height: 3.4rem;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(160deg, #237871, #1C5E58);
-    color: #F3F7F7;
-    font-size: 1.15rem;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    margin-bottom: 0.2rem;
-}
-
-.participant-identity-name {
-    margin: 0;
-    font-family: 'Fraunces', serif;
-    font-weight: 600;
-    font-size: 1.35rem;
-    color: #17272A;
-}
-
-.participant-identity-hint {
-    margin: 0;
-    color: #5C7278;
-    font-size: 0.88rem;
-    line-height: 1.5;
-}
-
-.participant-identity-edit {
-    margin-top: 0.3rem;
-    width: 100%;
-}
-
-.participant-main-column {
-    display: grid;
-    gap: 1rem;
-    align-content: start;
-}
-
-@media (max-width: 780px) {
-    .participant-layout {
-        grid-template-columns: 1fr;
-    }
 }
 
 .participant-card {
