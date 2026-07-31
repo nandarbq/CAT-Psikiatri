@@ -33,7 +33,7 @@ class ExamGuard
             return $this->deny($request, 'Sesi peserta tidak valid. Silakan login ulang.');
         }
 
-        $relations = $request->expectsJson() ? ['session'] : ['session', 'participant'];
+        $relations = $request->expectsJson() ? ['session.module'] : ['session.module', 'participant'];
 
         $attempt = $attemptId > 0
             ? ExamAttempt::query()->with($relations)->find($attemptId)

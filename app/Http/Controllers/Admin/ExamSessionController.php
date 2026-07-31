@@ -19,7 +19,7 @@ class ExamSessionController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = ExamSession::query();
+        $query = ExamSession::query()->withCount('attempts');
         $keyword = trim((string) $request->query('q', ''));
         $status = $request->query('status');
 
@@ -90,13 +90,14 @@ class ExamSessionController extends Controller
 
     public function destroy(ExamSession $session): RedirectResponse
     {
-        if ($session->attempts()->exists()) {
-            return back()->withErrors(['session' => 'Sesi tidak dapat dihapus karena sudah memiliki riwayat pengerjaan tes.']);
-        }
-
+        $hadAttempts = $session->attempts()->exists();
         $session->delete();
 
-        return redirect()->route('admin.sessions.index')->with('success', 'Sesi berhasil dihapus.');
+        $message = $hadAttempts
+            ? 'Sesi berhasil dihapus beserta seluruh riwayat pengerjaan tesnya.'
+            : 'Sesi berhasil dihapus.';
+
+        return redirect()->route('admin.sessions.index')->with('success', $message);
     }
 
     public function updateStatus(Request $request, ExamSession $session): RedirectResponse
@@ -123,7 +124,6 @@ class ExamSessionController extends Controller
 
         $ids = array_values(array_unique(array_map('intval', $payload['ids'])));
         $action = (string) $payload['action'];
-        $sessions = ExamSession::query()->whereIn('id', $ids)->get();
 
         if ($action === 'activate') {
             ExamSession::query()->whereIn('id', $ids)->update(['status' => true]);
@@ -137,21 +137,14 @@ class ExamSessionController extends Controller
             return back()->with('success', 'Aksi massal selesai: '.count($ids).' sesi dinonaktifkan.');
         }
 
-        $deletedCount = 0;
-        $skippedCount = 0;
-        foreach ($sessions as $session) {
-            if ($session->attempts()->exists()) {
-                $skippedCount++;
-                continue;
-            }
+        $sessions = ExamSession::query()->whereIn('id', $ids)->withCount('attempts')->get();
+        $withHistoryCount = $sessions->filter(fn ($session) => $session->attempts_count > 0)->count();
 
-            $session->delete();
-            $deletedCount++;
-        }
+        ExamSession::query()->whereIn('id', $ids)->delete();
 
-        $message = "Aksi massal selesai: {$deletedCount} sesi dihapus.";
-        if ($skippedCount > 0) {
-            $message .= " {$skippedCount} sesi dilewati karena sudah memiliki riwayat pengerjaan tes.";
+        $message = "Aksi massal selesai: {$sessions->count()} sesi dihapus.";
+        if ($withHistoryCount > 0) {
+            $message .= " {$withHistoryCount} di antaranya memiliki riwayat pengerjaan tes yang ikut terhapus.";
         }
 
         return back()->with('success', $message);

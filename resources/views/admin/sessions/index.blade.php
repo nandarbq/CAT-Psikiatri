@@ -44,7 +44,7 @@
             <tbody>
             @forelse ($sessions as $session)
                 <tr>
-                    <td><input type="checkbox" value="{{ $session->id }}" data-row-check></td>
+                    <td><input type="checkbox" value="{{ $session->id }}" data-row-check data-has-attempts="{{ $session->attempts_count > 0 ? '1' : '0' }}"></td>
                     <td>{{ $session->title }}</td>
                     <td>{{ $session->start_time }}</td>
                     <td>{{ $session->end_time }}</td>
@@ -67,7 +67,16 @@
                                 <input type="hidden" name="status" value="{{ $session->status ? '0' : '1' }}">
                                 <button type="submit" class="link-button">{{ $session->status ? 'Tutup Sesi' : 'Buka Sesi' }}</button>
                             </form>
-                            <form method="POST" action="{{ route('admin.sessions.destroy', $session) }}" class="inline-form" data-confirm-message="Hapus sesi ini?" data-confirm-title="Konfirmasi Hapus">
+                            <form
+                                method="POST"
+                                action="{{ route('admin.sessions.destroy', $session) }}"
+                                class="inline-form"
+                                data-confirm-title="Konfirmasi Hapus"
+                                data-confirm-icon="{{ $session->attempts_count > 0 ? 'error' : 'warning' }}"
+                                data-confirm-message="{{ $session->attempts_count > 0
+                                    ? 'Sesi ini sudah memiliki riwayat pengerjaan tes. Menghapusnya akan ikut menghapus seluruh riwayat dan jawaban tes peserta secara permanen. Lanjutkan?'
+                                    : 'Hapus sesi ini?' }}"
+                            >
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="link-button">Hapus</button>
@@ -148,10 +157,15 @@
 
                 hiddenIds.innerHTML = ids.map((id) => `<input type="hidden" name="ids[]" value="${id}">`).join('');
 
+                const selectedAction = form.querySelector('select[name="action"]').value;
+                const selectedHasAttempts = checks.some((el) => el.checked && el.dataset.hasAttempts === '1');
+
                 const approved = await window.AppDialog.confirm({
                     title: 'Konfirmasi Aksi',
-                    text: 'Jalankan aksi massal?',
-                    icon: 'question',
+                    text: (selectedAction === 'delete' && selectedHasAttempts)
+                        ? 'Beberapa sesi yang dipilih sudah memiliki riwayat pengerjaan tes. Menghapusnya akan ikut menghapus seluruh riwayat dan jawaban tes peserta secara permanen. Lanjutkan?'
+                        : 'Jalankan aksi massal?',
+                    icon: (selectedAction === 'delete' && selectedHasAttempts) ? 'error' : 'question',
                     confirmButtonText: 'Ya, jalankan',
                     cancelButtonText: 'Batal',
                 });

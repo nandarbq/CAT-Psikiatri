@@ -7,23 +7,32 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ExamAttempt;
 use App\Models\Question;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\Response;
 
 class ResultController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $attempts = ExamAttempt::query()
+        $query = ExamAttempt::query()
             ->with(['participant', 'session'])
-            ->withCount('answers')
-            ->latest('id')
-            ->paginate(20);
+            ->withCount('answers');
+        
+
+        $perPage = (int) $request->query('per_page', 10);
+        
+        $perPage = in_array($perPage, [10, 25, 50, 100]) ? $perPage : 10;
+
+        $attempts = $query->latest('id')
+            ->paginate($perPage)
+            ->appends(request()->query());
 
         return view('admin.results', [
             'attempts' => $attempts,
         ]);
     }
+
 
     public function show(ExamAttempt $attempt): View
     {
