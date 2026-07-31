@@ -20,7 +20,7 @@ class ParticipantController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = Participant::query()->with('session');
+        $query = Participant::query()->with('session')->withCount('attempts');
         $keyword = trim((string) $request->query('q', ''));
         $sessionId = $request->query('session_id');
 
@@ -193,13 +193,14 @@ class ParticipantController extends Controller
 
     public function destroy(Participant $participant): RedirectResponse
     {
-        if ($participant->attempts()->exists()) {
-            return back()->withErrors(['participant' => 'Peserta tidak dapat dihapus karena sudah memiliki riwayat pengerjaan tes.']);
-        }
-
+        $hadAttempts = $participant->attempts()->exists();
         $participant->delete();
 
-        return redirect()->route('admin.participants.index')->with('success', 'Peserta berhasil dihapus.');
+        $message = $hadAttempts
+            ? 'Peserta berhasil dihapus beserta seluruh riwayat pengerjaan tesnya.'
+            : 'Peserta berhasil dihapus.';
+
+        return redirect()->route('admin.participants.index')->with('success', $message);
     }
 
     public function bulk(Request $request): RedirectResponse
@@ -226,22 +227,13 @@ class ParticipantController extends Controller
         }
 
         $participants = Participant::query()->whereIn('id', $ids)->withCount('attempts')->get();
-        $deletedCount = 0;
-        $skippedCount = 0;
+        $withHistoryCount = $participants->filter(fn ($participant) => $participant->attempts_count > 0)->count();
 
-        foreach ($participants as $participant) {
-            if ($participant->attempts_count > 0) {
-                $skippedCount++;
-                continue;
-            }
+        Participant::query()->whereIn('id', $ids)->delete();
 
-            $participant->delete();
-            $deletedCount++;
-        }
-
-        $message = "Aksi massal selesai: {$deletedCount} peserta dihapus.";
-        if ($skippedCount > 0) {
-            $message .= " {$skippedCount} peserta dilewati karena sudah memiliki riwayat pengerjaan tes.";
+        $message = "Aksi massal selesai: {$participants->count()} peserta dihapus.";
+        if ($withHistoryCount > 0) {
+            $message .= " {$withHistoryCount} di antaranya memiliki riwayat pengerjaan tes yang ikut terhapus.";
         }
 
         return back()->with('success', $message);
