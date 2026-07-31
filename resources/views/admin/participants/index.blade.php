@@ -8,6 +8,7 @@
         <a href="{{ route('admin.participants.create') }}" class="btn btn-primary">Buat Akun Peserta</a>
     </x-slot:actions>
 
+    <!-- Filter -->
     <form method="GET" action="{{ route('admin.participants.index') }}" class="filter-panel">
         <label class="field">
             <span>Cari Nama / Username / NIK Peserta</span>
@@ -30,6 +31,32 @@
         </div>
     </form>
 
+    <!-- Per Page Selector -->
+    <div class="flex items-center justify-between mb-4 mt-4">
+        <div class="flex items-center space-x-2">
+            <label for="per_page" class="text-sm text-gray-700">Tampilkan</label>
+            <select id="per_page" 
+                    name="per_page"
+                    class="input !w-auto min-w-[70px]"
+                    onchange="window.location.href = this.value">
+                @php
+                    $currentUrl = request()->fullUrlWithQuery(['per_page' => 'PER_PAGE']);
+                @endphp
+                @foreach([10, 25, 50, 100] as $size)
+                    <option value="{{ str_replace('PER_PAGE', $size, $currentUrl) }}"
+                            {{ request('per_page', 15) == $size ? 'selected' : '' }}>
+                        {{ $size }}
+                    </option>
+                @endforeach
+            </select>
+            <span class="text-sm text-gray-700">per halaman</span>
+        </div>
+        <div class="text-sm text-gray-500">
+            Total: <span class="font-medium">{{ $participants->total() }}</span> peserta
+        </div>
+    </div>
+
+    <!-- Table -->
     <div class="table-wrap" data-bulk-scope="participants">
         <table class="data-table">
             <thead>
@@ -63,12 +90,13 @@
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="6">Belum ada peserta.</td></tr>
+                <tr><td colspan="6" class="text-center py-8 text-gray-500">Belum ada peserta.</td></tr>
             @endforelse
             </tbody>
         </table>
     </div>
 
+    <!-- Bulk Action -->
     <form method="POST" action="{{ route('admin.participants.bulk') }}" class="bulk-bar" data-bulk-form="participants">
         @csrf
         <div data-hidden-ids></div>
@@ -84,8 +112,67 @@
         </div>
     </form>
 
-    {{ $participants->links() }}
+<!-- ============================================ -->
+<!-- PAGINATION CUSTOM (LANGSUNG DI VIEW) -->
+<!-- ============================================ -->
+@if ($participants->hasPages())
+    <div class="flex flex-col items-center justify-between gap-4 border-t border-gray-200 px-4 py-3 mt-6 sm:flex-row">
+        <!-- Info -->
+        <div class="text-sm text-gray-700">
+            Menampilkan
+            <span class="font-medium">{{ $participants->firstItem() }}</span>
+            sampai
+            <span class="font-medium">{{ $participants->lastItem() }}</span>
+            dari
+            <span class="font-medium">{{ $participants->total() }}</span>
+            peserta
+        </div>
 
+        <!-- Tombol Pagination -->
+        <div class="flex items-center gap-1 flex-wrap justify-center">
+            {{-- Previous --}}
+            @if ($participants->onFirstPage())
+                <span class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-200 rounded-md cursor-not-allowed">
+                    ← Sebelumnya
+                </span>
+            @else
+                <a href="{{ $participants->previousPageUrl() }}" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:border-gray-400 transition-all duration-150">
+                    ← Sebelumnya
+                </a>
+            @endif
+
+            {{-- Nomor Halaman --}}
+            @foreach ($participants->links()->elements as $element)
+                @if (is_string($element))
+                    <span class="px-3 py-2 text-sm text-gray-500">{{ $element }}</span>
+                @endif
+
+                @if (is_array($element))
+                    @foreach ($element as $page => $url)
+                        @if ($page == $participants->currentPage())
+                            <span class="inline-flex items-center px-4 py-2 text-sm font-bold text-white bg-blue-600 border border-blue-600 rounded-md shadow-sm">{{ $page }}</span>
+                        @else
+                            <a href="{{ $url }}" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:border-gray-400 transition-all duration-150">{{ $page }}</a>
+                        @endif
+                    @endforeach
+                @endif
+            @endforeach
+
+            {{-- Next --}}
+            @if ($participants->hasMorePages())
+                <a href="{{ $participants->nextPageUrl() }}" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:border-gray-400 transition-all duration-150">
+                    Selanjutnya →
+                </a>
+            @else
+                <span class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-200 rounded-md cursor-not-allowed">
+                    Selanjutnya →
+                </span>
+            @endif
+        </div>
+    </div>
+@endif
+
+    <!-- JavaScript -->
     <script>
         (() => {
             const scope = document.querySelector('[data-bulk-scope="participants"]');

@@ -3917,3 +3917,30 @@ body.is-full-bleed .admin-content {
     }
 }
 
+/* Hijau Muda */
+.pagination .active span {
+    @apply text-white bg-green-500 border-green-500 shadow-sm;
+}
+
+/* Hijau Tua */
+.pagination .active span {
+    @apply text-white bg-green-700 border-green-700 shadow-sm;
+}
+
+/* Hijau Toska (Emerald) */
+.pagination .active span {
+    @apply text-white bg-emerald-600 border-emerald-600 shadow-sm;
+}
+
+.pagination a {
+    @apply text-gray-700 bg-white border border-gray-300 hover:bg-emerald-50 hover:border-emerald-400;
+}
+
+/* Hijau Lumut (Lime) */
+.pagination .active span {
+    @apply text-white bg-lime-600 border-lime-600 shadow-sm;
+}
+
+.pagination a {
+    @apply text-gray-700 bg-white border border-gray-300 hover:bg-lime-50 hover:border-lime-400;
+}

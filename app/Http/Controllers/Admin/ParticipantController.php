@@ -18,33 +18,37 @@ use Illuminate\View\View;
 
 class ParticipantController extends Controller
 {
-    public function index(Request $request): View
-    {
-        $query = Participant::query()->with('session');
-        $keyword = trim((string) $request->query('q', ''));
-        $sessionId = $request->query('session_id');
+   public function index(Request $request): View
+{
+    $query = Participant::query()->with('session');
+    $keyword = trim((string) $request->query('q', ''));
+    $sessionId = $request->query('session_id');
+    $perPage = (int) $request->query('per_page', 2);
+    
+    // Validasi per_page
+    $perPage = in_array($perPage, [10, 25, 50, 100]) ? $perPage : 2;
 
-        if ($keyword !== '') {
-            $query->where(function ($inner) use ($keyword): void {
-                $inner->where('name', 'like', '%'.$keyword.'%')
-                    ->orWhere('username', 'like', '%'.$keyword.'%')
-                    ->orWhere('nik', 'like', '%'.$keyword.'%');
-            });
-        }
-
-        if ($sessionId !== null && $sessionId !== '') {
-            $query->where('session_id', (int) $sessionId);
-        }
-
-        return view('admin.participants.index', [
-            'participants' => $query->latest('id')->paginate(15)->withQueryString(),
-            'sessionOptions' => ExamSession::query()->orderBy('start_time')->get(['id', 'title']),
-            'filters' => [
-                'q' => $keyword,
-                'session_id' => $sessionId,
-            ],
-        ]);
+    if ($keyword !== '') {
+        $query->where(function ($inner) use ($keyword): void {
+            $inner->where('name', 'like', '%'.$keyword.'%')
+                ->orWhere('username', 'like', '%'.$keyword.'%')
+                ->orWhere('nik', 'like', '%'.$keyword.'%');
+        });
     }
+
+    if ($sessionId !== null && $sessionId !== '') {
+        $query->where('session_id', (int) $sessionId);
+    }
+
+    return view('admin.participants.index', [
+        'participants' => $query->latest('id')->paginate($perPage)->appends(request()->query()),
+        'sessionOptions' => ExamSession::query()->orderBy('start_time')->get(['id', 'title']),
+        'filters' => [
+            'q' => $keyword,
+            'session_id' => $sessionId,
+        ],
+    ]);
+}
 
     public function history(Participant $participant): View
     {
