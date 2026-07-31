@@ -18,37 +18,33 @@ use Illuminate\View\View;
 
 class ParticipantController extends Controller
 {
-   public function index(Request $request): View
-{
-    $query = Participant::query()->with('session');
-    $keyword = trim((string) $request->query('q', ''));
-    $sessionId = $request->query('session_id');
-    $perPage = (int) $request->query('per_page', 10);
-    
-    // Validasi per_page
-    $perPage = in_array($perPage, [10, 25, 50, 100]) ? $perPage : 10;
+    public function index(Request $request): View
+    {
+        $query = Participant::query()->with('session');
+        $keyword = trim((string) $request->query('q', ''));
+        $sessionId = $request->query('session_id');
 
-    if ($keyword !== '') {
-        $query->where(function ($inner) use ($keyword): void {
-            $inner->where('name', 'like', '%'.$keyword.'%')
-                ->orWhere('username', 'like', '%'.$keyword.'%')
-                ->orWhere('nik', 'like', '%'.$keyword.'%');
-        });
+        if ($keyword !== '') {
+            $query->where(function ($inner) use ($keyword): void {
+                $inner->where('name', 'like', '%'.$keyword.'%')
+                    ->orWhere('username', 'like', '%'.$keyword.'%')
+                    ->orWhere('nik', 'like', '%'.$keyword.'%');
+            });
+        }
+
+        if ($sessionId !== null && $sessionId !== '') {
+            $query->where('session_id', (int) $sessionId);
+        }
+
+        return view('admin.participants.index', [
+            'participants' => $query->latest('id')->paginate(10)->withQueryString(),
+            'sessionOptions' => ExamSession::query()->orderBy('start_time')->get(['id', 'title']),
+            'filters' => [
+                'q' => $keyword,
+                'session_id' => $sessionId,
+            ],
+        ]);
     }
-
-    if ($sessionId !== null && $sessionId !== '') {
-        $query->where('session_id', (int) $sessionId);
-    }
-
-    return view('admin.participants.index', [
-        'participants' => $query->latest('id')->paginate($perPage)->appends(request()->query()),
-        'sessionOptions' => ExamSession::query()->orderBy('start_time')->get(['id', 'title']),
-        'filters' => [
-            'q' => $keyword,
-            'session_id' => $sessionId,
-        ],
-    ]);
-}
 
     public function history(Participant $participant): View
     {
@@ -229,12 +225,12 @@ class ParticipantController extends Controller
             return back()->with('success', 'Aksi massal selesai: '.count($ids).' peserta ditandai belum selesai.');
         }
 
-        $participants = Participant::query()->whereIn('id', $ids)->get();
+        $participants = Participant::query()->whereIn('id', $ids)->withCount('attempts')->get();
         $deletedCount = 0;
         $skippedCount = 0;
 
         foreach ($participants as $participant) {
-            if ($participant->attempts()->exists()) {
+            if ($participant->attempts_count > 0) {
                 $skippedCount++;
                 continue;
             }

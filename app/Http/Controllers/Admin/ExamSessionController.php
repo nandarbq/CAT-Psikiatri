@@ -123,7 +123,6 @@ class ExamSessionController extends Controller
 
         $ids = array_values(array_unique(array_map('intval', $payload['ids'])));
         $action = (string) $payload['action'];
-        $sessions = ExamSession::query()->whereIn('id', $ids)->get();
 
         if ($action === 'activate') {
             ExamSession::query()->whereIn('id', $ids)->update(['status' => true]);
@@ -137,10 +136,12 @@ class ExamSessionController extends Controller
             return back()->with('success', 'Aksi massal selesai: '.count($ids).' sesi dinonaktifkan.');
         }
 
+        $sessions = ExamSession::query()->whereIn('id', $ids)->withCount('attempts')->get();
+
         $deletedCount = 0;
         $skippedCount = 0;
         foreach ($sessions as $session) {
-            if ($session->attempts()->exists()) {
+            if ($session->attempts_count > 0) {
                 $skippedCount++;
                 continue;
             }
