@@ -28,11 +28,14 @@ class DatabaseSeeder extends Seeder
             ],
         );
 
+        // NOTE: these are an approximate Banyuwangi town-center fallback only.
+        // Please verify against the exact RSUD Blambangan building pin in
+        // Admin > Pengaturan > Lokasi RSUD before relying on the radius check.
         ExamLocationSetting::query()->updateOrCreate(
             ['id' => 1],
             [
-                'center_latitude' => -6.2015000,
-                'center_longitude' => 106.8166667,
+                'center_latitude' => -8.2135000,
+                'center_longitude' => 114.3652000,
                 'allowed_radius_meters' => 500,
             ],
         );

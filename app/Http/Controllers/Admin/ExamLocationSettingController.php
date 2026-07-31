@@ -31,11 +31,14 @@ class ExamLocationSettingController extends Controller
 
     private function currentSetting(): ExamLocationSetting
     {
+        // NOTE: approximate Banyuwangi town-center fallback used only when no
+        // row exists yet. Admin should verify the exact RSUD Blambangan pin
+        // on this page and save it for an accurate radius check.
         return ExamLocationSetting::query()->firstOrCreate(
             ['id' => 1],
             [
-                'center_latitude' => -6.2015000,
-                'center_longitude' => 106.8166667,
+                'center_latitude' => -8.2135000,
+                'center_longitude' => 114.3652000,
                 'allowed_radius_meters' => 500,
             ],
         );

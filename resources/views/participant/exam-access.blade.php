@@ -63,7 +63,8 @@
                         <p class="save-status" id="location-status">
                             {{ $requiresLocation ? 'Meminta akses lokasi perangkat...' : 'Sesi online: akses lokasi tidak diperlukan.' }}
                         </p>
-                        <button type="submit" class="btn btn-primary" @disabled(! $canStartExam)>Mulai / Lanjutkan Tes</button>
+                        <button type="submit" class="btn btn-primary" id="exam-submit-btn" @disabled(! $canStartExam || $requiresLocation)>Mulai / Lanjutkan Tes</button>
+                        <button type="button" class="btn btn-ghost" id="exam-retry-location-btn" style="display: none;">Coba deteksi lokasi lagi</button>
                     </form>
                 @endif
             </article>
@@ -73,10 +74,13 @@
     <script>
         (() => {
             const requiresLocation = @js($requiresLocation);
+            const canStartExam = @js($canStartExam);
             const latitudeInput = document.getElementById('exam-latitude');
             const longitudeInput = document.getElementById('exam-longitude');
             const accuracyInput = document.getElementById('exam-accuracy');
             const status = document.getElementById('location-status');
+            const submitBtn = document.getElementById('exam-submit-btn');
+            const retryBtn = document.getElementById('exam-retry-location-btn');
 
             if (!latitudeInput || !longitudeInput || !accuracyInput || !status) {
                 return;
@@ -112,20 +116,42 @@
                     (error) => reject(error),
                     {
                         enableHighAccuracy: true,
-                        timeout: 10000,
-                        maximumAge: 30000,
+                        timeout: 15000,
+                        maximumAge: 0,
                     }
                 );
             });
 
-            requestLocation()
-                .then((position) => {
-                    writePosition(position);
-                    setStatus('Lokasi terdeteksi. Anda dapat melanjutkan.', 'success');
-                })
-                .catch(() => {
-                    setStatus('Lokasi belum tersedia. Izinkan akses lokasi sebelum mulai tes.', 'error');
-                });
+            const attemptLocation = () => {
+                setStatus('Meminta akses lokasi perangkat... Mohon izinkan akses lokasi pada browser.', 'idle');
+                if (retryBtn) {
+                    retryBtn.style.display = 'none';
+                }
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                }
+
+                requestLocation()
+                    .then((position) => {
+                        writePosition(position);
+                        setStatus('Lokasi terdeteksi. Anda dapat melanjutkan.', 'success');
+                        if (submitBtn && canStartExam) {
+                            submitBtn.disabled = false;
+                        }
+                    })
+                    .catch(() => {
+                        setStatus('Lokasi belum berhasil dideteksi. Pastikan izin lokasi browser aktif dan GPS/koneksi perangkat menyala, lalu coba lagi.', 'error');
+                        if (retryBtn) {
+                            retryBtn.style.display = 'inline-flex';
+                        }
+                    });
+            };
+
+            if (retryBtn) {
+                retryBtn.addEventListener('click', attemptLocation);
+            }
+
+            attemptLocation();
         })();
     </script>
 </x-layouts.app>
