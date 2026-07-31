@@ -112,9 +112,9 @@
         </div>
     </form>
 
-<!-- ============================================ -->
-<!-- PAGINATION CUSTOM (LANGSUNG DI VIEW) -->
-<!-- ============================================ -->
+
+<!-- PAGINATION -->
+
 @if ($participants->hasPages())
     <div class="flex flex-col items-center justify-between gap-4 border-t border-gray-200 px-4 py-3 mt-6 sm:flex-row">
         <!-- Info -->

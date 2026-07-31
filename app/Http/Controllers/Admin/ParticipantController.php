@@ -23,10 +23,10 @@ class ParticipantController extends Controller
     $query = Participant::query()->with('session');
     $keyword = trim((string) $request->query('q', ''));
     $sessionId = $request->query('session_id');
-    $perPage = (int) $request->query('per_page', 2);
+    $perPage = (int) $request->query('per_page', 10);
     
     // Validasi per_page
-    $perPage = in_array($perPage, [10, 25, 50, 100]) ? $perPage : 2;
+    $perPage = in_array($perPage, [10, 25, 50, 100]) ? $perPage : 10;
 
     if ($keyword !== '') {
         $query->where(function ($inner) use ($keyword): void {
