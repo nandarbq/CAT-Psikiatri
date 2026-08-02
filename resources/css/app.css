@@ -4102,3 +4102,64 @@ body.is-full-bleed .admin-content {
         width: 1.2rem;
     }
 }
+
+/* ================================================================ */
+/* SIDEBAR COLLAPSE BUTTON - TOOLTIP & ICON IMPROVEMENT */
+/* ================================================================ */
+
+/* Tooltip untuk sidebar collapse button */
+.admin-sidebar-collapse-btn {
+    position: relative;
+}
+
+.admin-sidebar-collapse-btn .tooltip-text {
+    position: absolute;
+    bottom: -2.25rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1f2937;
+    color: #ffffff;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.25rem;
+    font-size: 0.7rem;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.admin-sidebar-collapse-btn:hover .tooltip-text {
+    opacity: 1;
+}
+
+.admin-sidebar-collapse-btn .tooltip-text::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-bottom: 4px solid #1f2937;
+}
+
+/* Animasi Icon Collapse */
+.admin-sidebar-collapse-icon {
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.admin-sidebar-collapse-icon.is-collapsed {
+    transform: rotate(180deg);
+}
+
+/* Hover effect untuk collapse button */
+.admin-sidebar-collapse-btn:hover {
+    background: rgba(35, 120, 113, 0.25);
+    border-color: #3AA79D;
+    transform: scale(1.08);
+}
+
+.admin-sidebar-collapse-btn:active {
+    transform: scale(0.92);
+}
