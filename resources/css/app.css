@@ -2556,7 +2556,7 @@ body {
 
 .admin-brand-mark {
     margin: 0;
-    color: #237871;
+    color: rgb(220 239 236 / 0.75);
     font-size: 0.68rem;
     font-weight: 700;
     letter-spacing: 0.07em;
@@ -3943,4 +3943,162 @@ body.is-full-bleed .admin-content {
 
 .pagination a {
     @apply text-gray-700 bg-white border border-gray-300 hover:bg-lime-50 hover:border-lime-400;
+}
+
+
+/* Mobile Navigation Toggle Button */
+.nav-toggle {
+    display: none;
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    color: #1C5E58;
+    flex-shrink: 0;
+}
+
+.nav-toggle-icon {
+    display: block;
+    width: 1.5rem;
+    height: 2px;
+    background: currentColor;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.nav-toggle-icon::before,
+.nav-toggle-icon::after {
+    content: '';
+    position: absolute;
+    width: 1.5rem;
+    height: 2px;
+    background: currentColor;
+    left: 0;
+    transition: all 0.3s ease;
+}
+
+.nav-toggle-icon::before {
+    top: -6px;
+}
+
+.nav-toggle-icon::after {
+    bottom: -6px;
+}
+
+.nav-toggle.is-open .nav-toggle-icon {
+    background: transparent;
+}
+
+.nav-toggle.is-open .nav-toggle-icon::before {
+    transform: rotate(45deg);
+    top: 0;
+}
+
+.nav-toggle.is-open .nav-toggle-icon::after {
+    transform: rotate(-45deg);
+    bottom: 0;
+}
+
+/* Navbar Container */
+.navbar-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.65rem 1.1rem;
+    width: 100%;
+}
+
+/* Navbar Links Container */
+.navbar-links {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    flex: 1;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.navbar-links::-webkit-scrollbar {
+    display: none;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 768px) {
+    .nav-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .navbar-links {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        padding: 0.5rem 0;
+        border-top: 1px solid #E1E9E8;
+        margin-top: 0.5rem;
+        overflow: visible;
+    }
+
+    .navbar-links.is-open {
+        display: flex;
+    }
+
+    .navbar-links .ppage-tab {
+        width: 100%;
+        justify-content: flex-start;
+        padding: 0.6rem 0.85rem;
+    }
+
+    .ppage-topbar-inner {
+        flex-wrap: wrap;
+    }
+
+    .ppage-profile {
+        margin-left: auto;
+    }
+
+    .ppage-profile-name {
+        display: none;
+    }
+
+    .ppage-brand-name {
+        font-size: 0.8rem;
+    }
+
+    .ppage-brand-kicker {
+        font-size: 0.55rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .ppage-brand-logo {
+        width: 32px;
+        height: 32px;
+    }
+
+    .ppage-brand-name {
+        font-size: 0.75rem;
+    }
+
+    .ppage-avatar {
+        width: 1.8rem;
+        height: 1.8rem;
+        font-size: 0.7rem;
+    }
+
+    .ppage-topbar-inner {
+        padding: 0.5rem 0.8rem;
+    }
+
+    .nav-toggle {
+        padding: 0.3rem;
+    }
+
+    .nav-toggle-icon,
+    .nav-toggle-icon::before,
+    .nav-toggle-icon::after {
+        width: 1.2rem;
+    }
 }
