@@ -54,7 +54,18 @@
                                 <input type="hidden" name="status" value="{{ $module->status ? '0' : '1' }}">
                                 <button type="submit" class="link-button">{{ $module->status ? 'Nonaktifkan' : 'Aktifkan' }}</button>
                             </form>
-                            <form method="POST" action="{{ route('admin.modules.destroy', $module) }}" class="inline-form" data-confirm-message="Hapus modul ini beserta seluruh soalnya?" data-confirm-title="Konfirmasi Hapus">
+                            <form
+                                method="POST"
+                                action="{{ route('admin.modules.destroy', $module) }}"
+                                class="inline-form"
+                                data-confirm-title="Konfirmasi Hapus Modul"
+                                data-confirm-icon="warning"
+                                data-confirm-message="Modul &quot;{{ $module->name }}&quot; ini berisi {{ $module->questions_count }} soal. Hapus modul ini beserta seluruh soalnya?"
+                                data-confirm-second-title="Konfirmasi Terakhir"
+                                data-confirm-second-icon="error"
+                                data-confirm-second-message="Tindakan ini TIDAK BISA DIBATALKAN. Seluruh {{ $module->questions_count }} soal di dalam modul ini akan terhapus permanen dan harus diinput ulang dari awal jika keliru. Apakah Anda benar-benar yakin?"
+                                data-confirm-second-button-text="Ya, hapus permanen"
+                            >
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="link-button">Hapus</button>

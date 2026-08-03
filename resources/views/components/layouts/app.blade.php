@@ -252,6 +252,19 @@
 
             if (!approved) return;
 
+            const confirmMessage2 = form.dataset.confirmSecondMessage;
+            if (confirmMessage2) {
+                const approvedAgain = await window.AppDialog.confirm({
+                    title: form.dataset.confirmSecondTitle || 'Konfirmasi Sekali Lagi',
+                    text: confirmMessage2,
+                    icon: form.dataset.confirmSecondIcon || 'error',
+                    confirmButtonText: form.dataset.confirmSecondButtonText || 'Ya, saya benar-benar yakin',
+                    cancelButtonText: form.dataset.cancelButtonText || 'Batal',
+                });
+
+                if (!approvedAgain) return;
+            }
+
             form.dataset.confirmed = '1';
             form.submit();
             delete form.dataset.confirmed;
