@@ -120,7 +120,7 @@ class ResultController extends Controller
                 'Selesai',
                 'Jumlah Jawaban',
                 'Sudah Dikirim',
-            ]);
+            ], ';');
 
             ExamAttempt::query()
                 ->with(['participant', 'session'])
@@ -187,7 +187,7 @@ class ResultController extends Controller
                     $answer->question_snapshot,
                     $answer->answer ? 'YA' : 'TIDAK',
                     (string) $answer->answered_at,
-                ]);
+                ], ';');
             }
 
             fclose($handle);

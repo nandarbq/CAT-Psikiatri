@@ -869,12 +869,7 @@
                 }
             });
 
-            // Best-effort deterrents. Note: a website cannot block OS/browser-level
-            // shortcuts like Ctrl+T, Ctrl+N, or opening a new window from the
-            // browser's own UI — these run outside what page JavaScript can reach.
-            // What we *can* do: detect when the tab loses focus/visibility, disable
-            // the right-click menu and text copying, discourage devtools shortcuts,
-            // and nudge fullscreen mode back on.
+            
 
             document.addEventListener('contextmenu', (event) => event.preventDefault());
 

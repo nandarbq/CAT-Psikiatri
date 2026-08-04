@@ -193,17 +193,72 @@
                     });
                 }
 
+                const unanswered = Number((text.match(/\d+/) || [0])[0]);
+
                 const result = await window.Swal.fire({
-                    title,
-                    text,
-                    icon,
+                    title: 'Konfirmasi Pengumpulan Tes',
+
+                    html: `
+                        <div class="exam-confirm-body">
+
+                            ${
+                                unanswered > 0
+                                ? `
+                                <div class="exam-warning-box">
+                                    <div class="warning-icon">⚠️</div>
+
+                                    <div class="warning-content">
+                                        <p class="warning-title">
+                                            Masih terdapat
+                                        </p>
+
+                                        <div class="warning-count">
+                                            ${unanswered}
+                                        </div>
+
+                                        <p class="warning-subtitle">
+                                            soal yang belum dijawab
+                                        </p>
+                                    </div>
+                                </div>
+                                `
+                                : `
+                                <div class="exam-success-box">
+                                    <div class="success-icon">✅</div>
+
+                                    <p class="warning-title">
+                                        Semua soal telah dijawab.
+                                    </p>
+                                </div>
+                                `
+                            }
+
+                            <div class="exam-info-box">
+                                Setelah tes dikirim, <strong>jawaban tidak dapat diubah kembali.</strong>
+                            </div>
+
+                        </div>
+                    `,
+
                     showCancelButton: true,
+
                     confirmButtonText,
                     cancelButtonText,
-                    confirmButtonColor: '#143829',
-                    cancelButtonColor: '#7a7364',
+
                     reverseButtons: true,
                     focusCancel: true,
+
+                    buttonsStyling: false,
+
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+
+                    customClass: {
+                        popup: 'exam-popup',
+                        title: 'exam-title',
+                        confirmButton: 'exam-btn-confirm',
+                        cancelButton: 'exam-btn-cancel'
+                    }
                 });
 
                 return result.isConfirmed === true;

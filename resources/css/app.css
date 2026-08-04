@@ -4163,3 +4163,101 @@ body.is-full-bleed .admin-content {
 .admin-sidebar-collapse-btn:active {
     transform: scale(0.92);
 }
+
+.exam-popup {
+    border-radius: 20px;
+    padding: 24px;
+    width: 540px;
+}
+
+.exam-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #143829;
+}
+
+.exam-confirm-body {
+    margin-top: 10px;
+}
+
+.exam-warning-box {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: #FFF7ED;
+    border: 1px solid #FDBA74;
+    border-radius: 16px;
+    padding: 18px;
+}
+
+.warning-icon {
+    font-size: 42px;
+}
+
+.warning-title {
+    margin: 0;
+    font-size: 17px;
+    color: #444;
+}
+
+.warning-count {
+    font-size: 48px;
+    font-weight: 800;
+    color: #DC2626;
+    line-height: 1;
+}
+
+.warning-subtitle {
+    margin-top: 6px;
+    font-size: 17px;
+    color: #555;
+}
+
+.exam-success-box {
+    display: flex;
+    gap: 18px;
+    align-items: center;
+    background: #ECFDF5;
+    border: 1px solid #6EE7B7;
+    border-radius: 16px;
+    padding: 18px;
+}
+
+.success-icon {
+    font-size: 42px;
+}
+
+.exam-info-box {
+    margin-top: 20px;
+    background: #F8FAFC;
+    border-radius: 14px;
+    padding: 16px;
+    color: #475569;
+    line-height: 1.7;
+}
+
+.exam-btn-confirm {
+    background: #14532D !important;
+    color: white !important;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 28px;
+    font-weight: 600;
+}
+
+.exam-btn-confirm:hover {
+    background: #166534 !important;
+}
+
+.exam-btn-cancel {
+    background: #E5E7EB !important;
+    color: #374151 !important;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 28px;
+    font-weight: 600;
+}
+
+.exam-btn-cancel:hover {
+    background: #D1D5DB !important;
+}
