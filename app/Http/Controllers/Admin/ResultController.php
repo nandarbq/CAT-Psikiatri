@@ -110,6 +110,12 @@ class ResultController extends Controller
             // UTF-8 BOM helps Excel open Indonesian text correctly.
             fwrite($handle, "\xEF\xBB\xBF");
 
+            // Tells Excel to use ";" as the column separator no matter what
+            // the user's Windows/Excel regional "list separator" setting is.
+            // Without this, Excel may ignore our delimiter and dump every
+            // row into a single column A.
+            fwrite($handle, "sep=;\r\n");
+
             fputcsv($handle, [
                 'ID Pengerjaan',
                 'Nama Peserta',
@@ -128,17 +134,21 @@ class ResultController extends Controller
                 ->orderBy('id')
                 ->chunk(200, static function ($attempts) use ($handle): void {
                     foreach ($attempts as $attempt) {
+                        $nik = (string) ($attempt->participant->nik ?? '');
+
                         fputcsv($handle, [
                             $attempt->id,
                             $attempt->participant->name,
                             $attempt->participant->username,
-                            $attempt->participant->nik,
+                            // Force Excel to treat NIK as text so leading zeros
+                            // and long digit strings aren't mangled/rounded.
+                            $nik !== '' ? '="'.$nik.'"' : '',
                             $attempt->session->title,
                             (string) $attempt->started_at,
                             (string) ($attempt->finished_at ?? ''),
                             $attempt->answers_count,
                             $attempt->is_submitted ? 'Ya' : 'Tidak',
-                        ]);
+                        ], ';');
                     }
                 });
 
@@ -166,6 +176,9 @@ class ResultController extends Controller
 
             fwrite($handle, "\xEF\xBB\xBF");
 
+            // See exportSummaryCsv() for why this line is needed.
+            fwrite($handle, "sep=;\r\n");
+
             fputcsv($handle, [
                 'ID Pengerjaan',
                 'Nama Peserta',
@@ -175,7 +188,7 @@ class ResultController extends Controller
                 'Snapshot Soal',
                 'Jawaban',
                 'Waktu Menjawab',
-            ]);
+            ], ';');
 
             foreach ($attempt->answers as $answer) {
                 fputcsv($handle, [

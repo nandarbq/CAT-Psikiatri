@@ -55,7 +55,6 @@
                     class="admin-sidebar-collapse-btn group relative"
                     @click="collapsed = !collapsed; localStorage.setItem('admin_sidebar_collapsed', collapsed ? '1' : '0')"
                     :aria-expanded="String(!collapsed)"
-                    :title="collapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'"
                     :aria-label="collapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'"
                 >
                     <svg 
@@ -73,11 +72,6 @@
                     <rect x="3" y="3" width="18" height="18" rx="2"/>
                     <path d="M9 3v18"/>
                 </svg>
-                    
-                    {{-- Tooltip --}}
-                    <span class="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-gray-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100 pointer-events-none">
-                        <span x-text="collapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'"></span>
-                    </span>
                 </button>
             </div>
 
