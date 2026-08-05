@@ -120,7 +120,7 @@ class ResultController extends Controller
                 'Selesai',
                 'Jumlah Jawaban',
                 'Sudah Dikirim',
-            ]);
+            ], ';');
 
             ExamAttempt::query()
                 ->with(['participant', 'session'])
@@ -187,7 +187,7 @@ class ResultController extends Controller
                     $answer->question_snapshot,
                     $answer->answer ? 'YA' : 'TIDAK',
                     (string) $answer->answered_at,
-                ]);
+                ], ';');
             }
 
             fclose($handle);
@@ -205,7 +205,17 @@ class ResultController extends Controller
             ->get();
 
         $rows = $attempts->map(static fn (ExamAttempt $attempt): string => sprintf(
-            '<tr><td>%d</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%d</td><td>%s</td></tr>',
+            '<tr>
+                <td>%d</td>
+                <td>%s</td>
+                <td>%s</td>
+                <td style="mso-number-format:\'\\@\';">%s</td>
+                <td>%s</td>
+                <td>%s</td>
+                <td>%s</td>
+                <td>%d</td>
+                <td>%s</td>
+            </tr>',
             $attempt->id,
             e($attempt->participant->name),
             e($attempt->participant->username),
