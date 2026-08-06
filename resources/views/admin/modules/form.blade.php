@@ -33,6 +33,23 @@
             </label>
 
             @unless ($isEdit)
+                <div class="field">
+                    <span>Inputkan Banyak Soal Sekaligus</span>
+                    <textarea
+                        class="input"
+                        rows="6"
+                        placeholder="Tempel atau ketik soal di sini, satu soal per baris. Contoh:&#10;Saya mudah merasa cemas saat menghadapi perubahan.&#10;Saya nyaman bekerja sama dalam tim.&#10;Saya sering menunda pekerjaan sampai mendekati tenggat waktu."
+                        data-bulk-paste-input
+                    ></textarea>
+                    <p class="question-builder-summary" data-bulk-paste-preview>Belum ada soal yang ditempel.</p>
+                    <div class="question-builder-actions">
+                        <button type="button" class="btn btn-primary" data-bulk-paste-apply>Jadikan Daftar Soal</button>
+                    </div>
+                    <p class="field-help">
+                        Setiap baris otomatis jadi satu soal terpisah dan diberi nomor urut. Baris kosong akan dilewati. Kalau teksmu sudah bernomor duluan (mis. "1. Saya merasa..."), nomor itu otomatis dibuang — tidak ikut tersimpan sebagai isi soal. Setelah diproses, kamu masih bisa cek, sunting, atau hapus satu-satu di bawah sebelum menyimpan.
+                    </p>
+                </div>
+
                 @php
                     $rawRows = old('questions');
                     $rows = is_array($rawRows) && count($rawRows) > 0
@@ -147,7 +164,24 @@
             <form method="POST" action="{{ route('admin.modules.questions.store', $module) }}" class="form-grid" data-question-builder-form>
                 @csrf
 
-                <div class="question-builder-list" data-question-list data-start-number="{{ $existingQuestions->count() }}">
+                <div class="field">
+                    <span>Tempel Banyak Soal Sekaligus</span>
+                    <textarea
+                        class="input"
+                        rows="6"
+                        placeholder="Tempel atau ketik soal di sini, satu soal per baris."
+                        data-bulk-paste-input
+                    ></textarea>
+                    <p class="question-builder-summary" data-bulk-paste-preview>Belum ada soal yang ditempel.</p>
+                    <div class="question-builder-actions">
+                        <button type="button" class="btn btn-primary" data-bulk-paste-apply>Jadikan Daftar Soal</button>
+                    </div>
+                    <p class="field-help">
+                        Setiap baris otomatis jadi satu soal terpisah dan diberi nomor urut. Baris kosong akan dilewati. Kalau teksmu sudah bernomor duluan (mis. "1. Saya merasa..."), nomor itu otomatis dibuang — tidak ikut tersimpan sebagai isi soal.
+                    </p>
+                </div>
+
+                <div class="question-builder-list" data-question-list data-start-number="{{ $existingQuestions->count() + 1 }}">
                     <article class="question-builder-item" data-row draggable="true">
                         <div class="question-builder-head">
                             <div class="question-builder-head-meta">
@@ -199,7 +233,6 @@
                 if (!list || !(addBtn instanceof HTMLButtonElement)) return;
 
                 let nextIndex = list.querySelectorAll('[data-row]').length;
-                const startNumber = Number.parseInt(list.dataset.startNumber ?? '0', 10) || 0;
 
                 const rowTemplate = (index) => `
                     <article class="question-builder-item" data-row draggable="true">
@@ -238,11 +271,12 @@
                 `;
 
                 const syncNumbers = () => {
+                    const startNumber = Number(list.dataset.startNumber || '1') || 1;
                     const rows = Array.from(list.querySelectorAll('[data-row]'));
                     rows.forEach((row, index) => {
                         const number = row.querySelector('[data-row-number]');
                         if (number) {
-                            number.textContent = String(startNumber + index + 1);
+                            number.textContent = String(startNumber + index);
                         }
                         syncSummary(row);
                     });
@@ -304,17 +338,25 @@
                     toggleRow(toggleBtn.closest('[data-row]'));
                 });
 
-                addBtn.addEventListener('click', () => {
+                const addOneRow = ({ questionText = '', focus = true, collapsed = false } = {}) => {
                     list.insertAdjacentHTML('beforeend', rowTemplate(nextIndex));
                     nextIndex += 1;
                     const latestRow = list.querySelector('[data-row]:last-of-type');
                     if (latestRow instanceof HTMLElement) {
-                        toggleRow(latestRow, false);
                         const textarea = latestRow.querySelector('textarea[name$="[question]"]');
                         if (textarea instanceof HTMLTextAreaElement) {
+                            textarea.value = questionText;
+                        }
+                        toggleRow(latestRow, collapsed);
+                        if (focus && textarea instanceof HTMLTextAreaElement) {
                             textarea.focus();
                         }
                     }
+                    return latestRow;
+                };
+
+                addBtn.addEventListener('click', () => {
+                    addOneRow({ focus: true, collapsed: false });
                     syncNumbers();
                 });
 
@@ -397,6 +439,83 @@
                 });
 
                 syncNumbers();
+
+                // -------------------------------------------------------------
+                // Tempel Banyak Soal Sekaligus: pisahkan tiap baris teks jadi
+                // satu baris form soal terpisah, tanpa perlu klik "Tambah
+                // Pertanyaan" berkali-kali. Baris kosong dilewati.
+                // -------------------------------------------------------------
+                const bulkInput = form.querySelector('[data-bulk-paste-input]');
+                const bulkPreview = form.querySelector('[data-bulk-paste-preview]');
+                const bulkApplyBtn = form.querySelector('[data-bulk-paste-apply]');
+
+                if (bulkInput instanceof HTMLTextAreaElement && bulkPreview instanceof HTMLElement && bulkApplyBtn instanceof HTMLButtonElement) {
+                    // Kalau admin nempel teks yang sudah bernomor duluan (mis. dari
+                    // Word: "1. Saya merasa...", "2) Saya nyaman..."), nomor di
+                    // depan itu cuma penanda visual saat menempel — bukan bagian
+                    // dari isi soal, jadi harus dibuang sebelum disimpan.
+                    const stripLeadingNumber = (line) => line.replace(/^\s*\(?\d{1,4}\)?\s*[.\-:)]\s*/, '').trim();
+
+                    const parseLines = () => bulkInput.value
+                        .split('\n')
+                        .map((line) => stripLeadingNumber(line.trim()))
+                        .filter((line) => line.length > 0);
+
+                    const updateBulkPreview = () => {
+                        const lines = parseLines();
+                        if (lines.length === 0) {
+                            bulkPreview.textContent = 'Belum ada soal yang ditempel.';
+                            return;
+                        }
+                        const previewStart = Number(list.dataset.startNumber || '1') || 1;
+                        const preview = lines
+                            .slice(0, 5)
+                            .map((line, index) => `${previewStart + index}. ${line.slice(0, 60)}${line.length > 60 ? '…' : ''}`)
+                            .join('  ');
+                        const extra = lines.length > 5 ? ` … dan ${lines.length - 5} soal lagi` : '';
+                        bulkPreview.textContent = `${lines.length} soal terdeteksi: ${preview}${extra}`;
+                    };
+
+                    bulkInput.addEventListener('input', updateBulkPreview);
+                    updateBulkPreview();
+
+                    bulkApplyBtn.addEventListener('click', async () => {
+                        const lines = parseLines();
+                        if (lines.length === 0) {
+                            await window.AppDialog.alert({
+                                title: 'Belum Ada Soal',
+                                text: 'Tempel atau ketik minimal satu baris soal terlebih dahulu.',
+                                icon: 'warning',
+                            });
+                            return;
+                        }
+
+                        // Kalau baris pertama form masih kosong (form baru dibuka,
+                        // belum diisi apa-apa), pakai baris itu untuk soal pertama
+                        // supaya tidak menyisakan satu form kosong yang mengganjal.
+                        const firstRow = list.querySelector('[data-row]');
+                        const firstTextarea = firstRow?.querySelector('textarea[name$="[question]"]');
+                        let startIndex = 0;
+                        if (firstTextarea instanceof HTMLTextAreaElement && firstTextarea.value.trim() === '' && list.querySelectorAll('[data-row]').length === 1) {
+                            firstTextarea.value = lines[0];
+                            startIndex = 1;
+                        }
+
+                        for (let i = startIndex; i < lines.length; i++) {
+                            addOneRow({ questionText: lines[i], focus: false, collapsed: true });
+                        }
+
+                        syncNumbers();
+                        bulkInput.value = '';
+                        updateBulkPreview();
+
+                        await window.AppDialog.alert({
+                            title: 'Soal Ditambahkan',
+                            text: `${lines.length} soal berhasil dijadikan daftar soal. Cek, sunting, atau hapus baris tertentu sebelum menyimpan.`,
+                            icon: 'success',
+                        });
+                    });
+                }
             });
         })();
     </script>
