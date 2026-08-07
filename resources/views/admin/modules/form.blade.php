@@ -159,13 +159,13 @@
 
         <section class="admin-form-card" style="margin-top: 1rem;">
             <h2 class="title-md" style="margin-top: 0;">Tambah Soal Baru</h2>
-            <p class="subtitle">Tambahkan satu atau beberapa soal sekaligus ke modul ini.</p>
+            <p class="subtitle">Admin dapat menambahkan satu atau beberapa soal sekaligus ke modul ini.</p>
 
             <form method="POST" action="{{ route('admin.modules.questions.store', $module) }}" class="form-grid" data-question-builder-form>
                 @csrf
 
                 <div class="field">
-                    <span>Tempel Banyak Soal Sekaligus</span>
+                    <span>Tempelkan Soal Sekaligus</span>
                     <textarea
                         class="input"
                         rows="6"
@@ -511,7 +511,7 @@
 
                         await window.AppDialog.alert({
                             title: 'Soal Ditambahkan',
-                            text: `${lines.length} soal berhasil dijadikan daftar soal. Cek, sunting, atau hapus baris tertentu sebelum menyimpan.`,
+                            text: `${lines.length} soal berhasil dijadikan daftar soal. Periksa kembali soal yang ditambahkan, edit atau hapus baris tertentu sebelum menyimpan.`,
                             icon: 'success',
                         });
                     });
