@@ -174,6 +174,27 @@ class ParticipantExamFlowTest extends TestCase
         ]);
     }
 
+    public function test_login_endpoint_is_rate_limited_after_repeated_attempts(): void
+    {
+        $this->withServerVariables(['REMOTE_ADDR' => '127.0.0.1']);
+
+        for ($i = 0; $i < 5; $i++) {
+            $this->from('/login')
+                ->post('/login', [
+                    'username' => 'unknown',
+                    'password' => 'wrong-password',
+                ])
+                ->assertStatus(302);
+        }
+
+        $this->from('/login')
+            ->post('/login', [
+                'username' => 'unknown',
+                'password' => 'wrong-password',
+            ])
+            ->assertStatus(429);
+    }
+
     public function test_onsite_radius_session_cannot_be_started_from_outside_rsud_radius(): void
     {
         ExamLocationSetting::query()->create([
