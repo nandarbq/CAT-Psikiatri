@@ -98,7 +98,9 @@ class ExamController extends Controller
         $validated = $request->validated();
         $questionLookupStartedAt = hrtime(true);
         $question = Question::query()
-            ->select(['id', 'question', 'order_no'])
+            ->select(['id', 'question', 'order_no', 'module_id', 'is_active'])
+            ->where('module_id', $attempt->session->module_id)
+            ->where('is_active', true)
             ->findOrFail((int) $validated['question_id']);
         $questionLookupDurationMs = $this->durationMs($questionLookupStartedAt);
 
