@@ -100,6 +100,80 @@ class ParticipantExamFlowTest extends TestCase
         ]);
     }
 
+    public function test_participant_cannot_save_answer_for_question_from_other_module(): void
+    {
+        $allowedModule = Module::query()->create([
+            'name' => 'Modul Diperbolehkan',
+            'status' => true,
+        ]);
+
+        $blockedModule = Module::query()->create([
+            'name' => 'Modul Dilarang',
+            'status' => true,
+        ]);
+
+        $session = ExamSession::query()->create([
+            'title' => 'Session Modul Terbatas',
+            'module_id' => $allowedModule->id,
+            'start_time' => now()->subHour(),
+            'end_time' => now()->addHour(),
+            'duration_minutes' => 60,
+            'status' => true,
+        ]);
+
+        $participant = Participant::query()->create([
+            'session_id' => $session->id,
+            'nik' => '1234567891',
+            'username' => 'modultester',
+            'password' => 'password123',
+            'code' => '123457',
+            'name' => 'Modul Tester',
+            'birth_date' => '2000-01-01',
+            'gender' => 'male',
+            'is_finished' => false,
+        ]);
+
+        ExamToken::query()->create([
+            'session_id' => $session->id,
+            'participant_id' => $participant->id,
+            'token' => '123457',
+            'is_active' => true,
+        ]);
+
+        Question::query()->create([
+            'module_id' => $allowedModule->id,
+            'question' => 'Pertanyaan yang diperbolehkan',
+            'order_no' => 1,
+            'is_active' => true,
+        ]);
+
+        $blockedQuestion = Question::query()->create([
+            'module_id' => $blockedModule->id,
+            'question' => 'Pertanyaan dari modul lain',
+            'order_no' => 1,
+            'is_active' => true,
+        ]);
+
+        $this->post('/login', [
+            'username' => 'modultester',
+            'password' => 'password123',
+        ])->assertRedirect('/dashboard');
+
+        $this->post('/exam/access', [
+            'token' => '123457',
+        ])->assertRedirect('/exam');
+
+        $this->postJson('/exam/save-answer', [
+            'question_id' => $blockedQuestion->id,
+            'answer' => true,
+        ])->assertStatus(404)
+            ->assertJsonPath('message', 'Soal tidak tersedia untuk sesi ujian ini.');
+
+        $this->assertDatabaseMissing('participant_answers', [
+            'question_id' => $blockedQuestion->id,
+        ]);
+    }
+
     public function test_onsite_radius_session_cannot_be_started_from_outside_rsud_radius(): void
     {
         ExamLocationSetting::query()->create([

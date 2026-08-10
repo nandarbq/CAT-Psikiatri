@@ -97,11 +97,7 @@ class ExamController extends Controller
 
         $validated = $request->validated();
         $questionLookupStartedAt = hrtime(true);
-        $question = Question::query()
-            ->select(['id', 'question', 'order_no', 'module_id', 'is_active'])
-            ->where('module_id', $attempt->session->module_id)
-            ->where('is_active', true)
-            ->findOrFail((int) $validated['question_id']);
+        $question = $this->resolveQuestionForAttempt($attempt, (int) $validated['question_id']);
         $questionLookupDurationMs = $this->durationMs($questionLookupStartedAt);
 
         $saveStartedAt = hrtime(true);
@@ -168,6 +164,22 @@ class ExamController extends Controller
         }
 
         return view('exam.complete');
+    }
+
+    private function resolveQuestionForAttempt(ExamAttempt $attempt, int $questionId): Question
+    {
+        $question = Question::query()
+            ->select(['id', 'question', 'order_no', 'module_id', 'is_active'])
+            ->where('module_id', $attempt->session->module_id)
+            ->where('is_active', true)
+            ->whereKey($questionId)
+            ->first();
+
+        if ($question === null) {
+            abort(404, 'Soal tidak tersedia untuk sesi ujian ini.');
+        }
+
+        return $question;
     }
 
     private function durationMs(int $startAt): float
