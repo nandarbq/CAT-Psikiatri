@@ -61,11 +61,13 @@ class ExamGuard
             $attempt->forceFill(['session_token' => $attemptSessionToken])->save();
         }
 
-        if (
-            $sessionToken === ''
-            || ! hash_equals($attemptSessionToken, $sessionToken)
-            || $attemptId !== (int) $attempt->id
-        ) {
+        $isFirstRequestAfterLogin = $sessionToken === '';
+
+        if (! $isFirstRequestAfterLogin && ! hash_equals($attemptSessionToken, $sessionToken)) {
+            return $this->deny($request, 'Token sesi tidak valid. Silakan login ulang atau mulai ulang tes.');
+        }
+
+        if ($attemptId !== (int) $attempt->id || $sessionToken === '') {
             $request->session()->put('exam_attempt_id', (int) $attempt->id);
             $request->session()->put('exam_session_token', $attemptSessionToken);
             $request->session()->save();
