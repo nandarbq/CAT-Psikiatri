@@ -446,7 +446,7 @@ Note: C1, C2, M4 dan M5 sudah diimplementasikan dan diverifikasi di repo (AdminS
 - [ ] H5 ExamGuard enforce takeover, bukan self-heal
 - [ ] M6 try/catch QueryException di bulk move
 - [x] M7 + M8 tambah lockForUpdate() di module delete & question reorder
-- [ ] M9 ExamController::show — fallback currentIndex ke jawaban terakhir yang ada (hindari fallback ke 0)
+- [x] M9 ExamController::show — fallback currentIndex ke jawaban terakhir yang ada (hindari fallback ke 0)
 
 ## Sprint 3 (security hardening)
 - [ ] H6 + H9 putuskan kebijakan geo-fence mid-exam, enforce TTL cache
