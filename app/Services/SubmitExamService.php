@@ -20,11 +20,31 @@ class SubmitExamService
         $this->validateSessionService->ensureAttemptAccessible($attempt);
 
         return DB::transaction(function () use ($attempt): ExamAttempt {
-            if ($attempt->is_submitted) {
+            // Kunci baris attempt ini di level database (SELECT ... FOR UPDATE).
+            // Kalau ada request submit lain untuk attempt yang sama datang
+            // hampir bersamaan (double-klik, retry jaringan), request kedua
+            // akan menunggu di sini sampai transaction pertama selesai,
+            // lalu membaca status is_submitted yang sudah ter-update —
+            // bukan lagi membaca nilai lama yang belum tersinkron.
+            /** @var ExamAttempt $lockedAttempt */
+            $lockedAttempt = ExamAttempt::query()
+                ->whereKey($attempt->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($lockedAttempt->is_submitted) {
+                // Sudah disubmit duluan oleh request lain yang menang race.
+                // Jangan ulangi efek samping (update token, dsb) — cukup
+                // sinkronkan instance yang dipegang caller lalu kembalikan.
+                $attempt->forceFill([
+                    'is_submitted' => true,
+                    'finished_at' => $lockedAttempt->finished_at,
+                ]);
+
                 return $attempt;
             }
 
-            $attempt->forceFill([
+            $lockedAttempt->forceFill([
                 'is_submitted' => true,
                 'finished_at' => now(),
             ])->save();
@@ -39,6 +59,11 @@ class SubmitExamService
                 ->update([
                     'last_used_at' => now(),
                 ]);
+
+            $attempt->forceFill([
+                'is_submitted' => true,
+                'finished_at' => $lockedAttempt->finished_at,
+            ]);
 
             return $attempt;
         });

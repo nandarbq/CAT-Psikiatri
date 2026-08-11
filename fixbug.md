@@ -441,7 +441,7 @@ Fix:
 Note: C1, C2, M4 dan M5 sudah diimplementasikan dan diverifikasi di repo (AdminSettingsTest dihapus; AdminAuthTest dipatch). H1 di-skip sesuai instruksi.
 
 ## Sprint 2 (race conditions & concurrency)
-- [ ] H3 lockForUpdate() di SubmitExamService::submit
+- [x] H3 lockForUpdate() di SubmitExamService::submit
 - [ ] H4 current_question GREATEST()
 - [ ] H5 ExamGuard enforce takeover, bukan self-heal
 - [ ] M6 try/catch QueryException di bulk move
