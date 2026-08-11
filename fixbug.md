@@ -435,17 +435,17 @@ Fix:
 - [x] C1 fix saveAnswer module-scope
 - [x] C2 tambah throttle di /login & /exam/access
 - [x] M4 + M5 hapus 5 stale test, perbaiki 3 test bug
-- [ ] H1 git rm -r --cached vendor + .gitignore
+- [-] H1 git rm -r --cached vendor + .gitignore (skipped)
 - [x] H2 ubah FK cascade jadi restrict + tambah SoftDeletes
 
-Note: C1, C2, M4 dan M5 sudah diimplementasikan dan diverifikasi di repo (AdminSettingsTest dihapus; AdminAuthTest dipatch).
+Note: C1, C2, M4 dan M5 sudah diimplementasikan dan diverifikasi di repo (AdminSettingsTest dihapus; AdminAuthTest dipatch). H1 di-skip sesuai instruksi.
 
 ## Sprint 2 (race conditions & concurrency)
 - [ ] H3 lockForUpdate() di SubmitExamService::submit
 - [ ] H4 current_question GREATEST()
 - [ ] H5 ExamGuard enforce takeover, bukan self-heal
 - [ ] M6 try/catch QueryException di bulk move
-- [ ] M7 + M8 tambah lockForUpdate() di module delete & question reorder
+- [x] M7 + M8 tambah lockForUpdate() di module delete & question reorder
 - [ ] M9 ExamController::show — fallback currentIndex ke jawaban terakhir yang ada (hindari fallback ke 0)
 
 ## Sprint 3 (security hardening)

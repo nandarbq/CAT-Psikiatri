@@ -97,28 +97,45 @@ class QuestionController extends Controller
             ], 422);
         }
 
-        $moduleQuestionIds = Question::query()
-            ->where('module_id', $moduleId)
-            ->pluck('id')
-            ->map(static fn ($id): int => (int) $id);
-        $requestedIds = collect($ids);
-        if (
-            $requestedIds->count() !== $moduleQuestionIds->count()
-            || $requestedIds->sort()->values()->all() !== $moduleQuestionIds->sort()->values()->all()
-        ) {
+
+        // Use a transaction with row locking to prevent concurrent reorder races.
+        try {
+            DB::transaction(function () use ($moduleId, $ids): void {
+                $moduleQuestionIds = Question::query()
+                    ->where('module_id', $moduleId)
+                    ->orderBy('order_no')
+                    ->lockForUpdate()
+                    ->pluck('id')
+                    ->map(static fn ($id): int => (int) $id)
+                    ->all();
+
+                $requestedIds = array_values(array_map('intval', $ids));
+
+                if (count($requestedIds) !== count($moduleQuestionIds)) {
+                    throw new \RuntimeException('Urutan soal harus memuat semua soal pada modul ini.');
+                }
+
+                $sortedRequested = $requestedIds;
+                $sortedModule = $moduleQuestionIds;
+                sort($sortedRequested);
+                sort($sortedModule);
+
+                if (array_values($sortedRequested) !== array_values($sortedModule)) {
+                    throw new \RuntimeException('Urutan soal harus memuat semua soal pada modul ini.');
+                }
+
+                foreach ($requestedIds as $index => $questionId) {
+                    Question::query()
+                        ->whereKey($questionId)
+                        ->update(['order_no' => $index + 1]);
+                }
+            });
+        } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Urutan soal harus memuat semua soal pada modul ini.',
+                'message' => $e->getMessage() ?: 'Gagal memperbarui urutan soal.',
             ], 422);
         }
-
-        DB::transaction(function () use ($ids): void {
-            foreach ($ids as $index => $questionId) {
-                Question::query()
-                    ->whereKey($questionId)
-                    ->update(['order_no' => $index + 1]);
-            }
-        });
 
         return response()->json([
             'success' => true,

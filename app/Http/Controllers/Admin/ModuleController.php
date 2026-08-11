@@ -109,19 +109,35 @@ class ModuleController extends Controller
             return back()->withErrors(['module' => 'Modul tidak dapat dihapus karena sudah dipakai pada sesi tes.']);
         }
 
-        $hasAnsweredQuestion = Question::query()
-            ->where('module_id', $module->id)
-            ->whereHas('answers')
-            ->exists();
+        try {
+            DB::transaction(function () use ($module): void {
+            // Lock the module row to avoid concurrent modifications.
+            $locked = Module::query()->whereKey($module->id)->lockForUpdate()->first();
 
-        if ($hasAnsweredQuestion) {
-            return back()->withErrors(['module' => 'Modul tidak dapat dihapus karena soal di dalamnya sudah dipakai jawaban peserta.']);
+            if ($locked === null) {
+                throw new \RuntimeException('Modul tidak ditemukan saat akan dihapus.');
+            }
+
+            if ($locked->examSessions()->exists()) {
+                throw new \RuntimeException('Modul tidak dapat dihapus karena sudah dipakai pada sesi tes.');
+            }
+
+            $hasAnsweredQuestion = Question::query()
+                ->where('module_id', $locked->id)
+                ->whereHas('answers')
+                ->exists();
+
+            if ($hasAnsweredQuestion) {
+                throw new \RuntimeException('Modul tidak dapat dihapus karena soal di dalamnya sudah dipakai jawaban peserta.');
+            }
+
+            // Safe to delete questions then module
+                $locked->questions()->delete();
+                $locked->delete();
+            });
+        } catch (\Throwable $e) {
+            return back()->withErrors(['module' => $e->getMessage() ?: 'Gagal menghapus modul.']);
         }
-
-        DB::transaction(function () use ($module): void {
-            $module->questions()->delete();
-            $module->delete();
-        });
 
         return redirect()->route('admin.modules.index')->with('success', 'Modul berhasil dihapus.');
     }
