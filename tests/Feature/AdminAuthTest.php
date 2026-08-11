@@ -205,6 +205,90 @@ class AdminAuthTest extends TestCase
         ]);
     }
 
+    public function test_admin_cannot_delete_session_with_attempt_history(): void
+    {
+        $this->actingAsAdmin();
+
+        $session = ExamSession::query()->create([
+            'title' => 'Sesi Tidak Bisa Dihapus',
+            'module_id' => $this->defaultModuleId(),
+            'start_time' => now()->subHours(2),
+            'end_time' => now()->addHour(),
+            'duration_minutes' => 60,
+            'status' => true,
+            'access_mode' => ExamSession::ACCESS_MODE_ONLINE,
+        ]);
+
+        $participant = Participant::query()->create([
+            'session_id' => $session->id,
+            'nik' => '1234567890',
+            'username' => 'delete-lock-user',
+            'password' => 'password123',
+            'code' => 'DELETE-LOCK',
+            'name' => 'Delete Lock User',
+            'birth_date' => '2000-01-01',
+            'gender' => 'male',
+            'is_finished' => true,
+        ]);
+
+        ExamAttempt::query()->create([
+            'participant_id' => $participant->id,
+            'session_id' => $session->id,
+            'started_at' => now()->subMinutes(20),
+            'current_question' => 1,
+            'is_submitted' => true,
+            'session_token' => 'delete-lock-token',
+        ]);
+
+        $response = $this->delete(route('admin.sessions.destroy', $session));
+
+        $response->assertRedirect();
+        $response->assertSessionHasErrors('session');
+        $this->assertDatabaseHas('exam_sessions', ['id' => $session->id, 'deleted_at' => null]);
+    }
+
+    public function test_admin_cannot_delete_participant_with_attempt_history(): void
+    {
+        $this->actingAsAdmin();
+
+        $session = ExamSession::query()->create([
+            'title' => 'Sesi Peserta',
+            'module_id' => $this->defaultModuleId(),
+            'start_time' => now()->subHours(2),
+            'end_time' => now()->addHour(),
+            'duration_minutes' => 60,
+            'status' => true,
+            'access_mode' => ExamSession::ACCESS_MODE_ONLINE,
+        ]);
+
+        $participant = Participant::query()->create([
+            'session_id' => $session->id,
+            'nik' => '0987654321',
+            'username' => 'participant-delete-lock',
+            'password' => 'password123',
+            'code' => 'PART-DEL-LOCK',
+            'name' => 'Participant Delete Lock',
+            'birth_date' => '2000-01-01',
+            'gender' => 'female',
+            'is_finished' => true,
+        ]);
+
+        ExamAttempt::query()->create([
+            'participant_id' => $participant->id,
+            'session_id' => $session->id,
+            'started_at' => now()->subMinutes(20),
+            'current_question' => 1,
+            'is_submitted' => true,
+            'session_token' => 'participant-delete-lock-token',
+        ]);
+
+        $response = $this->delete(route('admin.participants.destroy', $participant));
+
+        $response->assertRedirect();
+        $response->assertSessionHasErrors('participant');
+        $this->assertDatabaseHas('participants', ['id' => $participant->id, 'deleted_at' => null]);
+    }
+
     public function test_admin_can_reactivate_closed_session(): void
     {
         $this->actingAsAdmin();

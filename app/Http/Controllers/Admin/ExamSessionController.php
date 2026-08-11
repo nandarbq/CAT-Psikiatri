@@ -90,14 +90,13 @@ class ExamSessionController extends Controller
 
     public function destroy(ExamSession $session): RedirectResponse
     {
-        $hadAttempts = $session->attempts()->exists();
+        if ($session->attempts()->exists()) {
+            return back()->withErrors(['session' => 'Sesi tidak dapat dihapus karena sudah memiliki riwayat pengerjaan tes.']);
+        }
+
         $session->delete();
 
-        $message = $hadAttempts
-            ? 'Sesi berhasil dihapus beserta seluruh riwayat pengerjaan tesnya.'
-            : 'Sesi berhasil dihapus.';
-
-        return redirect()->route('admin.sessions.index')->with('success', $message);
+        return redirect()->route('admin.sessions.index')->with('success', 'Sesi berhasil dihapus.');
     }
 
     public function updateStatus(Request $request, ExamSession $session): RedirectResponse

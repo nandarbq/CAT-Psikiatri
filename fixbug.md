@@ -436,7 +436,7 @@ Fix:
 - [x] C2 tambah throttle di /login & /exam/access
 - [x] M4 + M5 hapus 5 stale test, perbaiki 3 test bug
 - [ ] H1 git rm -r --cached vendor + .gitignore
-- [ ] H2 ubah FK cascade jadi restrict + tambah SoftDeletes
+- [x] H2 ubah FK cascade jadi restrict + tambah SoftDeletes
 
 Note: C1, C2, M4 dan M5 sudah diimplementasikan dan diverifikasi di repo (AdminSettingsTest dihapus; AdminAuthTest dipatch).
 
