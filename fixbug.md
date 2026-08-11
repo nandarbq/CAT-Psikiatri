@@ -442,7 +442,7 @@ Note: C1, C2, M4 dan M5 sudah diimplementasikan dan diverifikasi di repo (AdminS
 
 ## Sprint 2 (race conditions & concurrency)
 - [x] H3 lockForUpdate() di SubmitExamService::submit
-- [ ] H4 current_question GREATEST()
+- [x] H4 current_question GREATEST()
 - [ ] H5 ExamGuard enforce takeover, bukan self-heal
 - [ ] M6 try/catch QueryException di bulk move
 - [x] M7 + M8 tambah lockForUpdate() di module delete & question reorder
