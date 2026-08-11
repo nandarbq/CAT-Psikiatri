@@ -70,7 +70,7 @@ class AdminAuthTest extends TestCase
         $this->post('/login', [
             'username' => 'admin01',
             'password' => 'password123',
-        ])->assertRedirect(route('admin.results'));
+        ])->assertRedirect(route('admin.dashboard'));
 
         $this->get('/admin/results')->assertOk();
         $this->get('/admin/sessions')->assertOk();
@@ -352,7 +352,7 @@ class AdminAuthTest extends TestCase
 
         $response->assertRedirect(route('admin.sessions.participants.bulk.form', $targetSession));
         $response->assertSessionHas('success', function (mixed $message): bool {
-            return is_string($message) && str_contains($message, 'sedang mengerjakan ujian');
+            return is_string($message) && str_contains($message, 'sedang mengerjakan tes');
         });
         $this->assertDatabaseHas('participants', [
             'id' => $participant->id,
@@ -527,6 +527,7 @@ class AdminAuthTest extends TestCase
 
         $response = $this->put(route('admin.sessions.update', $session), [
             'title' => $session->title,
+            'module_id' => $session->module_id,
             'start_time' => $newStart,
             'end_time' => $newEnd,
             'duration_minutes' => 120,

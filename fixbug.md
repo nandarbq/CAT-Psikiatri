@@ -432,36 +432,39 @@ Fix:
 # Bagian 6 — Peta jalan (diurutkan)
 
 ## Sprint 1 (mencegah eksploit aktif + restore test suite)
-- C1 fix saveAnswer module-scope
-- C2 tambah throttle di /login & /exam/access
-- M4 + M5 hapus 5 stale test, perbaiki 3 test bug
-- H1 git rm -r --cached vendor + .gitignore
-- H2 ubah FK cascade jadi restrict + tambah SoftDeletes
+- [x] C1 fix saveAnswer module-scope
+- [x] C2 tambah throttle di /login & /exam/access
+- [x] M4 + M5 hapus 5 stale test, perbaiki 3 test bug
+- [ ] H1 git rm -r --cached vendor + .gitignore
+- [ ] H2 ubah FK cascade jadi restrict + tambah SoftDeletes
+
+Note: C1, C2, M4 dan M5 sudah diimplementasikan dan diverifikasi di repo (AdminSettingsTest dihapus; AdminAuthTest dipatch).
 
 ## Sprint 2 (race conditions & concurrency)
-- H3 lockForUpdate() di SubmitExamService::submit
-- H4 current_question GREATEST()
-- H5 ExamGuard enforce takeover, bukan self-heal
-- M6 try/catch QueryException di bulk move
-- M7 + M8 tambah lockForUpdate() di module delete & question reorder
+- [ ] H3 lockForUpdate() di SubmitExamService::submit
+- [ ] H4 current_question GREATEST()
+- [ ] H5 ExamGuard enforce takeover, bukan self-heal
+- [ ] M6 try/catch QueryException di bulk move
+- [ ] M7 + M8 tambah lockForUpdate() di module delete & question reorder
+- [ ] M9 ExamController::show — fallback currentIndex ke jawaban terakhir yang ada (hindari fallback ke 0)
 
 ## Sprint 3 (security hardening)
-- H6 + H9 putuskan kebijakan geo-fence mid-exam, enforce TTL cache
-- H7 jangan kurangi jarak dengan accuracy; treat sebagai quality gate
-- H8 terapkan role:admin ke seluruh admin group
-- M1 CSV formula injection helper
-- M2 hard-guard EXAM_TOKEN_BYPASS di production
+- [ ] H6 + H9 putuskan kebijakan geo-fence mid-exam, enforce TTL cache
+- [ ] H7 jangan kurangi jarak dengan accuracy; treat sebagai quality gate
+- [ ] H8 terapkan role:admin ke seluruh admin group
+- [ ] M1 CSV formula injection helper
+- [ ] M2 hard-guard EXAM_TOKEN_BYPASS di production
 
 ## Sprint 4 (test infrastructure)
-- M3 + M14 factory untuk 6 model + unit test untuk 4 service + GeoDistance
-- M16 standarkan pagination idiom via shared trait
-- M17 setup satu path E2E
+- [ ] M3 + M14 factory untuk 6 model + unit test untuk 4 service + GeoDistance
+- [ ] M16 standarkan pagination idiom via shared trait
+- [ ] M17 setup satu path E2E
 
 ## Sprint 5 (maintainability, tidak urgent)
-- A1 (lihat docs/architecture-audit-2026-08-09.md) refactor: trait BuildsAdminIndex, extract Alpine examEngine ke module JS, reconcile Carbon ke immutable
-- M13 Carbon Immutable di semua tempat
-- M10 hapus sessionAttemptNumber (dead code)
-- M11 + M12 ExamGuard session-id sanity + EnsureUserRole UX fix
+- [ ] A1 (lihat docs/architecture-audit-2026-08-09.md) refactor: trait BuildsAdminIndex, extract Alpine examEngine ke module JS, reconcile Carbon ke immutable
+- [ ] M13 Carbon Immutable di semua tempat
+- [ ] M10 hapus sessionAttemptNumber (dead code)
+- [ ] M11 + M12 ExamGuard session-id sanity + EnsureUserRole UX fix
 
 Low/FYI items (session encryption, password policy, monitoring URL exposure)
 
