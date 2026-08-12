@@ -23,37 +23,68 @@ class ValidateSessionService
             ]);
         }
 
-        if ($now->lt(CarbonImmutable::instance($session->start_time))) {
+        if (
+            $now->lt(
+                CarbonImmutable::instance($session->start_time)
+            )
+        ) {
             throw ValidationException::withMessages([
                 'session' => 'Sesi tes belum dimulai.',
             ]);
         }
 
-        if ($now->gt(CarbonImmutable::instance($session->end_time))) {
+        if (
+            $now->gt(
+                CarbonImmutable::instance($session->end_time)
+            )
+        ) {
             throw ValidationException::withMessages([
                 'session' => 'Sesi tes sudah berakhir.',
             ]);
         }
     }
 
-    public function ensureSessionLocationAccess(ExamSession $session, ?float $latitude, ?float $longitude, ?float $accuracyMeters = null): void
-    {
+    public function ensureSessionLocationAccess(
+        ExamSession $session,
+        ?float $latitude,
+        ?float $longitude,
+        ?float $accuracyMeters = null
+    ): void {
+      
         if (! $session->isOnsiteRadiusOnly()) {
             return;
         }
 
-        if (! is_numeric($latitude) || ! is_numeric($longitude)) {
+
+
+        $maxAccuracyMeters = (float) config(
+            'exam.max_accuracy_meters',
+            150
+        );
+
+        if (
+            is_numeric($accuracyMeters) &&
+            (float) $accuracyMeters > $maxAccuracyMeters
+        ) {
             throw ValidationException::withMessages([
-                'session' => 'Lokasi perangkat tidak tersedia. Sesi ini hanya bisa diakses di area RSUD.',
+                'session' =>
+                    'Sinyal lokasi perangkat kurang akurat ' .
+                    'untuk verifikasi radius RSUD. ' .
+                    'Coba pindah ke area dengan sinyal GPS ' .
+                    'yang lebih baik.',
             ]);
         }
 
         $setting = ExamLocationSetting::query()->first();
+
         if ($setting === null) {
             throw ValidationException::withMessages([
-                'session' => 'Konfigurasi radius lokasi RSUD belum diatur. Hubungi admin.',
+                'session' =>
+                    'Konfigurasi radius lokasi RSUD belum diatur. ' .
+                    'Hubungi admin.',
             ]);
         }
+
 
         $distanceMeters = GeoDistance::metersBetween(
             (float) $latitude,
@@ -62,57 +93,87 @@ class ValidateSessionService
             (float) $setting->center_longitude,
         );
 
-        $effectiveDistance = $distanceMeters;
-        if (is_numeric($accuracyMeters) && (float) $accuracyMeters > 0) {
-            $effectiveDistance = max(0.0, $distanceMeters - (float) $accuracyMeters);
-        }
 
-        if ($effectiveDistance > (float) $setting->allowed_radius_meters) {
+        if (
+            $distanceMeters >
+            (float) $setting->allowed_radius_meters
+        ) {
             throw ValidationException::withMessages([
-                'session' => 'Sesi ini hanya bisa diakses dalam radius lokasi RSUD.',
+                'session' =>
+                    'Sesi ini hanya bisa diakses dalam ' .
+                    'radius lokasi RSUD.',
             ]);
         }
     }
 
-    public function ensureAttemptAccessible(ExamAttempt $attempt): void
-    {
+    public function ensureAttemptAccessible(
+        ExamAttempt $attempt
+    ): void {
         if ($attempt->is_submitted) {
             throw ValidationException::withMessages([
-                'attempt' => 'Tes sudah disubmit dan terkunci.',
+                'attempt' =>
+                    'Tes sudah disubmit dan terkunci.',
             ]);
         }
 
         $this->ensureSessionActive($attempt->session);
-        $durationMinutes = $this->resolveDurationMinutes($attempt);
 
-        $deadlineByDuration = CarbonImmutable::instance($attempt->started_at)
-            ->addMinutes($durationMinutes);
-        $sessionEnd = CarbonImmutable::instance($attempt->session->end_time);
-        $effectiveDeadline = $deadlineByDuration->min($sessionEnd);
+        $durationMinutes =
+            $this->resolveDurationMinutes($attempt);
 
-        if (CarbonImmutable::now()->gt($effectiveDeadline)) {
+        $deadlineByDuration =
+            CarbonImmutable::instance($attempt->started_at)
+                ->addMinutes($durationMinutes);
+
+        $sessionEnd =
+            CarbonImmutable::instance(
+                $attempt->session->end_time
+            );
+
+        $effectiveDeadline =
+            $deadlineByDuration->min($sessionEnd);
+
+        if (
+            CarbonImmutable::now()->gt($effectiveDeadline)
+        ) {
             throw ValidationException::withMessages([
                 'attempt' => 'Waktu tes habis.',
             ]);
         }
     }
 
-    public function effectiveDeadline(ExamAttempt $attempt): CarbonImmutable
-    {
-        $durationMinutes = $this->resolveDurationMinutes($attempt);
-        $deadlineByDuration = CarbonImmutable::instance($attempt->started_at)
-            ->addMinutes($durationMinutes);
-        $sessionEnd = CarbonImmutable::instance($attempt->session->end_time);
+    public function effectiveDeadline(
+        ExamAttempt $attempt
+    ): CarbonImmutable {
+        $durationMinutes =
+            $this->resolveDurationMinutes($attempt);
+
+        $deadlineByDuration =
+            CarbonImmutable::instance($attempt->started_at)
+                ->addMinutes($durationMinutes);
+
+        $sessionEnd =
+            CarbonImmutable::instance(
+                $attempt->session->end_time
+            );
 
         return $deadlineByDuration->min($sessionEnd);
     }
 
-    private function resolveDurationMinutes(ExamAttempt $attempt): int
-    {
-        $rawDuration = $attempt->session->duration_minutes;
-        if (! is_numeric($rawDuration) || (float) $rawDuration <= 0) {
+    private function resolveDurationMinutes(
+        ExamAttempt $attempt
+    ): int {
+        $rawDuration =
+            $attempt->session->duration_minutes;
+
+        if (
+            ! is_numeric($rawDuration) ||
+            (float) $rawDuration <= 0
+        ) {
             throw ValidationException::withMessages([
-                'session' => 'Durasi sesi tes tidak valid. Hubungi admin.',
+                'session' =>
+                    'Durasi sesi tes tidak valid. ' .
+                    'Hubungi admin.',
             ]);
         }
 

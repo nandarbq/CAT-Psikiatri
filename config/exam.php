@@ -9,5 +9,7 @@ return [
 
     'geo_cache_ttl_seconds' => 90,
 
+    'max_accuracy_meters' => 150,
+
 ];
 
