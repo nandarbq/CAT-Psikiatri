@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Http\Controllers\Admin\ResultController;
 use App\Models\ExamAttempt;
 use App\Models\ExamLocationSetting;
 use App\Models\ExamSession;
@@ -93,6 +94,14 @@ class AdminAuthTest extends TestCase
         $this->actingAs($nonAdmin)
             ->get('/admin/dashboard')
             ->assertRedirect(route('participant.dashboard'));
+    }
+
+    public function test_summary_csv_sanitizes_formula_injection_values(): void
+    {
+        $sanitized = ResultController::csvSafe("=cmd|'/c calc'!A1");
+
+        $this->assertSame(' =cmd|\'/c calc\'!A1', $sanitized);
+        $this->assertSame('Alice', ResultController::csvSafe('Alice'));
     }
 
     public function test_admin_can_export_summary_csv_and_excel(): void
