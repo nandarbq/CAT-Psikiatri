@@ -6,6 +6,7 @@ namespace Tests\Feature;
 
 use App\Http\Controllers\Admin\ResultController;
 use App\Models\ExamAttempt;
+use App\Providers\AppServiceProvider;
 use App\Models\ExamLocationSetting;
 use App\Models\ExamSession;
 use App\Models\ExamToken;
@@ -102,6 +103,18 @@ class AdminAuthTest extends TestCase
 
         $this->assertSame(' =cmd|\'/c calc\'!A1', $sanitized);
         $this->assertSame('Alice', ResultController::csvSafe('Alice'));
+    }
+
+    public function test_production_rejects_token_bypass_configuration(): void
+    {
+        config()->set('exam.token_bypass_enabled', true);
+
+        $this->app['env'] = 'production';
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('EXAM_TOKEN_BYPASS cannot be enabled in production.');
+
+        AppServiceProvider::guardTokenBypassProduction();
     }
 
     public function test_admin_can_export_summary_csv_and_excel(): void
