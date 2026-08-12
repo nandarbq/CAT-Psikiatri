@@ -453,7 +453,7 @@ Note: C1, C2, M4 dan M5 sudah diimplementasikan dan diverifikasi di repo (AdminS
 - [x] H7 jangan kurangi jarak dengan accuracy; treat sebagai quality gate
 - [x] H8 terapkan role:admin ke seluruh admin group
 - [x] M1 CSV formula injection helper
-- [ ] M2 hard-guard EXAM_TOKEN_BYPASS di production
+- [x] M2 hard-guard EXAM_TOKEN_BYPASS di production
 
 ## Sprint 4 (test infrastructure)
 - [ ] M3 + M14 factory untuk 6 model + unit test untuk 4 service + GeoDistance
