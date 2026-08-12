@@ -34,7 +34,7 @@ if (app()->environment(['local', 'development', 'testing'])) {
 Route::redirect('/', '/login');
 
 Route::get('/login', [ParticipantAuthController::class, 'showLogin'])->name('participant.login');
-Route::post('/login', [ParticipantAuthController::class, 'login'])->name('participant.login.submit');
+Route::post('/login', [ParticipantAuthController::class, 'login'])->name('participant.login.submit')->middleware('throttle:5,1');
 Route::post('/logout', [ParticipantAuthController::class, 'logout'])->name('participant.logout');
 
 Route::middleware('participant.auth')->group(function (): void {
@@ -42,7 +42,7 @@ Route::middleware('participant.auth')->group(function (): void {
     Route::get('/profile/edit', [ParticipantPortalController::class, 'editProfile'])->name('participant.profile.edit');
     Route::put('/profile', [ParticipantPortalController::class, 'updateProfile'])->name('participant.profile.update');
     Route::get('/exam/access', [ExamAccessController::class, 'showAccessForm'])->name('exam.access');
-    Route::post('/exam/access', [ExamAccessController::class, 'start'])->name('exam.start');
+    Route::post('/exam/access', [ExamAccessController::class, 'start'])->name('exam.start')->middleware('throttle:5,1');
 });
 
 Route::prefix('exam')->middleware('exam.guard')->group(function (): void {
@@ -55,7 +55,7 @@ Route::get('/exam/completed', [ExamController::class, 'complete'])->name('exam.c
 
 Route::prefix('admin')->name('admin.')->group(function (): void {
     Route::get('/login', static fn () => redirect()->route('participant.login'))->name('login');
-    Route::post('/login', [ParticipantAuthController::class, 'login'])->name('login.submit');
+    Route::post('/login', [ParticipantAuthController::class, 'login'])->name('login.submit')->middleware('throttle:5,1');
 
     Route::middleware('admin.auth')->group(function (): void {
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
@@ -103,7 +103,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         ]);
         Route::get('/tokens/bulk', [ExamTokenController::class, 'bulkForm'])->name('tokens.bulk.form');
         Route::post('/tokens/bulk', [ExamTokenController::class, 'bulk'])->name('tokens.bulk');
-        Route::post('/tokens/generate', [ExamTokenController::class, 'generate'])->name('tokens.generate');
+        Route::post('/tokens/generate', [ExamTokenController::class, 'generate'])->name('tokens.generate')->middleware('throttle:10,1');
         Route::post('/modules/{module}/status', [ModuleController::class, 'updateStatus'])->name('modules.status');
         Route::post('/modules/{module}/questions', [ModuleController::class, 'addQuestions'])->name('modules.questions.store');
         Route::resource('modules', ModuleController::class)->except(['show']);

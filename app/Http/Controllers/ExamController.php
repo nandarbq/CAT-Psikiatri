@@ -68,7 +68,27 @@ class ExamController extends Controller
             $currentIndex = 0;
         } else {
             $foundIndex = $questions->search(fn (array $question): bool => $question['order_no'] === $attempt->current_question);
-            $currentIndex = $foundIndex === false ? 0 : $foundIndex;
+
+            if ($foundIndex !== false) {
+                $currentIndex = $foundIndex;
+            } else {
+                // Fallback: gunakan order_no tertinggi dari jawaban yang masih ada
+                $answeredQuestionIds = array_map('intval', array_keys($answers));
+
+                $answeredOrderNos = collect($answeredQuestionIds)
+                    ->map(fn (int $qid) => $questions->firstWhere('id', $qid)['order_no'] ?? null)
+                    ->filter()
+                    ->map(fn ($o) => (int) $o)
+                    ->all();
+
+                if ($answeredOrderNos === []) {
+                    $currentIndex = 0;
+                } else {
+                    $maxOrder = max($answeredOrderNos);
+                    $foundIndex = $questions->search(fn (array $question): bool => $question['order_no'] === $maxOrder);
+                    $currentIndex = $foundIndex === false ? 0 : $foundIndex;
+                }
+            }
         }
 
         $sessionAttemptNumber = ExamAttempt::query()
@@ -97,9 +117,7 @@ class ExamController extends Controller
 
         $validated = $request->validated();
         $questionLookupStartedAt = hrtime(true);
-        $question = Question::query()
-            ->select(['id', 'question', 'order_no'])
-            ->findOrFail((int) $validated['question_id']);
+        $question = $this->resolveQuestionForAttempt($attempt, (int) $validated['question_id']);
         $questionLookupDurationMs = $this->durationMs($questionLookupStartedAt);
 
         $saveStartedAt = hrtime(true);
@@ -166,6 +184,22 @@ class ExamController extends Controller
         }
 
         return view('exam.complete');
+    }
+
+    private function resolveQuestionForAttempt(ExamAttempt $attempt, int $questionId): Question
+    {
+        $question = Question::query()
+            ->select(['id', 'question', 'order_no', 'module_id', 'is_active'])
+            ->where('module_id', $attempt->session->module_id)
+            ->where('is_active', true)
+            ->whereKey($questionId)
+            ->first();
+
+        if ($question === null) {
+            abort(404, 'Soal tidak tersedia untuk sesi ujian ini.');
+        }
+
+        return $question;
     }
 
     private function durationMs(int $startAt): float

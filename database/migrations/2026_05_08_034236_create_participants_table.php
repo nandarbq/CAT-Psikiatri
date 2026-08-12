@@ -12,7 +12,7 @@ return new class extends Migration
     {
         Schema::create('participants', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('session_id')->constrained('exam_sessions')->cascadeOnDelete();
+            $table->foreignId('session_id')->constrained('exam_sessions')->restrictOnDelete();
             $table->string('nik')->unique();
             $table->string('username')->unique();
             $table->string('password');

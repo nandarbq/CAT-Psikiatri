@@ -197,14 +197,13 @@ class ParticipantController extends Controller
 
     public function destroy(Participant $participant): RedirectResponse
     {
-        $hadAttempts = $participant->attempts()->exists();
+        if ($participant->attempts()->exists()) {
+            return back()->withErrors(['participant' => 'Peserta tidak dapat dihapus karena sudah memiliki riwayat pengerjaan tes.']);
+        }
+
         $participant->delete();
 
-        $message = $hadAttempts
-            ? 'Peserta berhasil dihapus beserta seluruh riwayat pengerjaan tesnya.'
-            : 'Peserta berhasil dihapus.';
-
-        return redirect()->route('admin.participants.index')->with('success', $message);
+        return redirect()->route('admin.participants.index')->with('success', 'Peserta berhasil dihapus.');
     }
 
     public function bulk(Request $request): RedirectResponse

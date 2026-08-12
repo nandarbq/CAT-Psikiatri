@@ -1,97 +1,87 @@
 # CAT Psikiatri Examination System (Laravel 12)
 
-Aplikasi web ujian psikiatri gaya CAT (Computer Assisted Test) sesuai dokumen `cat_psychology_system_documentation_master (1).md`.
+Aplikasi web ujian psikiatri berbasis CAT (Computer Assisted Test) untuk mendukung alur ujian peserta, administrasi sesi, monitoring hasil, dan pengaturan lokasi RSUD.
 
-## Stack
+## Stack yang digunakan
 
 - Laravel 12
-- PHP 8.2 (locked via Composer platform)
-- MySQL / MariaDB (XAMPP local)
-- Blade + Alpine.js + Fetch API (autosave)
+- PHP 8.2 (dikunci lewat Composer platform)
+- MySQL / MariaDB (kondisi lokal XAMPP)
+- Blade + Alpine.js + Axios/Fetch untuk autosave
+- Vite untuk asset frontend
 
-## Fitur MVP yang sudah dibuat
+## Fitur utama saat ini
 
-- Login peserta (`/login`)
-- Validasi token sesi ujian (`/exam/access`)
-- Create / resume attempt tunggal per peserta
-- Halaman ujian one-question focus + timer + progress
-- Autosave jawaban YES/NO via AJAX (`POST /exam/save-answer`)
-- Submit ujian dan lock attempt (`POST /exam/submit`)
-- Halaman selesai ujian
-- Login terpadu (`/login`) untuk peserta dan admin/dokter dengan deteksi role otomatis
-- CRUD admin: sesi, peserta, soal
-- Bulk tambah peserta per sesi dari data akun peserta existing melalui halaman khusus (`/admin/sessions/{session}/participants/bulk`)
-- Aksi cepat tutup/buka sesi ujian dari list sesi untuk kebutuhan pasca-tes
-- Pengaturan mode akses sesi ujian:
-  - `Online` (bisa dari luar RSUD)
-  - `Dalam Radius RSUD` (dibatasi geofence berdasarkan titik koordinat + radius meter)
-- Halaman standalone `Lokasi RSUD` untuk atur titik pusat + radius geofence global (OpenStreetMap)
-- CRUD admin: token ujian (`/admin/tokens`) berlaku per sesi
-- Generator token otomatis dari halaman form token
-- CRUD master kategori (`/admin/categories`)
-- Filter & search cepat pada list sesi, peserta, dan soal
-- Bulk action pada list sesi, peserta, dan soal
-- Monitoring hasil admin (`/admin/results`)
-- Export hasil:
-  - Summary CSV (`/admin/results/export/csv`)
-  - Summary Excel-compatible (`/admin/results/export/excel`)
-  - Detail per-attempt CSV (`/admin/results/{attempt}/export/csv`)
+- Login terintegrasi di `/login` untuk peserta dan admin/dokter dengan deteksi role otomatis
+- Akses ujian di `/exam/access` dengan validasi sesi dan token ujian
+- Alur ujian satu soal fokus, timer, progress, dan resume attempt
+- Autosave jawaban secara berkala melalui endpoint `POST /exam/save-answer`
+- Submit ujian dan lock attempt melalui `POST /exam/submit`
+- Halaman selesai ujian dan status attempt
+- Admin dapat mengelola sesi, peserta, modul, soal, token, serta pengguna
+- Bulk tambah peserta ke sesi dari akun peserta yang sudah ada
+- Fitur cepat tutup/buka sesi ujian dari daftar sesi
+- Pengaturan mode akses sesi:
+  - `Online` untuk akses dari luar RSUD
+  - `Dalam Radius RSUD` dengan geofence berbasis koordinat dan radius meter
+- Halaman pengaturan lokasi RSUD untuk titik pusat dan radius global (OpenStreetMap)
+- Monitoring hasil admin di `/admin/results` dengan export summary/detail CSV serta Excel-compatible
+- Endpoint monitoring: `/health`, `/status`, `/version`, `/build-info`
+- Fitur simulasi ujian untuk kebutuhan testing dan presentasi admin
 
 ## Lock Composer ke PHP 8.2
 
-`composer.json` sudah dikunci:
+File `composer.json` sudah dikunci dengan:
 
 - `require.php: ^8.2`
 - `config.platform.php: 8.2.0`
 - `config.platform-check: php-only`
 
-Ini memastikan dependency resolution mengikuti target XAMPP PHP 8.2 walaupun CLI host lebih baru.
+Hal ini membantu memastikan dependency resolution tetap sesuai target environment XAMPP PHP 8.2.
 
-## Setup Lokal (XAMPP)
+## Setup lokal (XAMPP)
 
-1. Pastikan XAMPP aktif:
-   - Apache
-   - MySQL
-2. Buat database baru, contoh: `cat_psychology`
-3. Masuk folder project:
+1. Pastikan XAMPP aktif untuk Apache dan MySQL.
+2. Buat database baru, misalnya `cat_psychology`.
+3. Masuk ke folder project:
    ```bash
-   cd /home/viasco/Koding/cat-pyschology
+   cd /path/to/CAT-Psikiatri
    ```
-4. Install dependency (sudah terpasang saat scaffold, jalankan lagi bila perlu):
+4. Instal dependency:
    ```bash
    composer install
    npm install
    ```
-5. Salin env (jika belum ada) dan sesuaikan:
+5. Salin file environment jika belum ada:
    ```bash
    cp .env.example .env
    ```
-6. `.env` default sudah diarahkan ke XAMPP MySQL:
+6. Sesuaikan konfigurasi database di `.env`:
    - `DB_CONNECTION=mysql`
    - `DB_HOST=127.0.0.1`
    - `DB_PORT=3306`
    - `DB_DATABASE=cat_psychology`
    - `DB_USERNAME=root`
    - `DB_PASSWORD=`
-7. Generate key + migrate + seed:
+7. Jalankan migrasi dan seeder:
    ```bash
    php artisan key:generate
    php artisan migrate --seed
    ```
-8. Jalankan app:
+8. Jalankan aplikasi:
    ```bash
    php artisan serve
    npm run dev
    ```
 
-## Akun Demo Seeder
+## Akun demo seed
 
 - Peserta:
   - Username: `peserta01`
   - Password: `password123`
-  - Token Ujian: `123456`
+  - Token ujian: `123456`
 - Admin:
-  - URL Login: `/login`
+  - URL login: `/login`
   - Username: `admin01`
   - Password: `password123`
 
@@ -104,28 +94,28 @@ Ini memastikan dependency resolution mengikuti target XAMPP PHP 8.2 walaupun CLI
   - `app/Services/SaveAnswerService.php`
   - `app/Services/SubmitExamService.php`
   - `app/Services/ValidateSessionService.php`
-- Exam UI: `resources/views/exam/index.blade.php`
+- UI ujian: `resources/views/exam/index.blade.php`
 
-## Catatan
+## Catatan penting
 
-- Semua route admin sudah diproteksi middleware `admin.auth`.
-- Khusus route `Lokasi RSUD` diproteksi middleware `role:admin` (dokter tidak dapat mengakses).
+- Semua route admin diproteksi middleware `admin.auth`.
+- Route `Lokasi RSUD` hanya dapat diakses oleh role admin, bukan dokter.
 - Hardening rule admin:
-  - Peserta dengan attempt aktif/belum submit tidak bisa dipindah sesi
-  - Sesi yang sudah punya attempt tidak bisa mengubah start/end/duration
-- Token ujian dikelola lewat menu `Token Ujian` (`/admin/tokens`) dan berlaku untuk sesi yang dipilih saat peserta mengakses `/exam/access`.
-- Untuk kebutuhan testing, bypass token dapat diaktifkan via `.env`:
-  - `EXAM_TOKEN_BYPASS=true` (token tidak divalidasi saat akses ujian)
-  - **Wajib** dikembalikan ke `false` setelah testing.
-- Test database (`AdminAuthTest`, `ParticipantExamFlowTest`) membutuhkan ekstensi `pdo_sqlite` untuk berjalan penuh di local testing.
+  - peserta dengan attempt aktif belum submit tidak dapat dipindah sesi
+  - sesi yang sudah memiliki attempt tidak dapat mengubah jam mulai/selesai/durasi
+- Token ujian dikelola melalui menu `Token Ujian` di `/admin/tokens` dan berlaku untuk sesi yang dipilih saat peserta mengakses `/exam/access`.
+- Untuk kebutuhan testing, bypass token dapat diaktifkan lewat `.env`:
+  - `EXAM_TOKEN_BYPASS=true`
+  - Wajib dikembalikan ke `false` setelah testing selesai.
+- Test database untuk skenario admin dan peserta membutuhkan ekstensi `pdo_sqlite`.
 
-## Mode Shared Hosting Tanpa `storage:link`
+## Mode shared hosting tanpa `storage:link`
 
-Project ini sudah disiapkan untuk mode **no symlink**:
+Project ini sudah disiapkan untuk mode no symlink:
 
 - `FILESYSTEM_DISK=public`
 - Disk `public` diarahkan ke `public/uploads` (bukan `storage/app/public`)
-- URL file publik: `APP_URL/uploads/...`
+- URL file publik memakai pola `APP_URL/uploads/...`
 
 Langkah minimum di hosting:
 
@@ -133,8 +123,8 @@ Langkah minimum di hosting:
 2. Pastikan folder tersebut writable oleh web server.
 3. Tidak perlu menjalankan `php artisan storage:link`.
 
-## Panduan UX Writing
+## Panduan UX writing
 
-Untuk konsistensi teks antarmuka (bahasa Indonesia sederhana untuk dokter/admin dan peserta), gunakan panduan berikut:
+Untuk menjaga konsistensi teks antarmuka dalam bahasa Indonesia yang sederhana, gunakan panduan berikut:
 
 - `docs/ux-writing-guide-id.md`

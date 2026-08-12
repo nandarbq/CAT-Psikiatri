@@ -19,6 +19,16 @@ class SaveAnswerService
         $attemptWithSession = $attempt->relationLoaded('session') ? $attempt : $attempt->load('session');
         $this->validateSessionService->ensureAttemptAccessible($attemptWithSession);
 
+        // Defense-in-depth: soal harus milik modul attempt ini dan aktif,
+        // meskipun controller sudah memfilter query-nya. Mencegah cross-module
+        // answer injection walau service ini dipanggil dari jalur lain.
+        if (
+            (int) $question->module_id !== (int) $attemptWithSession->session->module_id
+            || ! $question->is_active
+        ) {
+            abort(404, 'Soal tidak tersedia untuk sesi ujian ini.');
+        }
+
         DB::transaction(function () use ($attempt, $question, $answer): void {
             $now = now();
 

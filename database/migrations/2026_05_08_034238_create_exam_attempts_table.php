@@ -12,8 +12,8 @@ return new class extends Migration
     {
         Schema::create('exam_attempts', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('participant_id')->constrained('participants')->cascadeOnDelete();
-            $table->foreignId('session_id')->constrained('exam_sessions')->cascadeOnDelete();
+            $table->foreignId('participant_id')->constrained('participants')->restrictOnDelete();
+            $table->foreignId('session_id')->constrained('exam_sessions')->restrictOnDelete();
             $table->dateTime('started_at');
             $table->dateTime('finished_at')->nullable();
             $table->unsignedInteger('current_question')->default(1);
