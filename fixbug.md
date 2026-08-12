@@ -449,9 +449,9 @@ Note: C1, C2, M4 dan M5 sudah diimplementasikan dan diverifikasi di repo (AdminS
 - [x] M9 ExamController::show — fallback currentIndex ke jawaban terakhir yang ada (hindari fallback ke 0)
 
 ## Sprint 3 (security hardening)
-- [ ] H6 + H9 putuskan kebijakan geo-fence mid-exam, enforce TTL cache
-- [ ] H7 jangan kurangi jarak dengan accuracy; treat sebagai quality gate
-- [ ] H8 terapkan role:admin ke seluruh admin group
+- [x] H6 + H9 putuskan kebijakan geo-fence mid-exam, enforce TTL cache
+- [x] H7 jangan kurangi jarak dengan accuracy; treat sebagai quality gate
+- [x] H8 terapkan role:admin ke seluruh admin group
 - [ ] M1 CSV formula injection helper
 - [ ] M2 hard-guard EXAM_TOKEN_BYPASS di production
 

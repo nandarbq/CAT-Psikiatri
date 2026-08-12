@@ -80,6 +80,21 @@ class AdminAuthTest extends TestCase
         $this->get('/admin/modules')->assertOk();
     }
 
+    public function test_non_admin_user_cannot_access_admin_pages(): void
+    {
+        $nonAdmin = User::query()->create([
+            'name' => 'User Biasa',
+            'username' => 'nonadmin01',
+            'email' => 'user@example.com',
+            'role' => 'user',
+            'password' => Hash::make('password123'),
+        ]);
+
+        $this->actingAs($nonAdmin)
+            ->get('/admin/dashboard')
+            ->assertRedirect(route('participant.dashboard'));
+    }
+
     public function test_admin_can_export_summary_csv_and_excel(): void
     {
         $this->actingAsAdmin();
