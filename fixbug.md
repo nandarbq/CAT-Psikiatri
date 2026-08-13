@@ -457,7 +457,7 @@ Note: C1, C2, M4 dan M5 sudah diimplementasikan dan diverifikasi di repo (AdminS
 
 ## Sprint 4 (test infrastructure)
 - [x] M3 + M14 factory untuk 6 model + unit test untuk 4 service + GeoDistance
-- [ ] M16 standarkan pagination idiom via shared trait
+- [x] M16 standarkan pagination idiom via shared trait
 - [x] M17 setup satu path E2E (login → start exam → autosave → submit + GPS out-of-radius denial)
 
 ## Sprint 5 (maintainability, tidak urgent)
