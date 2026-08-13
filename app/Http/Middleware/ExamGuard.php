@@ -169,35 +169,12 @@ class ExamGuard
             return null;
 
         } catch (ValidationException $exception) {
-
-            $graceSeconds = (int) config(
-                'exam.geo_grace_seconds',
-                120
+            $request->session()->put(
+                'exam_geo_out_of_range_since',
+                now()->timestamp
             );
+            $request->session()->save();
 
-            $outOfRangeSince = $request->session()->get(
-                'exam_geo_out_of_range_since'
-            );
-
-            if (! is_numeric($outOfRangeSince)) {
-                $request->session()->put(
-                    'exam_geo_out_of_range_since',
-                    now()->timestamp
-                );
-
-                $request->session()->save();
-
-                return null;
-            }
-
-            if (
-                now()->timestamp - (int) $outOfRangeSince
-                <= $graceSeconds
-            ) {
-                return null;
-            }
-
-            
             return $this->deny(
                 $request,
                 collect($exception->errors())
