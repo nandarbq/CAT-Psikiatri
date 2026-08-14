@@ -90,19 +90,6 @@ class ExamGuard
             );
         }
 
-        /*
-         * M11:
-         *
-         * Pastikan session pada attempt sama dengan session
-         * yang saat ini dimiliki participant.
-         *
-         * Kondisi yang harus dipenuhi:
-         *
-         * attempt.session_id === participant.session_id
-         *
-         * Jika participant sudah dipindahkan ke session baru,
-         * attempt dari session lama tidak boleh digunakan.
-         */
         if (
             (int) $attempt->session_id !==
             (int) $attempt->participant->session_id
@@ -187,14 +174,7 @@ class ExamGuard
             );
         }
 
-        /*
-         * H6:
-         *
-         * Submit tidak diblokir oleh pengecekan lokasi.
-         *
-         * Peserta tetap dapat menyimpan jawaban final
-         * meskipun lokasi bermasalah ketika melakukan submit.
-         */
+
         $isSubmitRoute = $request->routeIs('exam.submit');
 
         if (! $isSubmitRoute) {
@@ -208,10 +188,6 @@ class ExamGuard
             }
         }
 
-        /*
-         * Simpan attempt ke request attributes agar controller/service
-         * dapat mengambil attempt yang sudah divalidasi.
-         */
         $request->attributes->set(
             'examAttempt',
             $attempt
