@@ -462,7 +462,7 @@ Note: C1, C2, M4 dan M5 sudah diimplementasikan dan diverifikasi di repo (AdminS
 
 ## Sprint 5 (maintainability, tidak urgent)
 - [ ] A1 (lihat docs/architecture-audit-2026-08-09.md) refactor: trait BuildsAdminIndex, extract Alpine examEngine ke module JS, reconcile Carbon ke immutable
-- [ ] M13 Carbon Immutable di semua tempat
+- [x] M13 Carbon Immutable di semua tempat
 - [ ] M10 hapus sessionAttemptNumber (dead code)
 - [ ] M11 + M12 ExamGuard session-id sanity + EnsureUserRole UX fix
 
