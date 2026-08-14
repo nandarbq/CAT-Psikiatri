@@ -27,7 +27,12 @@ class ExamGuard
     public function handle(Request $request, Closure $next): Response
     {
         $participantId = (int) $request->session()->get('participant_id', 0);
-        $attemptId = (int) $request->session()->get('exam_attempt_id', 0);
+
+        $attemptId = (int) $request->session()->get(
+            'exam_attempt_id',
+            0
+        );
+
         $sessionToken = (string) $request->session()->get(
             'exam_session_token',
             ''
@@ -40,9 +45,15 @@ class ExamGuard
             );
         }
 
-        $relations = $request->expectsJson()
-            ? ['session.module']
-            : ['session.module', 'participant'];
+        /*
+         * Participant selalu di-load karena M11 membutuhkan
+         * session_id milik participant untuk dibandingkan dengan
+         * session_id milik ExamAttempt.
+         */
+        $relations = [
+            'session.module',
+            'participant',
+        ];
 
         $attempt = $attemptId > 0
             ? ExamAttempt::query()
@@ -50,6 +61,10 @@ class ExamGuard
                 ->find($attemptId)
             : null;
 
+        /*
+         * Jika attempt dari session sebelumnya tidak valid,
+         * cari attempt aktif terbaru milik participant.
+         */
         if (
             $attempt === null ||
             (int) $attempt->participant_id !== $participantId
@@ -62,6 +77,9 @@ class ExamGuard
                 ->first();
         }
 
+        /*
+         * Pastikan attempt memang milik participant yang sedang login.
+         */
         if (
             $attempt === null ||
             (int) $attempt->participant_id !== $participantId
@@ -72,7 +90,35 @@ class ExamGuard
             );
         }
 
-        $attemptSessionToken = is_string($attempt->session_token ?? null)
+        /*
+         * M11:
+         *
+         * Pastikan session pada attempt sama dengan session
+         * yang saat ini dimiliki participant.
+         *
+         * Kondisi yang harus dipenuhi:
+         *
+         * attempt.session_id === participant.session_id
+         *
+         * Jika participant sudah dipindahkan ke session baru,
+         * attempt dari session lama tidak boleh digunakan.
+         */
+        if (
+            (int) $attempt->session_id !==
+            (int) $attempt->participant->session_id
+        ) {
+            return $this->deny(
+                $request,
+                'Sesi ujian tidak sesuai dengan sesi peserta.'
+            );
+        }
+
+        /*
+         * Pastikan attempt memiliki session token.
+         */
+        $attemptSessionToken = is_string(
+            $attempt->session_token ?? null
+        )
             ? trim((string) $attempt->session_token)
             : '';
 
@@ -84,11 +130,17 @@ class ExamGuard
             ])->save();
         }
 
+        /*
+         * Validasi session token.
+         */
         $isFirstRequestAfterLogin = $sessionToken === '';
 
         if (
             ! $isFirstRequestAfterLogin &&
-            ! hash_equals($attemptSessionToken, $sessionToken)
+            ! hash_equals(
+                $attemptSessionToken,
+                $sessionToken
+            )
         ) {
             return $this->deny(
                 $request,
@@ -96,6 +148,9 @@ class ExamGuard
             );
         }
 
+        /*
+         * Sinkronkan attempt dan token ke session Laravel.
+         */
         if (
             $attemptId !== (int) $attempt->id ||
             $sessionToken === ''
@@ -113,6 +168,13 @@ class ExamGuard
             $request->session()->save();
         }
 
+        /*
+         * Pastikan attempt masih dapat diakses:
+         *
+         * - belum submit
+         * - session masih aktif
+         * - durasi belum habis
+         */
         try {
             $this->validateSessionService
                 ->ensureAttemptAccessible($attempt);
@@ -125,7 +187,14 @@ class ExamGuard
             );
         }
 
-    
+        /*
+         * H6:
+         *
+         * Submit tidak diblokir oleh pengecekan lokasi.
+         *
+         * Peserta tetap dapat menyimpan jawaban final
+         * meskipun lokasi bermasalah ketika melakukan submit.
+         */
         $isSubmitRoute = $request->routeIs('exam.submit');
 
         if (! $isSubmitRoute) {
@@ -139,18 +208,35 @@ class ExamGuard
             }
         }
 
-        $request->attributes->set('examAttempt', $attempt);
+        /*
+         * Simpan attempt ke request attributes agar controller/service
+         * dapat mengambil attempt yang sudah divalidasi.
+         */
+        $request->attributes->set(
+            'examAttempt',
+            $attempt
+        );
 
         return $next($request);
     }
 
-
+    /**
+     * H6 + H9:
+     *
+     * Melakukan validasi lokasi pada setiap request non-submit.
+     *
+     * Cache lokasi memiliki TTL sehingga koordinat lama tidak dapat
+     * digunakan tanpa batas waktu.
+     */
     private function enforceLocationWithGracePeriod(
         Request $request,
         ExamAttempt $attempt
     ): JsonResponse|RedirectResponse|null {
-        [$latitude, $longitude, $accuracy] =
-            $this->extractLocation($request);
+        [
+            $latitude,
+            $longitude,
+            $accuracy
+        ] = $this->extractLocation($request);
 
         try {
             $this->validateSessionService
@@ -161,7 +247,10 @@ class ExamGuard
                     $accuracy
                 );
 
-            
+            /*
+             * Lokasi valid.
+             * Hapus penanda lokasi bermasalah.
+             */
             $request->session()->forget(
                 'exam_geo_out_of_range_since'
             );
@@ -169,10 +258,14 @@ class ExamGuard
             return null;
 
         } catch (ValidationException $exception) {
+            /*
+             * Jika lokasi tidak valid, catat waktu terdeteksi.
+             */
             $request->session()->put(
                 'exam_geo_out_of_range_since',
                 now()->timestamp
             );
+
             $request->session()->save();
 
             return $this->deny(
@@ -184,6 +277,9 @@ class ExamGuard
         }
     }
 
+    /**
+     * Menolak request.
+     */
     private function deny(
         Request $request,
         string $message
@@ -207,9 +303,23 @@ class ExamGuard
             ]);
     }
 
-    
-    private function extractLocation(Request $request): array
-    {
+    /**
+     * Mengambil koordinat dari header.
+     *
+     * H9:
+     *
+     * Jika header tidak tersedia, cache lokasi hanya boleh digunakan
+     * selama belum melewati TTL.
+     *
+     * @return array{
+     *     0: float|null,
+     *     1: float|null,
+     *     2: float|null
+     * }
+     */
+    private function extractLocation(
+        Request $request
+    ): array {
         $latitude = $this->toNullableFloat(
             $request->header('X-Exam-Latitude')
         );
@@ -222,7 +332,10 @@ class ExamGuard
             $request->header('X-Exam-Accuracy')
         );
 
-      
+        /*
+         * Jika request mengirim koordinat baru,
+         * simpan koordinat beserta timestamp-nya.
+         */
         if (
             $latitude !== null &&
             $longitude !== null
@@ -259,10 +372,17 @@ class ExamGuard
          * cache lokasi lama.
          */
         if ($request->expectsJson()) {
-            return [null, null, null];
+            return [
+                null,
+                null,
+                null,
+            ];
         }
 
-       
+        /*
+         * H9:
+         * Ambil waktu terakhir cache lokasi.
+         */
         $cachedAt = $request->session()->get(
             'exam_geo_last_at'
         );
@@ -272,15 +392,24 @@ class ExamGuard
             90
         );
 
-        
+        /*
+         * Jika cache tidak ada atau sudah kedaluwarsa,
+         * anggap lokasi tidak tersedia.
+         */
         if (
             ! is_numeric($cachedAt) ||
             now()->timestamp - (int) $cachedAt > $ttlSeconds
         ) {
-            return [null, null, null];
+            return [
+                null,
+                null,
+                null,
+            ];
         }
 
-        
+        /*
+         * Cache masih valid.
+         */
         return [
             $this->toNullableFloat(
                 $request->session()->get(
@@ -300,8 +429,12 @@ class ExamGuard
         ];
     }
 
-    private function toNullableFloat(mixed $value): ?float
-    {
+    /**
+     * Konversi value menjadi float nullable.
+     */
+    private function toNullableFloat(
+        mixed $value
+    ): ?float {
         return is_numeric($value)
             ? (float) $value
             : null;

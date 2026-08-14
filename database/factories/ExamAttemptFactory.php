@@ -52,4 +52,12 @@ class ExamAttemptFactory extends Factory
             'session_id' => $participant->session_id,
         ]);
     }
+
+    public function forSession(ExamSession $session): static
+    {
+    return $this->state(fn (array $attributes): array => [
+        'session_id' => $session->id,
+    ]);
+    }
+
 }
