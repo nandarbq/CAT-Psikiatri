@@ -10,6 +10,6 @@
     'sessionTitle' => $attempt->session->title,
     'metaChips' => [
         'Peserta: '.$attempt->participant->name,
-        'Percobaan Sesi #'.$sessionAttemptNumber,
+        
     ],
 ])

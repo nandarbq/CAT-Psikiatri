@@ -464,7 +464,7 @@ Note: C1, C2, M4 dan M5 sudah diimplementasikan dan diverifikasi di repo (AdminS
 - [x] A1 refactor: trait BuildsAdminIndexViews, extract Alpine examEngine ke module JS, reconcile Carbon ke immutable
 - [x] M13 Carbon Immutable di semua tempat
 - [ ] M10 hapus sessionAttemptNumber (dead code)
-- [ ] M11 + M12 ExamGuard session-id sanity + EnsureUserRole UX fix
+- [x] M11 + M12 ExamGuard session-id sanity + EnsureUserRole UX fix
 
 Low/FYI items (session encryption, password policy, monitoring URL exposure)
 
