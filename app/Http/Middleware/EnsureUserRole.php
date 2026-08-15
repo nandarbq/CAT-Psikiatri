@@ -24,8 +24,10 @@ class EnsureUserRole
                 abort(403, 'Anda tidak memiliki akses ke halaman ini.');
             }
 
+            $redirectRoute = Auth::check() ? 'participant.dashboard' : 'participant.login';
+
             return redirect()
-                ->route('admin.dashboard')
+                ->route($redirectRoute)
                 ->withErrors(['authorization' => 'Akses ditolak: halaman ini hanya untuk role yang diizinkan.']);
         }
 

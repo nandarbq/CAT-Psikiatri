@@ -57,7 +57,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
     Route::get('/login', static fn () => redirect()->route('participant.login'))->name('login');
     Route::post('/login', [ParticipantAuthController::class, 'login'])->name('login.submit')->middleware('throttle:5,1');
 
-    Route::middleware('admin.auth')->group(function (): void {
+    Route::middleware(['admin.auth', 'role:admin'])->group(function (): void {
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::put('/settings/profile', [SystemSettingController::class, 'updateProfile'])->name('settings.profile.update');
@@ -66,23 +66,20 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::get('/results/export/excel', [ResultController::class, 'exportSummaryExcel'])->name('results.export.excel');
         Route::get('/results/{attempt}', [ResultController::class, 'show'])->name('results.show');
         Route::get('/results/{attempt}/export/csv', [ResultController::class, 'exportAttemptCsv'])->name('results.export.attempt.csv');
-
-        Route::middleware('role:admin')->group(function (): void {
-            Route::get('/location-settings', static fn () => redirect()->route('admin.settings.index', ['tab' => 'location']))->name('location-settings.edit');
-            Route::put('/location-settings', [SystemSettingController::class, 'updateLocation'])->name('location-settings.update');
-            Route::resource('users', UserController::class)->except(['show']);
-            Route::post('/users/bulk', [UserController::class, 'bulk'])->name('users.bulk');
-            Route::prefix('simulation')->name('simulation.')->group(function (): void {
-                Route::get('/', [ExamSimulationController::class, 'index'])->name('index');
-                Route::post('/start', [ExamSimulationController::class, 'start'])->name('start');
-                Route::get('/run', [ExamSimulationController::class, 'run'])->name('run');
-                Route::post('/save-answer', [ExamSimulationController::class, 'saveAnswer'])->name('save-answer');
-                Route::post('/submit', [ExamSimulationController::class, 'submit'])->name('submit');
-                Route::get('/result', [ExamSimulationController::class, 'result'])->name('result');
-            });
-            Route::get('/settings', [SystemSettingController::class, 'index'])->name('settings.index');
-            Route::put('/settings/location', [SystemSettingController::class, 'updateLocation'])->name('settings.location.update');
+        Route::get('/location-settings', static fn () => redirect()->route('admin.settings.index', ['tab' => 'location']))->name('location-settings.edit');
+        Route::put('/location-settings', [SystemSettingController::class, 'updateLocation'])->name('location-settings.update');
+        Route::resource('users', UserController::class)->except(['show']);
+        Route::post('/users/bulk', [UserController::class, 'bulk'])->name('users.bulk');
+        Route::prefix('simulation')->name('simulation.')->group(function (): void {
+            Route::get('/', [ExamSimulationController::class, 'index'])->name('index');
+            Route::post('/start', [ExamSimulationController::class, 'start'])->name('start');
+            Route::get('/run', [ExamSimulationController::class, 'run'])->name('run');
+            Route::post('/save-answer', [ExamSimulationController::class, 'saveAnswer'])->name('save-answer');
+            Route::post('/submit', [ExamSimulationController::class, 'submit'])->name('submit');
+            Route::get('/result', [ExamSimulationController::class, 'result'])->name('result');
         });
+        Route::get('/settings', [SystemSettingController::class, 'index'])->name('settings.index');
+        Route::put('/settings/location', [SystemSettingController::class, 'updateLocation'])->name('settings.location.update');
         Route::get('/instructions', [ExamSessionController::class, 'instructions'])->name('instructions.index');
         Route::put('/instructions/{session}', [ExamSessionController::class, 'updateInstructions'])->name('instructions.update');
         Route::delete('/instructions/{session}', [ExamSessionController::class, 'destroyInstructions'])->name('instructions.destroy');

@@ -29,4 +29,5 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->report(function (\Throwable $exception): void {
             app(MonitoringErrorReporter::class)->report($exception);
         });
-    })->create();
+    })
+    ->create();

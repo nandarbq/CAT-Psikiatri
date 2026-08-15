@@ -13,6 +13,19 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ResultController extends Controller
 {
+    public static function csvSafe(string $value): string
+    {
+        $value = trim($value);
+
+        foreach (['=', '+', '-', '@', "\t", "\r"] as $prefix) {
+            if ($value !== '' && str_starts_with($value, $prefix)) {
+                return ' ' . $value;
+            }
+        }
+
+        return $value;
+    }
+
     public function index(Request $request): View
     {
         $query = ExamAttempt::query()
@@ -138,16 +151,16 @@ class ResultController extends Controller
 
                         fputcsv($handle, [
                             $attempt->id,
-                            $attempt->participant->name,
-                            $attempt->participant->username,
+                            self::csvSafe((string) ($attempt->participant->name ?? '')),
+                            self::csvSafe((string) ($attempt->participant->username ?? '')),
                             // Force Excel to treat NIK as text so leading zeros
                             // and long digit strings aren't mangled/rounded.
                             $nik !== '' ? '="'.$nik.'"' : '',
-                            $attempt->session->title,
-                            (string) $attempt->started_at,
-                            (string) ($attempt->finished_at ?? ''),
+                            self::csvSafe((string) ($attempt->session->title ?? '')),
+                            self::csvSafe((string) $attempt->started_at),
+                            self::csvSafe((string) ($attempt->finished_at ?? '')),
                             $attempt->answers_count,
-                            $attempt->is_submitted ? 'Ya' : 'Tidak',
+                            self::csvSafe($attempt->is_submitted ? 'Ya' : 'Tidak'),
                         ], ';');
                     }
                 });
@@ -193,13 +206,13 @@ class ResultController extends Controller
             foreach ($attempt->answers as $answer) {
                 fputcsv($handle, [
                     $attempt->id,
-                    $attempt->participant->name,
-                    $attempt->session->title,
+                    self::csvSafe((string) ($attempt->participant->name ?? '')),
+                    self::csvSafe((string) ($attempt->session->title ?? '')),
                     $answer->question_id,
                     $answer->question?->order_no,
-                    $answer->question_snapshot,
-                    $answer->answer ? 'YA' : 'TIDAK',
-                    (string) $answer->answered_at,
+                    self::csvSafe((string) ($answer->question_snapshot ?? '')),
+                    self::csvSafe($answer->answer ? 'YA' : 'TIDAK'),
+                    self::csvSafe((string) $answer->answered_at),
                 ], ';');
             }
 

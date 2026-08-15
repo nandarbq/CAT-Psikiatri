@@ -10,6 +10,7 @@ use App\Models\ExamSession;
 use App\Models\Module;
 use App\Models\Participant;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -247,8 +248,19 @@ class ExamSessionController extends Controller
                     continue;
                 }
 
-                $participant->forceFill(['session_id' => $session->id])->save();
-                $movedCount++;
+                try {
+                    $participant->forceFill(['session_id' => $session->id])->save();
+                    $movedCount++;
+                } catch (QueryException $exception) {
+                    $errorCode = $exception->errorInfo[0] ?? $exception->getCode();
+
+                    if ((string) $errorCode === '23000') {
+                        $skippedCodeConflict++;
+                        continue;
+                    }
+
+                    throw $exception;
+                }
             }
         });
 

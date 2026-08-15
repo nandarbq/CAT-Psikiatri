@@ -441,19 +441,19 @@ Fix:
 Note: C1, C2, M4 dan M5 sudah diimplementasikan dan diverifikasi di repo (AdminSettingsTest dihapus; AdminAuthTest dipatch). H1 di-skip sesuai instruksi.
 
 ## Sprint 2 (race conditions & concurrency)
-- [ ] H3 lockForUpdate() di SubmitExamService::submit
-- [ ] H4 current_question GREATEST()
-- [ ] H5 ExamGuard enforce takeover, bukan self-heal
-- [ ] M6 try/catch QueryException di bulk move
+- [x] H3 lockForUpdate() di SubmitExamService::submit
+- [x] H4 current_question GREATEST()
+- [x] H5 ExamGuard enforce takeover, bukan self-heal
+- [x] M6 try/catch QueryException di bulk move
 - [x] M7 + M8 tambah lockForUpdate() di module delete & question reorder
 - [x] M9 ExamController::show — fallback currentIndex ke jawaban terakhir yang ada (hindari fallback ke 0)
 
 ## Sprint 3 (security hardening)
-- [ ] H6 + H9 putuskan kebijakan geo-fence mid-exam, enforce TTL cache
-- [ ] H7 jangan kurangi jarak dengan accuracy; treat sebagai quality gate
-- [ ] H8 terapkan role:admin ke seluruh admin group
-- [ ] M1 CSV formula injection helper
-- [ ] M2 hard-guard EXAM_TOKEN_BYPASS di production
+- [x] H6 + H9 putuskan kebijakan geo-fence mid-exam, enforce TTL cache
+- [x] H7 jangan kurangi jarak dengan accuracy; treat sebagai quality gate
+- [x] H8 terapkan role:admin ke seluruh admin group
+- [x] M1 CSV formula injection helper
+- [x] M2 hard-guard EXAM_TOKEN_BYPASS di production
 
 ## Sprint 4 (test infrastructure)
 - [ ] M3 + M14 factory untuk 6 model + unit test untuk 4 service + GeoDistance

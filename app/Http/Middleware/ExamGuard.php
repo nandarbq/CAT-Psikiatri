@@ -16,8 +16,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ExamGuard
 {
-    public function __construct(private readonly ValidateSessionService $validateSessionService)
-    {
+    public function __construct(
+        private readonly ValidateSessionService $validateSessionService
+    ) {
     }
 
     /**
@@ -27,19 +28,32 @@ class ExamGuard
     {
         $participantId = (int) $request->session()->get('participant_id', 0);
         $attemptId = (int) $request->session()->get('exam_attempt_id', 0);
-        $sessionToken = (string) $request->session()->get('exam_session_token', '');
+        $sessionToken = (string) $request->session()->get(
+            'exam_session_token',
+            ''
+        );
 
         if ($participantId === 0) {
-            return $this->deny($request, 'Sesi peserta tidak valid. Silakan login ulang.');
+            return $this->deny(
+                $request,
+                'Sesi peserta tidak valid. Silakan login ulang.'
+            );
         }
 
-        $relations = $request->expectsJson() ? ['session.module'] : ['session.module', 'participant'];
+        $relations = $request->expectsJson()
+            ? ['session.module']
+            : ['session.module', 'participant'];
 
         $attempt = $attemptId > 0
-            ? ExamAttempt::query()->with($relations)->find($attemptId)
+            ? ExamAttempt::query()
+                ->with($relations)
+                ->find($attemptId)
             : null;
 
-        if ($attempt === null || (int) $attempt->participant_id !== $participantId) {
+        if (
+            $attempt === null ||
+            (int) $attempt->participant_id !== $participantId
+        ) {
             $attempt = ExamAttempt::query()
                 ->with($relations)
                 ->where('participant_id', $participantId)
@@ -48,8 +62,14 @@ class ExamGuard
                 ->first();
         }
 
-        if ($attempt === null || (int) $attempt->participant_id !== $participantId) {
-            return $this->deny($request, 'Akses tes tidak valid. Silakan mulai lagi dari halaman akses tes.');
+        if (
+            $attempt === null ||
+            (int) $attempt->participant_id !== $participantId
+        ) {
+            return $this->deny(
+                $request,
+                'Akses tes tidak valid. Silakan mulai lagi dari halaman akses tes.'
+            );
         }
 
         $attemptSessionToken = is_string($attempt->session_token ?? null)
@@ -58,30 +78,65 @@ class ExamGuard
 
         if ($attemptSessionToken === '') {
             $attemptSessionToken = Str::random(80);
-            $attempt->forceFill(['session_token' => $attemptSessionToken])->save();
+
+            $attempt->forceFill([
+                'session_token' => $attemptSessionToken,
+            ])->save();
+        }
+
+        $isFirstRequestAfterLogin = $sessionToken === '';
+
+        if (
+            ! $isFirstRequestAfterLogin &&
+            ! hash_equals($attemptSessionToken, $sessionToken)
+        ) {
+            return $this->deny(
+                $request,
+                'Token sesi tidak valid. Silakan login ulang atau mulai ulang tes.'
+            );
         }
 
         if (
+            $attemptId !== (int) $attempt->id ||
             $sessionToken === ''
-            || ! hash_equals($attemptSessionToken, $sessionToken)
-            || $attemptId !== (int) $attempt->id
         ) {
-            $request->session()->put('exam_attempt_id', (int) $attempt->id);
-            $request->session()->put('exam_session_token', $attemptSessionToken);
+            $request->session()->put(
+                'exam_attempt_id',
+                (int) $attempt->id
+            );
+
+            $request->session()->put(
+                'exam_session_token',
+                $attemptSessionToken
+            );
+
             $request->session()->save();
         }
 
         try {
-            $this->validateSessionService->ensureAttemptAccessible($attempt);
-            [$latitude, $longitude, $accuracy] = $this->extractLocation($request);
-            $this->validateSessionService->ensureSessionLocationAccess(
-                $attempt->session,
-                $latitude,
-                $longitude,
-                $accuracy,
-            );
+            $this->validateSessionService
+                ->ensureAttemptAccessible($attempt);
         } catch (ValidationException $exception) {
-            return $this->deny($request, collect($exception->errors())->flatten()->first() ?? 'Akses tes ditolak.');
+            return $this->deny(
+                $request,
+                collect($exception->errors())
+                    ->flatten()
+                    ->first() ?? 'Akses tes ditolak.'
+            );
+        }
+
+    
+        $isSubmitRoute = $request->routeIs('exam.submit');
+
+        if (! $isSubmitRoute) {
+            $denied = $this->enforceLocationWithGracePeriod(
+                $request,
+                $attempt
+            );
+
+            if ($denied !== null) {
+                return $denied;
+            }
         }
 
         $request->attributes->set('examAttempt', $attempt);
@@ -89,8 +144,73 @@ class ExamGuard
         return $next($request);
     }
 
-    private function deny(Request $request, string $message): JsonResponse|RedirectResponse
-    {
+
+    private function enforceLocationWithGracePeriod(
+        Request $request,
+        ExamAttempt $attempt
+    ): JsonResponse|RedirectResponse|null {
+        [$latitude, $longitude, $accuracy] =
+            $this->extractLocation($request);
+
+        try {
+            $this->validateSessionService
+                ->ensureSessionLocationAccess(
+                    $attempt->session,
+                    $latitude,
+                    $longitude,
+                    $accuracy
+                );
+
+            
+            $request->session()->forget(
+                'exam_geo_out_of_range_since'
+            );
+
+            return null;
+
+        } catch (ValidationException $exception) {
+
+            $graceSeconds = (int) config(
+                'exam.geo_grace_seconds',
+                120
+            );
+
+            $outOfRangeSince = $request->session()->get(
+                'exam_geo_out_of_range_since'
+            );
+
+            if (! is_numeric($outOfRangeSince)) {
+                $request->session()->put(
+                    'exam_geo_out_of_range_since',
+                    now()->timestamp
+                );
+
+                $request->session()->save();
+
+                return null;
+            }
+
+            if (
+                now()->timestamp - (int) $outOfRangeSince
+                <= $graceSeconds
+            ) {
+                return null;
+            }
+
+            
+            return $this->deny(
+                $request,
+                collect($exception->errors())
+                    ->flatten()
+                    ->first() ?? 'Akses tes ditolak.'
+            );
+        }
+    }
+
+    private function deny(
+        Request $request,
+        string $message
+    ): JsonResponse|RedirectResponse {
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => false,
@@ -98,47 +218,115 @@ class ExamGuard
             ], 403);
         }
 
-        $request->session()->forget(['exam_attempt_id', 'exam_session_token']);
-
-        return redirect()->route('exam.access')->withErrors([
-            'session' => $message,
+        $request->session()->forget([
+            'exam_attempt_id',
+            'exam_session_token',
         ]);
+
+        return redirect()
+            ->route('exam.access')
+            ->withErrors([
+                'session' => $message,
+            ]);
     }
 
-    /**
-     * @return array{0: float|null, 1: float|null, 2: float|null}
-     */
+    
     private function extractLocation(Request $request): array
     {
-        $headerLatitude = $this->toNullableFloat($request->header('X-Exam-Latitude'));
-        $headerLongitude = $this->toNullableFloat($request->header('X-Exam-Longitude'));
-        $headerAccuracy = $this->toNullableFloat($request->header('X-Exam-Accuracy'));
+        $latitude = $this->toNullableFloat(
+            $request->header('X-Exam-Latitude')
+        );
 
-        if ($headerLatitude !== null && $headerLongitude !== null) {
-            $request->session()->put('exam_geo_last_latitude', $headerLatitude);
-            $request->session()->put('exam_geo_last_longitude', $headerLongitude);
-            $request->session()->put('exam_geo_last_accuracy', $headerAccuracy);
+        $longitude = $this->toNullableFloat(
+            $request->header('X-Exam-Longitude')
+        );
 
-            return [$headerLatitude, $headerLongitude, $headerAccuracy];
+        $accuracy = $this->toNullableFloat(
+            $request->header('X-Exam-Accuracy')
+        );
+
+      
+        if (
+            $latitude !== null &&
+            $longitude !== null
+        ) {
+            $request->session()->put(
+                'exam_geo_last_latitude',
+                $latitude
+            );
+
+            $request->session()->put(
+                'exam_geo_last_longitude',
+                $longitude
+            );
+
+            $request->session()->put(
+                'exam_geo_last_accuracy',
+                $accuracy
+            );
+
+            $request->session()->put(
+                'exam_geo_last_at',
+                now()->timestamp
+            );
+
+            return [
+                $latitude,
+                $longitude,
+                $accuracy,
+            ];
         }
 
+        /*
+         * Untuk request AJAX/JSON, jangan menggunakan
+         * cache lokasi lama.
+         */
         if ($request->expectsJson()) {
             return [null, null, null];
         }
 
+       
+        $cachedAt = $request->session()->get(
+            'exam_geo_last_at'
+        );
+
+        $ttlSeconds = (int) config(
+            'exam.geo_cache_ttl_seconds',
+            90
+        );
+
+        
+        if (
+            ! is_numeric($cachedAt) ||
+            now()->timestamp - (int) $cachedAt > $ttlSeconds
+        ) {
+            return [null, null, null];
+        }
+
+        
         return [
-            $this->toNullableFloat($request->session()->get('exam_geo_last_latitude')),
-            $this->toNullableFloat($request->session()->get('exam_geo_last_longitude')),
-            $this->toNullableFloat($request->session()->get('exam_geo_last_accuracy')),
+            $this->toNullableFloat(
+                $request->session()->get(
+                    'exam_geo_last_latitude'
+                )
+            ),
+            $this->toNullableFloat(
+                $request->session()->get(
+                    'exam_geo_last_longitude'
+                )
+            ),
+            $this->toNullableFloat(
+                $request->session()->get(
+                    'exam_geo_last_accuracy'
+                )
+            ),
         ];
     }
 
     private function toNullableFloat(mixed $value): ?float
     {
-        if (is_numeric($value)) {
-            return (float) $value;
-        }
-
-        return null;
+        return is_numeric($value)
+            ? (float) $value
+            : null;
     }
 }

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Http\Controllers\Admin\ResultController;
 use App\Models\ExamAttempt;
+use App\Providers\AppServiceProvider;
 use App\Models\ExamLocationSetting;
 use App\Models\ExamSession;
 use App\Models\ExamToken;
@@ -78,6 +80,41 @@ class AdminAuthTest extends TestCase
         $this->get('/admin/participants')->assertOk();
         $this->get('/admin/tokens')->assertOk();
         $this->get('/admin/modules')->assertOk();
+    }
+
+    public function test_non_admin_user_cannot_access_admin_pages(): void
+    {
+        $nonAdmin = User::query()->create([
+            'name' => 'User Biasa',
+            'username' => 'nonadmin01',
+            'email' => 'user@example.com',
+            'role' => 'user',
+            'password' => Hash::make('password123'),
+        ]);
+
+        $this->actingAs($nonAdmin)
+            ->get('/admin/dashboard')
+            ->assertRedirect(route('participant.dashboard'));
+    }
+
+    public function test_summary_csv_sanitizes_formula_injection_values(): void
+    {
+        $sanitized = ResultController::csvSafe("=cmd|'/c calc'!A1");
+
+        $this->assertSame(' =cmd|\'/c calc\'!A1', $sanitized);
+        $this->assertSame('Alice', ResultController::csvSafe('Alice'));
+    }
+
+    public function test_production_rejects_token_bypass_configuration(): void
+    {
+        config()->set('exam.token_bypass_enabled', true);
+
+        $this->app['env'] = 'production';
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('EXAM_TOKEN_BYPASS cannot be enabled in production.');
+
+        AppServiceProvider::guardTokenBypassProduction();
     }
 
     public function test_admin_can_export_summary_csv_and_excel(): void
