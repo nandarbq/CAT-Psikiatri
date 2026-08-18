@@ -11,6 +11,7 @@ use App\Models\Module;
 use App\Models\Participant;
 use App\Models\Question;
 use App\Models\User;
+use App\Support\UniqueTokenGenerator;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -28,9 +29,6 @@ class DatabaseSeeder extends Seeder
             ],
         );
 
-        // NOTE: these are an approximate Banyuwangi town-center fallback only.
-        // Please verify against the exact RSUD Blambangan building pin in
-        // Admin > Pengaturan > Lokasi RSUD before relying on the radius check.
         ExamLocationSetting::query()->updateOrCreate(
             ['id' => 1],
             [
@@ -116,18 +114,11 @@ class DatabaseSeeder extends Seeder
             return $preferredToken;
         }
 
-        $maxAttempts = 1000;
-        $attempt = 0;
-        do {
-            $candidate = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-            $attempt++;
-        } while ($this->isTokenUsedByOtherRecord($candidate, $ignoreId) && $attempt < $maxAttempts);
-
-        if ($attempt >= $maxAttempts) {
-            throw new \RuntimeException('Gagal membuat token seeder yang unik setelah 1000 percobaan.');
-        }
-
-        return $candidate;
+        return UniqueTokenGenerator::make(
+            candidate: fn (): string => str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT),
+            exists: fn (string $candidate): bool => $this->isTokenUsedByOtherRecord($candidate, $ignoreId),
+            maxAttempts: 1000,
+        );
     }
 
     private function isTokenUsedByOtherRecord(string $token, ?int $ignoreId = null): bool

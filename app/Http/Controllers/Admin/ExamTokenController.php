@@ -8,12 +8,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ExamTokenRequest;
 use App\Models\ExamSession;
 use App\Models\ExamToken;
+use App\Support\UniqueTokenGenerator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use RuntimeException;
 
 class ExamTokenController extends Controller
 {
@@ -164,21 +166,16 @@ class ExamTokenController extends Controller
 
     private function generateUniqueToken(): string
     {
-        $maxAttempts = 1000;
-        $attempt = 0;
-
-        do {
-            $token = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-            $attempt++;
-        } while (ExamToken::query()->where('token', $token)->exists() && $attempt < $maxAttempts);
-
-        if ($attempt >= $maxAttempts) {
+        try {
+            return UniqueTokenGenerator::make(
+                candidate: fn (): string => str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT),
+                exists: fn (string $token): bool => ExamToken::query()->where('token', $token)->exists(),
+                maxAttempts: 1000,
+            );
+        } catch (RuntimeException) {
             throw ValidationException::withMessages([
                 'token' => 'Gagal membuat token unik 6 digit. Coba lagi.',
             ]);
         }
-
-        return $token;
     }
 }
-

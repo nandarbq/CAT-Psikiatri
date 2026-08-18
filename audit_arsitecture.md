@@ -107,14 +107,14 @@ Tanggal: 2026-08-13
 **Keterangan:** Berkaitan langsung dengan Audit 1 **M16 — Pagination idiom tidak konsisten** dan rekomendasi architecture audit A1, sudah selesai.
 
 ### Task 3.3 — Ekstrak `UniqueTokenGenerator`
-- [ ] Review `ExamTokenController::generateUniqueToken()`
-- [ ] Review `ParticipantController::generateUniqueParticipantCode()`
-- [ ] Review `DatabaseSeeder::resolveSeedToken()`
-- [ ] Identifikasi pola generate → cek unik → ulangi
-- [ ] Buat `App\Support\UniqueTokenGenerator`
-- [ ] Buat method `make(callable $candidate, callable $exists, int $maxAttempts)`
-- [ ] Pindahkan loop retry ke helper
-- [ ] Pertahankan format kandidat masing-masing fitur
+- [x] Review `ExamTokenController::generateUniqueToken()`
+- [x] Review `ParticipantController::generateUniqueParticipantCode()`
+- [x] Review `DatabaseSeeder::resolveSeedToken()`
+- [x] Identifikasi pola generate → cek unik → ulangi
+- [x] Buat `App\Support\UniqueTokenGenerator`
+- [x] Buat method `make(callable $candidate, callable $exists, int $maxAttempts)`
+- [x] Pindahkan loop retry ke helper
+- [x] Pertahankan format kandidat masing-masing fitur
 
 **Keterangan:** Tidak ditemukan sebagai task yang sama di Audit 1. Tetap perlu dikerjakan berdasarkan Audit 2.
 
