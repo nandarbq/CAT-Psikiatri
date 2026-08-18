@@ -46,11 +46,9 @@ class ParticipantController extends Controller
                 $query->latest('id'),
                 $request
             ),
-
             'sessionOptions' => ExamSession::query()
                 ->orderBy('start_time')
                 ->get(['id', 'title']),
-
             'filters' => [
                 'q' => $keyword,
                 'session_id' => $sessionId,

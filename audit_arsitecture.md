@@ -198,10 +198,12 @@ Tanggal: 2026-08-13
 **Keterangan:** Tidak ditemukan sebagai task yang sama di Audit 1. Tetap perlu dikerjakan berdasarkan Audit 2.
 
 ### Task 5.5 — Perbaikan Kecil yang Disebut Audit
-- [ ] Review indentation `ParticipantController::index`
-- [ ] Review komentar campuran Indonesia/Inggris pada `runner.blade.php`
-- [ ] Review listener `focus` lockdown yang memiliki body kosong
-- [ ] Implementasikan logic listener jika diperlukan atau hapus jika no-op
+- [x] Review indentation `ParticipantController::index`
+- [x] Review komentar campuran Indonesia/Inggris pada `runner.blade.php`
+- [x] Review listener `focus` lockdown yang memiliki body kosong
+- [x] Implementasikan logic listener jika diperlukan atau hapus jika no-op
+
+**Keterangan:** Indentasi `ParticipantController::index` dirapikan (hapus blank line antar item array). Komentar pada `runner.blade.php` diseragamkan ke Bahasa Indonesia. Listener `focus` yang no-op dihapus karena perilaku overlay sudah ditangani oleh tombol resume.
 
 **Keterangan:** Tidak ada task Audit 1 yang secara langsung menyatakan seluruh item ini selesai. Tetap perlu diverifikasi berdasarkan Audit 2.
 
@@ -228,7 +230,7 @@ Tanggal: 2026-08-13
 | Sprint 5 | 5.2 — UX Writing | `[ ]` Sebagian berkaitan M5 |
 | Sprint 5 | 5.3 — Laravel Pint CI | `[ ]` Audit 2 |
 | Sprint 5 | 5.4 — Squash Migration | `[x]` Development verified |
-| Sprint 5 | 5.5 — Minor Audit Fixes | `[ ]` Audit 2 |
+| Sprint 5 | 5.5 — Minor Audit Fixes | `[x]` Audit 2 |
 
 ---
 

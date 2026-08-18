@@ -235,8 +235,8 @@
 
     <script type="module">
         import { examEngine } from '{{ asset("js/examEngine.js") }}';
-        
-        // Make examEngine available to Alpine.js x-data
+
+        // Buat examEngine tersedia untuk Alpine.js x-data
         window.examEngine = examEngine;
     </script>
 
@@ -265,10 +265,10 @@
 
             window.__examLockdownSuppressUntil = 0;
 
-            // Exposed so the exam engine can leave fullscreen (e.g. once every
-            // question is answered, or right before the post-submit redirect)
-            // without that programmatic exit being mistaken for the participant
-            // switching tabs/apps.
+            // Diekspos supaya exam engine bisa keluar dari fullscreen (misalnya
+            // saat semua soal sudah terjawab, atau sebelum redirect pasca-submit)
+            // tanpa keluarnya programatik ini dianggap sebagai peserta berpindah
+            // tab/aplikasi.
             window.__examExitFullscreen = () => {
                 window.__examLockdownSuppressUntil = Date.now() + 800;
                 if (document.fullscreenElement) {
@@ -283,8 +283,6 @@
                     document.documentElement.requestFullscreen().catch(() => {});
                 }
             });
-
-            
 
             document.addEventListener('contextmenu', (event) => event.preventDefault());
 
@@ -310,16 +308,12 @@
                     showOverlay();
                 }
             });
-            window.addEventListener('focus', () => {
-                // Keep the overlay up until the participant explicitly resumes,
-                // so a quick alt-tab away still gets flagged and acknowledged.
-            });
 
             window.addEventListener('beforeunload', (event) => {
-                // Once the exam has been submitted successfully we want the
-                // redirect to results/login to happen without the native
-                // "leave site?" prompt — cancelling that prompt used to leave
-                // the participant stuck on a finished exam page.
+                // Setelah tes berhasil disubmit, redirect ke hasil/login harus
+                // terjadi tanpa prompt native "tinggalkan situs?" — membatalkan
+                // prompt itu dulu pernah membuat peserta terjebak di halaman
+                // tes yang sudah selesai.
                 if (window.__examSubmitted) {
                     return;
                 }
@@ -329,10 +323,10 @@
 
             if (document.documentElement.requestFullscreen) {
                 const tryFullscreen = () => {
-                    // Fullscreen the whole page (not just the exam card) so that
-                    // dialogs/alerts appended to <body> — like the "Akhiri Tes"
-                    // confirmation — stay visible and clickable while fullscreen
-                    // is active, instead of being hidden until Esc is pressed.
+                    // Fullscreen seluruh halaman (bukan hanya kartu ujian) agar
+                    // dialog/alert yang menempel di <body> — seperti konfirmasi
+                    // "Akhiri Tes" — tetap terlihat dan bisa diklik saat
+                    // fullscreen aktif, alih-alih tersembunyi sampai Esc ditekan.
                     if (!document.fullscreenElement) {
                         document.documentElement.requestFullscreen().catch(() => {});
                     }
