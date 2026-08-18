@@ -44,7 +44,7 @@ class ExamSessionController extends Controller
     public function create(): View
     {
         return view('admin.sessions.form', [
-            'session' => new ExamSession(),
+            'session' => new ExamSession,
             'hasAttempts' => false,
             'isEdit' => false,
             'moduleOptions' => Module::query()->orderBy('name')->get(['id', 'name', 'status']),
@@ -229,11 +229,13 @@ class ExamSessionController extends Controller
             foreach ($participants as $participant) {
                 if ((int) $participant->session_id === (int) $session->id) {
                     $skippedAlreadyInSession++;
+
                     continue;
                 }
 
                 if ($participant->attempts()->where('is_submitted', false)->exists()) {
                     $skippedActiveAttempt++;
+
                     continue;
                 }
 
@@ -245,6 +247,7 @@ class ExamSessionController extends Controller
 
                 if ($codeConflictExists) {
                     $skippedCodeConflict++;
+
                     continue;
                 }
 
@@ -256,6 +259,7 @@ class ExamSessionController extends Controller
 
                     if ((string) $errorCode === '23000') {
                         $skippedCodeConflict++;
+
                         continue;
                     }
 
@@ -323,5 +327,4 @@ class ExamSessionController extends Controller
             ->route('admin.instructions.index', ['session_id' => $session->id])
             ->with('success', 'Panduan tes berhasil dihapus.');
     }
-
 }

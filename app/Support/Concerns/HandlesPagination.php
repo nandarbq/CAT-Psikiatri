@@ -6,6 +6,7 @@ namespace App\Support\Concerns;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 
 trait HandlesPagination
@@ -29,7 +30,7 @@ trait HandlesPagination
     }
 
     /**
-     * @param Builder<\Illuminate\Database\Eloquent\Model> $query
+     * @param  Builder<Model>  $query
      */
     private function paginateQuery(
         Builder $query,

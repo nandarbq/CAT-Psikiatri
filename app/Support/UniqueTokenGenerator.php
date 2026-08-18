@@ -6,10 +6,8 @@ namespace App\Support;
 
 use RuntimeException;
 
-
 class UniqueTokenGenerator
 {
-   
     public static function make(callable $candidate, callable $exists, int $maxAttempts = 20): string
     {
         for ($attempt = 0; $attempt < $maxAttempts; $attempt++) {

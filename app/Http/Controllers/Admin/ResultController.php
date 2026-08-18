@@ -22,7 +22,7 @@ class ResultController extends Controller
 
         foreach (['=', '+', '-', '@', "\t", "\r"] as $prefix) {
             if ($value !== '' && str_starts_with($value, $prefix)) {
-                return ' ' . $value;
+                return ' '.$value;
             }
         }
 

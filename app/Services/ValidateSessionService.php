@@ -50,12 +50,10 @@ class ValidateSessionService
         ?float $longitude,
         ?float $accuracyMeters = null
     ): void {
-      
+
         if (! $session->isOnsiteRadiusOnly()) {
             return;
         }
-
-
 
         $maxAccuracyMeters = (float) config(
             'exam.max_accuracy_meters',
@@ -67,10 +65,9 @@ class ValidateSessionService
             (float) $accuracyMeters > $maxAccuracyMeters
         ) {
             throw ValidationException::withMessages([
-                'session' =>
-                    'Sinyal lokasi perangkat kurang akurat ' .
-                    'untuk verifikasi radius RSUD. ' .
-                    'Coba pindah ke area dengan sinyal GPS ' .
+                'session' => 'Sinyal lokasi perangkat kurang akurat '.
+                    'untuk verifikasi radius RSUD. '.
+                    'Coba pindah ke area dengan sinyal GPS '.
                     'yang lebih baik.',
             ]);
         }
@@ -79,12 +76,10 @@ class ValidateSessionService
 
         if ($setting === null) {
             throw ValidationException::withMessages([
-                'session' =>
-                    'Konfigurasi radius lokasi RSUD belum diatur. ' .
+                'session' => 'Konfigurasi radius lokasi RSUD belum diatur. '.
                     'Hubungi admin.',
             ]);
         }
-
 
         $distanceMeters = GeoDistance::metersBetween(
             (float) $latitude,
@@ -93,14 +88,12 @@ class ValidateSessionService
             (float) $setting->center_longitude,
         );
 
-
         if (
             $distanceMeters >
             (float) $setting->allowed_radius_meters
         ) {
             throw ValidationException::withMessages([
-                'session' =>
-                    'Sesi ini hanya bisa diakses dalam ' .
+                'session' => 'Sesi ini hanya bisa diakses dalam '.
                     'radius lokasi RSUD.',
             ]);
         }
@@ -111,8 +104,7 @@ class ValidateSessionService
     ): void {
         if ($attempt->is_submitted) {
             throw ValidationException::withMessages([
-                'attempt' =>
-                    'Tes sudah disubmit dan terkunci.',
+                'attempt' => 'Tes sudah disubmit dan terkunci.',
             ]);
         }
 
@@ -171,8 +163,7 @@ class ValidateSessionService
             (float) $rawDuration <= 0
         ) {
             throw ValidationException::withMessages([
-                'session' =>
-                    'Durasi sesi tes tidak valid. ' .
+                'session' => 'Durasi sesi tes tidak valid. '.
                     'Hubungi admin.',
             ]);
         }

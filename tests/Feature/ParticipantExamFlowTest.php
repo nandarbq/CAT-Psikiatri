@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use App\Models\ExamSession;
 use App\Models\ExamLocationSetting;
+use App\Models\ExamSession;
 use App\Models\ExamToken;
 use App\Models\Module;
 use App\Models\Participant;

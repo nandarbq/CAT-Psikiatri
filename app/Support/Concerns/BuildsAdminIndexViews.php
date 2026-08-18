@@ -6,6 +6,7 @@ namespace App\Support\Concerns;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -17,10 +18,9 @@ trait BuildsAdminIndexViews
     /**
      * Build an admin index view with standardized filtering and pagination
      *
-     * @param Builder<\Illuminate\Database\Eloquent\Model> $query
-     * @param string $viewName Blade view name (e.g., 'admin.resources.index')
-     * @param array<string, mixed> $data Additional data to pass to view
-     * @return View
+     * @param  Builder<Model>  $query
+     * @param  string  $viewName  Blade view name (e.g., 'admin.resources.index')
+     * @param  array<string, mixed>  $data  Additional data to pass to view
      */
     protected function buildAdminIndexView(
         Builder $query,
@@ -47,11 +47,10 @@ trait BuildsAdminIndexViews
      * Example: buildAdminIndex(..., 'users', 'admin.users.index')
      * Returns view with 'users' key containing paginated results
      *
-     * @param Builder<\Illuminate\Database\Eloquent\Model> $query
-     * @param string $resourceName Singular name (e.g., 'user', 'session')
-     * @param string $viewName Blade view name
-     * @param array<string, mixed> $data Additional data for view
-     * @return View
+     * @param  Builder<Model>  $query
+     * @param  string  $resourceName  Singular name (e.g., 'user', 'session')
+     * @param  string  $viewName  Blade view name
+     * @param  array<string, mixed>  $data  Additional data for view
      */
     protected function buildAdminIndexWithResource(
         Builder $query,
@@ -90,9 +89,9 @@ trait BuildsAdminIndexViews
     /**
      * Apply keyword filter to query (searches multiple columns)
      *
-     * @param Builder<\Illuminate\Database\Eloquent\Model> $query
-     * @param string $keyword Search term
-     * @param array<int, string> $columns Columns to search
+     * @param  Builder<Model>  $query
+     * @param  string  $keyword  Search term
+     * @param  array<int, string>  $columns  Columns to search
      */
     protected function applyKeywordFilter(
         Builder $query,
@@ -113,9 +112,9 @@ trait BuildsAdminIndexViews
     /**
      * Apply exact match filter to query
      *
-     * @param Builder<\Illuminate\Database\Eloquent\Model> $query
-     * @param string $column Column name
-     * @param mixed $value Value to match
+     * @param  Builder<Model>  $query
+     * @param  string  $column  Column name
+     * @param  mixed  $value  Value to match
      */
     protected function applyExactFilter(
         Builder $query,
@@ -132,8 +131,7 @@ trait BuildsAdminIndexViews
     /**
      * Pagination using HandlesPagination trait
      *
-     * @param Builder<\Illuminate\Database\Eloquent\Model> $query
-     * @return LengthAwarePaginator
+     * @param  Builder<Model>  $query
      */
     private function paginateQuery(
         Builder $query,
@@ -172,10 +170,10 @@ trait BuildsAdminIndexViews
     {
         // Simple heuristic for common patterns
         return match (true) {
-            str_ends_with($singular, 'y') && !str_ends_with($singular, 'ay') && !str_ends_with($singular, 'ey') => substr($singular, 0, -1) . 'ies',
-            str_ends_with($singular, 's') || str_ends_with($singular, 'x') || str_ends_with($singular, 'z') => $singular . 'es',
-            str_ends_with($singular, 'o') => $singular . 'es',
-            default => $singular . 's',
+            str_ends_with($singular, 'y') && ! str_ends_with($singular, 'ay') && ! str_ends_with($singular, 'ey') => substr($singular, 0, -1).'ies',
+            str_ends_with($singular, 's') || str_ends_with($singular, 'x') || str_ends_with($singular, 'z') => $singular.'es',
+            str_ends_with($singular, 'o') => $singular.'es',
+            default => $singular.'s',
         };
     }
 }

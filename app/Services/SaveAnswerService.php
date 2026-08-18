@@ -10,16 +10,13 @@ use Illuminate\Support\Facades\DB;
 
 class SaveAnswerService
 {
-    public function __construct(private readonly ValidateSessionService $validateSessionService)
-    {
-    }
+    public function __construct(private readonly ValidateSessionService $validateSessionService) {}
 
     public function save(ExamAttempt $attempt, Question $question, bool $answer): void
     {
         $attemptWithSession = $attempt->relationLoaded('session') ? $attempt : $attempt->load('session');
         $this->validateSessionService->ensureAttemptAccessible($attemptWithSession);
 
-        
         if (
             (int) $question->module_id !== (int) $attemptWithSession->session->module_id
             || ! $question->is_active

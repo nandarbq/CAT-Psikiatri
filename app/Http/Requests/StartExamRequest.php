@@ -47,7 +47,6 @@ class StartExamRequest extends FormRequest
                 'between:-90,90',
             ],
 
-
             'longitude' => [
                 'nullable',
                 'numeric',
@@ -58,7 +57,7 @@ class StartExamRequest extends FormRequest
                 'nullable',
                 'numeric',
                 'min:0',
-                'max:' . $maxAccuracyMeters,
+                'max:'.$maxAccuracyMeters,
             ],
         ];
     }
@@ -69,23 +68,17 @@ class StartExamRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'token.digits' =>
-                'Token tes harus berupa 6 digit angka.',
+            'token.digits' => 'Token tes harus berupa 6 digit angka.',
 
-            'latitude.numeric' =>
-                'Latitude harus berupa angka.',
+            'latitude.numeric' => 'Latitude harus berupa angka.',
 
-            'longitude.numeric' =>
-                'Longitude harus berupa angka.',
+            'longitude.numeric' => 'Longitude harus berupa angka.',
 
-            'accuracy.numeric' =>
-                'Accuracy lokasi harus berupa angka.',
+            'accuracy.numeric' => 'Accuracy lokasi harus berupa angka.',
 
-            'accuracy.min' =>
-                'Accuracy lokasi tidak boleh bernilai negatif.',
+            'accuracy.min' => 'Accuracy lokasi tidak boleh bernilai negatif.',
 
-            'accuracy.max' =>
-                'Akurasi lokasi perangkat terlalu rendah ' .
+            'accuracy.max' => 'Akurasi lokasi perangkat terlalu rendah '.
                 'untuk digunakan sebagai verifikasi lokasi.',
         ];
     }

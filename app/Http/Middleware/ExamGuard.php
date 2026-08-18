@@ -18,11 +18,10 @@ class ExamGuard
 {
     public function __construct(
         private readonly ValidateSessionService $validateSessionService
-    ) {
-    }
+    ) {}
 
     /**
-     * @param Closure(Request): (Response) $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
@@ -173,7 +172,6 @@ class ExamGuard
                     ->first() ?? 'Akses tes ditolak.'
             );
         }
-
 
         $isSubmitRoute = $request->routeIs('exam.submit');
 

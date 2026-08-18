@@ -6,15 +6,13 @@ namespace Tests\Feature;
 
 use App\Http\Controllers\Admin\ResultController;
 use App\Models\ExamAttempt;
-use App\Providers\AppServiceProvider;
-use App\Models\ExamLocationSetting;
 use App\Models\ExamSession;
-use App\Models\ExamToken;
 use App\Models\Module;
 use App\Models\Participant;
 use App\Models\ParticipantAnswer;
 use App\Models\Question;
 use App\Models\User;
+use App\Providers\AppServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
@@ -468,8 +466,8 @@ class AdminAuthTest extends TestCase
         ]);
 
         $response = $this->post(route('admin.sessions.participants.bulk.store', $targetSession), [
-                'participant_ids' => [$participant->id],
-            ]);
+            'participant_ids' => [$participant->id],
+        ]);
 
         $response->assertRedirect(route('admin.sessions.participants.bulk.form', $targetSession));
         $response->assertSessionHas('success', function (mixed $message): bool {

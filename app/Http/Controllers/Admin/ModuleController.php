@@ -42,7 +42,7 @@ class ModuleController extends Controller
     public function create(): View
     {
         return view('admin.modules.form', [
-            'module' => new Module(),
+            'module' => new Module,
             'isEdit' => false,
         ]);
     }
@@ -105,27 +105,27 @@ class ModuleController extends Controller
 
         try {
             DB::transaction(function () use ($module): void {
-            // Lock the module row to avoid concurrent modifications.
-            $locked = Module::query()->whereKey($module->id)->lockForUpdate()->first();
+                // Lock the module row to avoid concurrent modifications.
+                $locked = Module::query()->whereKey($module->id)->lockForUpdate()->first();
 
-            if ($locked === null) {
-                throw new \RuntimeException('Modul tidak ditemukan saat akan dihapus.');
-            }
+                if ($locked === null) {
+                    throw new \RuntimeException('Modul tidak ditemukan saat akan dihapus.');
+                }
 
-            if ($locked->examSessions()->exists()) {
-                throw new \RuntimeException('Modul tidak dapat dihapus karena sudah dipakai pada sesi tes.');
-            }
+                if ($locked->examSessions()->exists()) {
+                    throw new \RuntimeException('Modul tidak dapat dihapus karena sudah dipakai pada sesi tes.');
+                }
 
-            $hasAnsweredQuestion = Question::query()
-                ->where('module_id', $locked->id)
-                ->whereHas('answers')
-                ->exists();
+                $hasAnsweredQuestion = Question::query()
+                    ->where('module_id', $locked->id)
+                    ->whereHas('answers')
+                    ->exists();
 
-            if ($hasAnsweredQuestion) {
-                throw new \RuntimeException('Modul tidak dapat dihapus karena soal di dalamnya sudah dipakai jawaban peserta.');
-            }
+                if ($hasAnsweredQuestion) {
+                    throw new \RuntimeException('Modul tidak dapat dihapus karena soal di dalamnya sudah dipakai jawaban peserta.');
+                }
 
-            // Safe to delete questions then module
+                // Safe to delete questions then module
                 $locked->questions()->delete();
                 $locked->delete();
             });

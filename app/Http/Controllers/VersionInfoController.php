@@ -11,8 +11,7 @@ class VersionInfoController extends Controller
 {
     public function __construct(
         private readonly VersionInfoPayloadFactory $versionInfoPayloadFactory,
-    ) {
-    }
+    ) {}
 
     public function version(): JsonResponse
     {

@@ -74,7 +74,7 @@ class ParticipantController extends Controller
     public function create(): View
     {
         return view('admin.participants.form', [
-            'participant' => new Participant(),
+            'participant' => new Participant,
             'sessions' => ExamSession::query()->orderBy('start_time')->get(['id', 'title']),
             'hasAttempts' => false,
             'isEdit' => false,

@@ -15,6 +15,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
+use Random\Engine\Mt19937;
+use Random\Randomizer;
 
 class ExamController extends Controller
 {
@@ -50,8 +52,8 @@ class ExamController extends Controller
             ])
             ->all();
 
-        $randomizer = new \Random\Randomizer(
-            new \Random\Engine\Mt19937($attempt->id)
+        $randomizer = new Randomizer(
+            new Mt19937($attempt->id)
         );
 
         $questions = collect(
@@ -74,8 +76,7 @@ class ExamController extends Controller
             $currentIndex = 0;
         } else {
             $foundIndex = $questions->search(
-                fn (array $question): bool =>
-                    $question['order_no'] === $attempt->current_question
+                fn (array $question): bool => $question['order_no'] === $attempt->current_question
             );
 
             if ($foundIndex !== false) {
@@ -89,11 +90,10 @@ class ExamController extends Controller
 
                 $answeredOrderNos = collect($answeredQuestionIds)
                     ->map(
-                        fn (int $qid) =>
-                            $questions->firstWhere(
-                                'id',
-                                $qid
-                            )['order_no'] ?? null
+                        fn (int $qid) => $questions->firstWhere(
+                            'id',
+                            $qid
+                        )['order_no'] ?? null
                     )
                     ->filter()
                     ->map(fn ($orderNo): int => (int) $orderNo)
@@ -105,8 +105,7 @@ class ExamController extends Controller
                     $maxOrder = max($answeredOrderNos);
 
                     $foundIndex = $questions->search(
-                        fn (array $question): bool =>
-                            $question['order_no'] === $maxOrder
+                        fn (array $question): bool => $question['order_no'] === $maxOrder
                     );
 
                     $currentIndex = $foundIndex === false
@@ -209,7 +208,7 @@ class ExamController extends Controller
         $response->headers->set(
             'Server-Timing',
             implode(', ', [
-                'question_lookup;dur=' .
+                'question_lookup;dur='.
                     number_format(
                         $questionLookupDurationMs,
                         2,
@@ -217,7 +216,7 @@ class ExamController extends Controller
                         ''
                     ),
 
-                'save_answer;dur=' .
+                'save_answer;dur='.
                     number_format(
                         $saveDurationMs,
                         2,
@@ -225,7 +224,7 @@ class ExamController extends Controller
                         ''
                     ),
 
-                'total;dur=' .
+                'total;dur='.
                     number_format(
                         $totalDurationMs,
                         2,

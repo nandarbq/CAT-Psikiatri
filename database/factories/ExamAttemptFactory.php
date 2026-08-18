@@ -44,7 +44,6 @@ class ExamAttemptFactory extends Factory
         ]);
     }
 
-
     public function forParticipant(Participant $participant): static
     {
         return $this->state(fn (array $attributes): array => [
@@ -55,9 +54,8 @@ class ExamAttemptFactory extends Factory
 
     public function forSession(ExamSession $session): static
     {
-    return $this->state(fn (array $attributes): array => [
-        'session_id' => $session->id,
-    ]);
+        return $this->state(fn (array $attributes): array => [
+            'session_id' => $session->id,
+        ]);
     }
-
 }

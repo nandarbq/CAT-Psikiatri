@@ -38,7 +38,7 @@ class UserController extends Controller
     public function create(): View
     {
         return view('admin.users.form', [
-            'user' => new User(),
+            'user' => new User,
             'isEdit' => false,
             'roles' => $this->roles(),
         ]);
@@ -129,11 +129,13 @@ class UserController extends Controller
         foreach ($users as $user) {
             if ((int) $user->id === $currentUserId) {
                 $skippedOwnAccount++;
+
                 continue;
             }
 
             if ($adminCount <= 1) {
                 $skippedLastAdmin++;
+
                 continue;
             }
 
@@ -161,7 +163,7 @@ class UserController extends Controller
     }
 
     /**
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      * @return array<string, mixed>
      */
     private function normalizePayload(array $payload): array

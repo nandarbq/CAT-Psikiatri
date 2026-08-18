@@ -51,6 +51,7 @@ class VersionInfoEndpointTest extends TestCase
             $absolutePath = base_path($markerFile);
             if ($this->originalExists[$markerFile] ?? false) {
                 file_put_contents($absolutePath, $this->originalContent[$markerFile]);
+
                 continue;
             }
 

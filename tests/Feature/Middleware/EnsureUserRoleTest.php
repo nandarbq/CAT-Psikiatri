@@ -22,7 +22,7 @@ class EnsureUserRoleTest extends TestCase
             return response()->json([
                 'success' => true,
             ]);
-        })->middleware(EnsureUserRole::class . ':admin');
+        })->middleware(EnsureUserRole::class.':admin');
     }
 
     public function test_user_with_allowed_role_can_access_page(): void
@@ -57,8 +57,7 @@ class EnsureUserRoleTest extends TestCase
         );
 
         $response->assertSessionHasErrors([
-            'authorization' =>
-                'Akses ditolak: halaman ini hanya untuk role yang diizinkan.',
+            'authorization' => 'Akses ditolak: halaman ini hanya untuk role yang diizinkan.',
         ]);
     }
 
@@ -71,8 +70,7 @@ class EnsureUserRoleTest extends TestCase
         );
 
         $response->assertSessionHasErrors([
-            'authorization' =>
-                'Akses ditolak: halaman ini hanya untuk role yang diizinkan.',
+            'authorization' => 'Akses ditolak: halaman ini hanya untuk role yang diizinkan.',
         ]);
     }
 
@@ -89,8 +87,7 @@ class EnsureUserRoleTest extends TestCase
         $response->assertForbidden();
 
         $response->assertJson([
-            'message' =>
-                'Anda tidak memiliki akses ke halaman ini.',
+            'message' => 'Anda tidak memiliki akses ke halaman ini.',
         ]);
     }
 }

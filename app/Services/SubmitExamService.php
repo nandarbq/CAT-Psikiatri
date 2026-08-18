@@ -12,8 +12,7 @@ class SubmitExamService
 {
     public function __construct(
         private readonly ValidateSessionService $validateSessionService
-    ) {
-    }
+    ) {}
 
     public function submit(ExamAttempt $attempt): ExamAttempt
     {
@@ -32,7 +31,7 @@ class SubmitExamService
                 ->whereKey($attempt->id)
                 ->lockForUpdate()
                 ->firstOrFail();
-        
+
             if ($lockedAttempt->is_submitted) {
                 return $lockedAttempt;
             }

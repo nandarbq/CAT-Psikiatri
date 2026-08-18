@@ -111,7 +111,7 @@ class ExamTokenController extends Controller
     public function create(Request $request): View
     {
         return view('admin.tokens.form', [
-            'tokenRecord' => new ExamToken(),
+            'tokenRecord' => new ExamToken,
             'sessions' => ExamSession::query()->orderBy('start_time')->get(['id', 'title']),
             'defaultSessionId' => (string) $request->query('session_id', ''),
             'isEdit' => false,

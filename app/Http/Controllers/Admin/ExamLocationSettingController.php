@@ -44,4 +44,3 @@ class ExamLocationSettingController extends Controller
         );
     }
 }
-

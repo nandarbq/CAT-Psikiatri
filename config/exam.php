@@ -12,4 +12,3 @@ return [
     'max_accuracy_meters' => 150,
 
 ];
-

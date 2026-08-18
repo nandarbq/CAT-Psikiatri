@@ -58,7 +58,6 @@ class ExamSessionFactory extends Factory
         ]);
     }
 
-
     public function notStartedYet(): static
     {
         return $this->state(fn (array $attributes): array => [

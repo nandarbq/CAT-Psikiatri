@@ -7,10 +7,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Module;
 use App\Models\Question;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Carbon\CarbonImmutable;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -259,7 +259,7 @@ class ExamSimulationController extends Controller
     }
 
     /**
-     * @param array<string, mixed> $simulation
+     * @param  array<string, mixed>  $simulation
      */
     private function questionExists(array $simulation, int $questionId): bool
     {
@@ -275,7 +275,7 @@ class ExamSimulationController extends Controller
     }
 
     /**
-     * @param array<string, mixed> $simulation
+     * @param  array<string, mixed>  $simulation
      */
     private function isExpired(array $simulation): bool
     {

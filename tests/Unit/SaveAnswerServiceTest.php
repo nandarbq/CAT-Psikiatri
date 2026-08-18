@@ -196,7 +196,7 @@ class SaveAnswerServiceTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     private function createAttempt(array $attributes = []): ExamAttempt
     {
@@ -211,7 +211,7 @@ class SaveAnswerServiceTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     private function createQuestion(
         ExamAttempt $attempt,
