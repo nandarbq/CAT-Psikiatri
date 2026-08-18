@@ -72,13 +72,13 @@ Tanggal: 2026-08-13
 **Keterangan:** Tidak ditemukan sebagai task yang sama di Audit 1. Tetap perlu dikerjakan berdasarkan Audit 2.
 
 ### Task 2.3 — Konsistensi FormRequest Participant
-- [ ] Review `ParticipantController::store`
-- [ ] Review `ParticipantController::update`
-- [ ] Review `ParticipantController::bulkCreateStore`
-- [ ] Review `ParticipantController::bulk`
-- [ ] Identifikasi inline validation yang duplikat
-- [ ] Buat `BulkParticipantRequest` atau rules yang dapat digunakan ulang
-- [ ] Hilangkan duplicate validation rules
+- [x] Review `ParticipantController::store`
+- [x] Review `ParticipantController::update`
+- [x] Review `ParticipantController::bulkCreateStore`
+- [x] Review `ParticipantController::bulk`
+- [x] Identifikasi inline validation yang duplikat
+- [x] Buat `BulkParticipantRequest` atau rules yang dapat digunakan ulang
+- [x] Hilangkan duplicate validation rules
 
 **Keterangan:** Tidak ditemukan sebagai task yang sama di Audit 1. Tetap perlu dikerjakan berdasarkan Audit 2.
 

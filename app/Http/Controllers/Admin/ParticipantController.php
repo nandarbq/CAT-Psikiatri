@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ParticipantBulkCreateRequest;
 use App\Http\Requests\ParticipantRequest;
 use App\Models\ExamAttempt;
 use App\Models\ExamSession;
@@ -14,7 +15,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class ParticipantController extends Controller
@@ -90,22 +90,9 @@ class ParticipantController extends Controller
         ]);
     }
 
-    public function bulkCreateStore(Request $request): RedirectResponse
+    public function bulkCreateStore(ParticipantBulkCreateRequest $request): RedirectResponse
     {
-        $payload = $request->validate([
-            'session_id' => ['required', 'integer', 'exists:exam_sessions,id'],
-            'participants' => ['required', 'array', 'min:1'],
-            'participants.*.nik' => ['required', 'string', 'max:30', 'distinct', Rule::unique('participants', 'nik')],
-            'participants.*.username' => ['required', 'string', 'max:50', 'distinct', Rule::unique('participants', 'username')],
-            'participants.*.password' => ['required', 'string', 'min:8', 'max:100'],
-            'participants.*.name' => ['required', 'string', 'max:255'],
-            'participants.*.birth_place' => ['nullable', 'string', 'max:255'],
-            'participants.*.birth_date' => ['required', 'date'],
-            'participants.*.gender' => ['required', Rule::in(['male', 'female'])],
-            'participants.*.phone' => ['nullable', 'string', 'max:30'],
-            'participants.*.address' => ['nullable', 'string', 'max:2000'],
-            'participants.*.purpose' => ['nullable', 'string', 'max:255'],
-        ]);
+        $payload = $request->validated();
 
         $sessionId = (int) $payload['session_id'];
         $participants = (array) ($payload['participants'] ?? []);
