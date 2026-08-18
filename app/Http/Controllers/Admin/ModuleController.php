@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ModuleRequest;
+use App\Http\Requests\StoreModuleRequest;
 use App\Models\Module;
 use App\Models\Question;
 use Illuminate\Http\RedirectResponse;
@@ -46,16 +47,9 @@ class ModuleController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(StoreModuleRequest $request): RedirectResponse
     {
-        $payload = $request->validate([
-            'name' => ['required', 'string', 'max:150'],
-            'description' => ['nullable', 'string', 'max:2000'],
-            'status' => ['required', 'boolean'],
-            'questions' => ['required', 'array', 'min:1'],
-            'questions.*.question' => ['required', 'string', 'max:10000'],
-            'questions.*.is_active' => ['required', 'boolean'],
-        ]);
+        $payload = $request->validated();
 
         $rows = array_values($payload['questions']);
 
