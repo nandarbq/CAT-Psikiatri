@@ -233,13 +233,6 @@
         </div>
     </section>
 
-    <script type="module">
-        import { examEngine } from '{{ asset("js/examEngine.js") }}';
-
-        // Buat examEngine tersedia untuk Alpine.js x-data
-        window.examEngine = examEngine;
-    </script>
-
     <div id="exam-lockdown-overlay" class="exam-lockdown-overlay" hidden>
         <div class="exam-lockdown-card">
             <p class="exam-lockdown-title">Anda meninggalkan halaman tes</p>
