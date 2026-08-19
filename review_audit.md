@@ -20,7 +20,7 @@ Total 22 task dari hasil review, dibagi rata ke 3 sprint (bukan dikelompokkan pe
 - [x] **[M4]** `BuildsAdminIndexViews.php` tidak dipakai & berpotensi error — redefine `paginateQuery()`, `resolvePerPage()`, `$paginationPerPageOptions` yang sudah ada di `HandlesPagination` → konflik fatal kalau dipakai bareng. **Hapus file ini.**
 - [x] **[M5]** Timer auto-submit spam popup tanpa henti — submit telat ditolak server → popup retry → loop terus. **Server:** tetap terima submit meski telat. **Client:** kalau force-submit gagal, anggap selesai, arahkan ke halaman hasil.
 - [x] **[M6]** Auto-advance ke soal berikutnya bisa salah — pengecekan "sudah dijawab" dilakukan saat timer dibuat, bukan saat callback jalan (delay 350ms). Fix: cek ulang nomor soal di dalam callback, batalkan timer kalau peserta pindah manual.
-- [ ] **[M7]** Fetch call tanpa timeout — koneksi macet bikin tombol freeze. Tambahkan `AbortSignal.timeout(8000)`, tampilkan pesan error asli dari server.
+- [x] **[M7]** Fetch call tanpa timeout — koneksi macet bikin tombol freeze. Tambahkan `AbortSignal.timeout(8000)`, tampilkan pesan error asli dari server.
 
 ---
 

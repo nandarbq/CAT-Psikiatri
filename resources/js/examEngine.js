@@ -366,6 +366,7 @@ export function examEngine(config) {
                 }
                 const response = await fetch(config.saveUrl, {
                     method: 'POST',
+                    signal: AbortSignal.timeout(8000),
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
@@ -517,6 +518,7 @@ export function examEngine(config) {
                 }
                 const response = await fetch(config.submitUrl, {
                     method: 'POST',
+                    signal: AbortSignal.timeout(8000),
                     headers: {
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': csrf,
