@@ -13,8 +13,8 @@ Total 22 task dari hasil review, dibagi rata ke 3 sprint (bukan dikelompokkan pe
 
 ## Sprint 1 (8 task)
 
-- [ ] **[H1]** Perbaiki loading `examEngine` yang mati total — `asset("js/examEngine.js")` 404 karena tidak dibuild Vite, dan Alpine.js sudah jalan duluan sebelum script module di-load. **Fix:** di `resources/js/app.js` tambahkan `import { examEngine } from './examEngine'; window.examEngine = examEngine;`, lalu hapus blok `<script type="module">` di `runner.blade.php`. *(Alternatif: daftarkan `examEngine.js` ke `vite.config.js` + `@vite(...)`.)*
-- [ ] **[M1]** Kebijakan geo-check terlalu ketat — `geo_grace_seconds` (120 detik) hilang, sekarang langsung reject di kegagalan GPS pertama. Konfirmasi disengaja atau tidak; kalau tidak, kembalikan masa toleransinya.
+- [x] **[H1]** Perbaiki loading `examEngine` yang mati total — `asset("js/examEngine.js")` 404 karena tidak dibuild Vite, dan Alpine.js sudah jalan duluan sebelum script module di-load. **Fix:** di `resources/js/app.js` tambahkan `import { examEngine } from './examEngine'; window.examEngine = examEngine;`, lalu hapus blok `<script type="module">` di `runner.blade.php`. *(Alternatif: daftarkan `examEngine.js` ke `vite.config.js` + `@vite(...)`.)*
+- [x] **[M1]** Kebijakan geo-check terlalu ketat — `geo_grace_seconds` (120 detik) hilang, sekarang langsung reject di kegagalan GPS pertama. Konfirmasi disengaja atau tidak; kalau tidak, kembalikan masa toleransinya.
 - [ ] **[M2]** Kode mati akibat perubahan geo-check — `exam_geo_out_of_range_since` di session & `geo_grace_seconds` di `config/exam.php` jadi tidak terpakai. Hapus atau kembalikan sesuai keputusan task sebelumnya.
 - [ ] **[M3]** Nama method tidak sesuai isi — `enforceLocationWithGracePeriod()` di `ExamGuard.php` tidak lagi punya grace period. Ganti nama jadi `enforceLocation()`.
 - [ ] **[M4]** `BuildsAdminIndexViews.php` tidak dipakai & berpotensi error — redefine `paginateQuery()`, `resolvePerPage()`, `$paginationPerPageOptions` yang sudah ada di `HandlesPagination` → konflik fatal kalau dipakai bareng. **Hapus file ini.**

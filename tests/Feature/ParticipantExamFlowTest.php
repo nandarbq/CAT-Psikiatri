@@ -322,6 +322,31 @@ class ParticipantExamFlowTest extends TestCase
             'accuracy' => 20,
         ])->assertRedirect('/exam');
 
+        /*
+         * Kegagalan GPS pertama masih dalam masa toleransi (grace period),
+         * jadi request diteruskan dan penanda waktu out-of-range dicatat.
+         */
+        $this->withHeaders([
+            'X-Exam-Latitude' => '-6.2500000',
+            'X-Exam-Longitude' => '106.9000000',
+            'X-Exam-Accuracy' => '10',
+        ])->postJson('/exam/save-answer', [
+            'question_id' => $question->id,
+            'answer' => true,
+        ])->assertOk()->assertJson([
+            'success' => true,
+        ]);
+
+        $this->assertTrue(
+            $this->app['session']->has('exam_geo_out_of_range_since')
+        );
+
+        /*
+         * Setelah melewati batas toleransi geo_grace_seconds,
+         * lokasi yang masih di luar radius akhirnya menolak request.
+         */
+        $this->travel(10)->minutes();
+
         $this->withHeaders([
             'X-Exam-Latitude' => '-6.2500000',
             'X-Exam-Longitude' => '106.9000000',
