@@ -108,8 +108,12 @@ class SubmitExamServiceTest extends TestCase
         $this->assertDatabaseCount('exam_attempts', 1);
     }
 
-    public function test_submit_rejects_when_attempt_time_has_expired(): void
+    public function test_submit_accepts_when_attempt_time_has_expired(): void
     {
+        // M5: Submit diizinkan meski melewati deadline.
+        // Ini mencegah loop popup error di client (timer terus trigger submit
+        // → server reject → loop popup). Server tetap cek is_submitted dan
+        // session active, tapi tidak cek deadline.
         $session = ExamSession::factory()->create([
             'duration_minutes' => 30,
         ]);
@@ -118,9 +122,11 @@ class SubmitExamServiceTest extends TestCase
             ->forParticipant($participant)
             ->create(['started_at' => now()->subHour()]); // sudah lewat durasi 30 menit
 
-        $this->expectException(ValidationException::class);
+        // Tidak boleh throw exception, submit harus diterima
+        $result = $this->service->submit($attempt);
 
-        $this->service->submit($attempt);
+        $this->assertTrue($result->is_submitted);
+        $this->assertNotNull($result->finished_at);
     }
 
     public function test_submit_rejects_when_session_already_ended(): void

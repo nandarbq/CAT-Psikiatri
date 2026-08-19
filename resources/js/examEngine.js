@@ -513,8 +513,31 @@ export function examEngine(config) {
                 // konfirmasi native yang bisa membatalkan kepindahan halaman.
                 window.__examSubmitted = true;
                 this.exitFullscreenIfActive();
+                
+                if (this.timerId !== null) {
+                    window.clearInterval(this.timerId);
+                }
+                
                 window.location.href = data.redirect;
-            } catch {
+            } catch (error) {
+                // M5: Jika force-submit by timer gagal, jangan show dialog.
+                // Langsung anggap selesai dan redirect ke login untuk menghindari
+                // loop popup error setiap detik.
+                if (forcedByTimer === true) {
+                    window.__examSubmitted = true;
+                    
+                    // Stop timer agar tidak retry
+                    if (this.timerId !== null) {
+                        window.clearInterval(this.timerId);
+                    }
+                    
+                    // Redirect ke login. Error akan dicatat server, participant
+                    // bisa login ulang dan melanjutkan jika attempt belum submit.
+                    window.location.href = '/participant/login';
+                    return;
+                }
+
+                // Jika manual submit (user klik tombol), show dialog error
                 this.saveStatus = this.submitFailureStatus;
                 this.statusType = 'error';
                 await window.AppDialog.alert({

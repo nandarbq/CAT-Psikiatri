@@ -110,28 +110,12 @@ class ValidateSessionService
 
         $this->ensureSessionActive($attempt->session);
 
-        $durationMinutes =
-            $this->resolveDurationMinutes($attempt);
-
-        $deadlineByDuration =
-            CarbonImmutable::instance($attempt->started_at)
-                ->addMinutes($durationMinutes);
-
-        $sessionEnd =
-            CarbonImmutable::instance(
-                $attempt->session->end_time
-            );
-
-        $effectiveDeadline =
-            $deadlineByDuration->min($sessionEnd);
-
-        if (
-            CarbonImmutable::now()->gt($effectiveDeadline)
-        ) {
-            throw ValidationException::withMessages([
-                'attempt' => 'Waktu tes habis.',
-            ]);
-        }
+        /*
+         * M5 — Submit diizinkan meski melewati deadline.
+         * Pengecekan deadline dihapus agar submit yang telat tetap
+         * diterima server. Ini menghindari loop popup error di client
+         * (timer terus trigger submit → server reject → loop popup).
+         */
     }
 
     public function effectiveDeadline(

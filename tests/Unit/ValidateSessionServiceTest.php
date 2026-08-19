@@ -202,8 +202,11 @@ class ValidateSessionServiceTest extends TestCase
         $this->service->ensureAttemptAccessible($attempt->load('session'));
     }
 
-    public function test_ensure_attempt_accessible_rejects_when_duration_exceeded(): void
+    public function test_ensure_attempt_accessible_accepts_when_duration_exceeded(): void
     {
+        // Tidak lagi reject saat duration exceeded. Submit diizinkan
+        // meski melewati deadline untuk mencegah loop popup error di client
+        // saat timer terus trigger submit.
         $session = ExamSession::factory()->create([
             'duration_minutes' => 30,
             'start_time' => now()->subHours(2),
@@ -214,9 +217,11 @@ class ValidateSessionServiceTest extends TestCase
             ->forParticipant($participant)
             ->create(['started_at' => now()->subMinutes(45)]); // melebihi durasi 30 menit
 
-        $this->expectException(ValidationException::class);
-
+        // Tidak boleh throw exception, attempt yang melewati deadline
+        // tetap dianggap accessible.
         $this->service->ensureAttemptAccessible($attempt->load('session'));
+
+        $this->assertTrue(true);
     }
 
     public function test_effective_deadline_uses_the_earlier_of_duration_or_session_end(): void
