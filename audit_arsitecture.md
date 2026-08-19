@@ -156,11 +156,11 @@ Tanggal: 2026-08-13
 # Sprint 5 — Technical Debt & Standardisasi
 
 ### Task 5.1 — Konsolidasi Fallback Location
-- [ ] Identifikasi fallback koordinat pada `SystemSettingController`
-- [ ] Identifikasi fallback koordinat pada `DatabaseSeeder`
-- [ ] Tentukan satu sumber konfigurasi
-- [ ] Pindahkan ke `config/exam.php` atau `ExamLocationSetting`
-- [ ] Hilangkan dua salinan koordinat
+- [x] Identifikasi fallback koordinat pada `SystemSettingController`
+- [x] Identifikasi fallback koordinat pada `DatabaseSeeder`
+- [x] Tentukan satu sumber konfigurasi
+- [x] Pindahkan ke `config/exam.php` atau `ExamLocationSetting`
+- [x] Hilangkan dua salinan koordinat
 
 **Keterangan:** Tidak ditemukan sebagai task yang sama di Audit 1. Tetap perlu dikerjakan berdasarkan Audit 2.
 
@@ -175,9 +175,9 @@ Tanggal: 2026-08-13
 **Keterangan:** Sebagian berkaitan dengan Audit 1 **M5**, khususnya penyamaan string `tes`/`ujian`. Namun standardisasi UX writing secara keseluruhan adalah scope tambahan dari Audit 2, sehingga task belum dianggap selesai seluruhnya.
 
 ### Task 5.3 — Tambahkan Laravel Pint ke CI
-- [ ] Tambahkan `laravel/pint`
-- [ ] Konfigurasikan Pint di CI
-- [ ] Buat CI gagal ketika formatting tidak sesuai
+- [x] Tambahkan `laravel/pint`
+- [x] Konfigurasikan Pint di CI
+- [x] Buat CI gagal ketika formatting tidak sesuai
 
 **Keterangan:** Tidak ditemukan sebagai task yang sama di Audit 1. Tetap perlu dikerjakan berdasarkan Audit 2.
 

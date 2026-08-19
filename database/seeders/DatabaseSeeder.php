@@ -29,12 +29,14 @@ class DatabaseSeeder extends Seeder
             ],
         );
 
+        $locationFallback = (array) config('exam.default_location_fallback', []);
+
         ExamLocationSetting::query()->updateOrCreate(
             ['id' => 1],
             [
-                'center_latitude' => -8.2135000,
-                'center_longitude' => 114.3652000,
-                'allowed_radius_meters' => 500,
+                'center_latitude' => (float) ($locationFallback['center_latitude'] ?? -8.2135000),
+                'center_longitude' => (float) ($locationFallback['center_longitude'] ?? 114.3652000),
+                'allowed_radius_meters' => (int) ($locationFallback['allowed_radius_meters'] ?? 500),
             ],
         );
 
