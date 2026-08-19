@@ -19,7 +19,7 @@ Total 22 task dari hasil review, dibagi rata ke 3 sprint (bukan dikelompokkan pe
 - [x] **[M3]** Nama method tidak sesuai isi — `enforceLocationWithGracePeriod()` di `ExamGuard.php` tidak lagi punya grace period. Ganti nama jadi `enforceLocation()`. *(Tidak perlu diubah: M1 sudah mengembalikan grace period, jadi nama `enforceLocationWithGracePeriod()` di `ExamGuard.php:197` sudah sesuai dengan isi method yang memakai `geo_grace_seconds` & `exam_geo_out_of_range_since`.)*
 - [x] **[M4]** `BuildsAdminIndexViews.php` tidak dipakai & berpotensi error — redefine `paginateQuery()`, `resolvePerPage()`, `$paginationPerPageOptions` yang sudah ada di `HandlesPagination` → konflik fatal kalau dipakai bareng. **Hapus file ini.**
 - [x] **[M5]** Timer auto-submit spam popup tanpa henti — submit telat ditolak server → popup retry → loop terus. **Server:** tetap terima submit meski telat. **Client:** kalau force-submit gagal, anggap selesai, arahkan ke halaman hasil.
-- [ ] **[M6]** Auto-advance ke soal berikutnya bisa salah — pengecekan "sudah dijawab" dilakukan saat timer dibuat, bukan saat callback jalan (delay 350ms). Fix: cek ulang nomor soal di dalam callback, batalkan timer kalau peserta pindah manual.
+- [x] **[M6]** Auto-advance ke soal berikutnya bisa salah — pengecekan "sudah dijawab" dilakukan saat timer dibuat, bukan saat callback jalan (delay 350ms). Fix: cek ulang nomor soal di dalam callback, batalkan timer kalau peserta pindah manual.
 - [ ] **[M7]** Fetch call tanpa timeout — koneksi macet bikin tombol freeze. Tambahkan `AbortSignal.timeout(8000)`, tampilkan pesan error asli dari server.
 
 ---

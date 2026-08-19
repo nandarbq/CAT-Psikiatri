@@ -33,6 +33,7 @@ export function examEngine(config) {
         now: new Date(),
         timerId: null,
         animationTimerId: null,
+        autoAdvanceTimerId: null,
         lastKnownLocation: null,
         locationInFlight: null,
         requiresLocation: Boolean(config.requiresLocation),
@@ -79,6 +80,10 @@ export function examEngine(config) {
 
             if (this.animationTimerId !== null) {
                 window.clearTimeout(this.animationTimerId);
+            }
+
+            if (this.autoAdvanceTimerId !== null) {
+                window.clearTimeout(this.autoAdvanceTimerId);
             }
 
             if (this.questionNavMediaQuery && this.questionNavMediaQueryHandler) {
@@ -285,6 +290,12 @@ export function examEngine(config) {
 
         goToQuestion(index) {
             if (index >= 0 && index < this.questions.length && index !== this.currentIndex) {
+                // M6: Cancel any pending auto-advance when participant manually navigates
+                if (this.autoAdvanceTimerId !== null) {
+                    window.clearTimeout(this.autoAdvanceTimerId);
+                    this.autoAdvanceTimerId = null;
+                }
+
                 const direction = index < this.currentIndex ? 'prev' : 'next';
                 this.currentIndex = index;
                 this.jumpQuestionNumber = index + 1;
@@ -383,8 +394,20 @@ export function examEngine(config) {
                 }
 
                 if (this.currentIndex === answeredIndex && this.currentIndex < this.questions.length - 1) {
-                    window.setTimeout(() => {
-                        this.nextQuestion();
+                    // M6: Cancel any pending auto-advance before scheduling new one
+                    if (this.autoAdvanceTimerId !== null) {
+                        window.clearTimeout(this.autoAdvanceTimerId);
+                    }
+
+                    // M6: Re-check currentIndex in callback to ensure participant
+                    // hasn't manually navigated to a different question during the
+                    // 350ms delay (which would cause advancing from wrong position).
+                    this.autoAdvanceTimerId = window.setTimeout(() => {
+                        this.autoAdvanceTimerId = null;
+                        // Only advance if we're still on the same question
+                        if (this.currentIndex === answeredIndex && this.currentIndex < this.questions.length - 1) {
+                            this.nextQuestion();
+                        }
                     }, 350);
                 }
             } catch (error) {
