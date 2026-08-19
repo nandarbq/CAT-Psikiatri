@@ -77,7 +77,7 @@ class DatabaseSeeder extends Seeder
                 'end_time' => now()->addHours(3),
                 'duration_minutes' => 90,
                 'status' => true,
-                'instructions' => "1. Baca setiap soal dengan teliti.\n2. Jangan menutup browser selama ujian.\n3. Pastikan koneksi internet stabil.\n4. Klik \"Akhiri Ujian\" hanya jika sudah selesai.",
+                'instructions' => "1. Baca setiap soal dengan teliti.\n2. Jangan menutup browser selama tes.\n3. Pastikan koneksi internet stabil.\n4. Klik \"Akhiri Tes\" hanya jika sudah selesai.",
             ],
         );
 

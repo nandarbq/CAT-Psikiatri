@@ -10,7 +10,7 @@
     <form method="GET" action="{{ route('admin.users.index') }}" class="filter-panel">
         <label class="field">
             <span>Cari Nama / Username / Email</span>
-            <input class="input" type="text" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Cari user admin...">
+            <input class="input" type="text" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Cari Admin...">
         </label>
         <div class="filter-actions">
             <button type="submit" class="btn btn-primary">Terapkan</button>

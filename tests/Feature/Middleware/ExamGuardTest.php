@@ -65,7 +65,7 @@ class ExamGuardTest extends TestCase
         $response->assertRedirect(route('exam.access'));
 
         $response->assertSessionHasErrors([
-            'session' => 'Sesi ujian tidak sesuai dengan sesi peserta.',
+            'session' => 'Sesi tes tidak sesuai dengan sesi peserta.',
         ]);
     }
 

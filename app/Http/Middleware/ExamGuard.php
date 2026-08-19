@@ -95,7 +95,7 @@ class ExamGuard
         ) {
             return $this->deny(
                 $request,
-                'Sesi ujian tidak sesuai dengan sesi peserta.'
+                'Sesi tes tidak sesuai dengan sesi peserta.'
             );
         }
 
@@ -194,14 +194,6 @@ class ExamGuard
         return $next($request);
     }
 
-    /**
-     * H6 + H9:
-     *
-     * Melakukan validasi lokasi pada setiap request non-submit.
-     *
-     * Cache lokasi memiliki TTL sehingga koordinat lama tidak dapat
-     * digunakan tanpa batas waktu.
-     */
     private function enforceLocationWithGracePeriod(
         Request $request,
         ExamAttempt $attempt
@@ -279,9 +271,6 @@ class ExamGuard
 
     /**
      * Mengambil koordinat dari header.
-     *
-     * H9:
-     *
      * Jika header tidak tersedia, cache lokasi hanya boleh digunakan
      * selama belum melewati TTL.
      *
@@ -354,7 +343,6 @@ class ExamGuard
         }
 
         /*
-         * H9:
          * Ambil waktu terakhir cache lokasi.
          */
         $cachedAt = $request->session()->get(

@@ -301,7 +301,7 @@ class ExamController extends Controller
         if ($question === null) {
             abort(
                 404,
-                'Soal tidak tersedia untuk sesi ujian ini.'
+                'Soal tidak tersedia untuk sesi tes ini.'
             );
         }
 

@@ -21,7 +21,7 @@ class SaveAnswerService
             (int) $question->module_id !== (int) $attemptWithSession->session->module_id
             || ! $question->is_active
         ) {
-            abort(404, 'Soal tidak tersedia untuk sesi ujian ini.');
+            abort(404, 'Soal tidak tersedia untuk sesi tes ini.');
         }
 
         DB::transaction(function () use ($attempt, $question, $answer): void {

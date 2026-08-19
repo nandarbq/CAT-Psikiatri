@@ -167,7 +167,7 @@ class ParticipantExamFlowTest extends TestCase
             'question_id' => $blockedQuestion->id,
             'answer' => true,
         ])->assertStatus(404)
-            ->assertJsonPath('message', 'Soal tidak tersedia untuk sesi ujian ini.');
+            ->assertJsonPath('message', 'Soal tidak tersedia untuk sesi tes ini.');
 
         $this->assertDatabaseMissing('participant_answers', [
             'question_id' => $blockedQuestion->id,
