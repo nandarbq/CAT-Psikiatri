@@ -23,9 +23,9 @@ class ExamAttemptFactory extends Factory
     public function definition(): array
     {
         return [
-
             'participant_id' => Participant::factory(),
-            'session_id' => ExamSession::factory(),
+            'session_id' => fn (array $attributes) => Participant::query()->find($attributes['participant_id'])?->session_id
+                ?? ExamSession::factory(),
             'started_at' => now()->subMinutes(10),
             'finished_at' => null,
             'current_question' => 1,

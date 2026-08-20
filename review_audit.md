@@ -26,7 +26,7 @@ Total 22 task dari hasil review, dibagi rata ke 3 sprint (bukan dikelompokkan pe
 
 ## Sprint 2 (7 task)
 
-- [ ] **[M8]** `ExamAttemptFactory` menghasilkan data inkonsisten — participant & session dibuat terpisah, bisa hasilkan `session_id` yang tidak cocok dengan `participant.session_id` (melanggar aturan M11). Perbaiki default:
+- [x] **[M8]** `ExamAttemptFactory` menghasilkan data inkonsisten — participant & session dibuat terpisah, bisa hasilkan `session_id` yang tidak cocok dengan `participant.session_id` (melanggar aturan M11). Perbaiki default:
     ```php
     'session_id' => fn (array $attributes) =>
         Participant::query()->find($attributes['participant_id'])?->session_id
