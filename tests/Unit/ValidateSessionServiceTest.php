@@ -91,6 +91,14 @@ class ValidateSessionServiceTest extends TestCase
 
     public function test_location_check_rejects_missing_coordinates_for_onsite_session(): void
     {
+        // Setting lokasi dibuat dulu supaya penolakan benar-benar berasal dari
+        // logika koordinat (null → 0,0 → di luar radius), bukan dari cabang
+        // "konfigurasi radius belum diatur".
+        ExamLocationSetting::query()->create([
+            'center_latitude' => -8.219,
+            'center_longitude' => 114.369,
+            'allowed_radius_meters' => 500,
+        ]);
         $session = ExamSession::factory()->onsiteRadius()->create();
 
         $this->expectException(ValidationException::class);
