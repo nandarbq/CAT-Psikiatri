@@ -104,6 +104,8 @@ class ExamGuardTest extends TestCase
             route('exam.show')
         );
 
-        $response->assertSessionMissing('errors');
+        $response->assertOk()
+            ->assertViewIs('exam.index')
+            ->assertSessionMissing('errors');
     }
 }
