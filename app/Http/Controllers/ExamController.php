@@ -52,6 +52,8 @@ class ExamController extends Controller
             ])
             ->all();
 
+        // Gunakan seed deterministik dari attempt id agar urutan soal tidak bisa
+        // diprediksi atau diubah secara manual untuk menghindari kecurangan.
         $randomizer = new Randomizer(
             new Mt19937($attempt->id)
         );
@@ -82,7 +84,9 @@ class ExamController extends Controller
             if ($foundIndex !== false) {
                 $currentIndex = $foundIndex;
             } else {
-
+                // Fallback: kalau current_question sudah tidak valid lagi,
+                // kita lanjut ke nomor soal terakhir yang pernah dijawab
+                // agar posisi layar tetap konsisten.
                 $answeredQuestionIds = array_map(
                     'intval',
                     array_keys($answers)

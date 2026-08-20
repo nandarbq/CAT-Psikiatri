@@ -33,8 +33,8 @@ Total 22 task dari hasil review, dibagi rata ke 3 sprint (bukan dikelompokkan pe
         ?? ExamSession::factory(),
     ```
 - [x] **[M9]** Test jalur sukses middleware kurang kuat — `ExamGuardTest.php` hanya cek `assertSessionMissing('errors')`. Tambahkan `assertOk()` dan `assertViewIs('exam.index')`.
-- [ ] **[L1]** `SubmitExamService`: hemat ~4 query berlebih di jalur submit; sebutkan di deskripsi PR bahwa submit ganda sekarang "sukses diam-diam" (bukan error).
-- [ ] **[L2]** `ExamController`: kembalikan 2 komentar penting yang terhapus (alasan seed `Mt19937($attempt->id)` untuk anti-curang, dan perilaku fallback `currentIndex`). Pertimbangkan kembalikan format baris asli agar diff tidak membesar tanpa alasan.
+- [x] **[L1]** `SubmitExamService`: hemat ~4 query berlebih di jalur submit; sebutkan di deskripsi PR bahwa submit ganda sekarang "sukses diam-diam" (bukan error).
+- [x] **[L2]** `ExamController`: kembalikan 2 komentar penting yang terhapus (alasan seed `Mt19937($attempt->id)` untuk anti-curang, dan perilaku fallback `currentIndex`). Pertimbangkan kembalikan format baris asli agar diff tidak membesar tanpa alasan.
 - [x] **[L3]** `HandlesPagination`: baru dipakai di 2 halaman padahal ada ~6 halaman admin lain dengan pola pagination berbeda — terapkan juga ke halaman lain, atau sesuaikan judul/deskripsi commit. *(Diputuskan: terapkan ke halaman lain — User, Module, ExamToken, ExamSession (index + participants bulk), Participant::history; semuanya kini pakai `paginateQuery()` dan view index punya selector `per_page` konsisten.)*
 - [x] **[L4]** Test `location_check_rejects_missing_coordinates`: tambahkan pembuatan setting lokasi agar benar-benar menguji logika koordinat.
 - [x] **[L5]** Test `StartExamService`: tambahkan test untuk session onsite (gagal tanpa koordinat, sukses dengan koordinat valid, token dari session berbeda).
