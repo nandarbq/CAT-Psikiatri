@@ -9,6 +9,7 @@ use App\Http\Requests\ExamSessionRequest;
 use App\Models\ExamSession;
 use App\Models\Module;
 use App\Models\Participant;
+use App\Support\Concerns\HandlesPagination;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
@@ -18,6 +19,8 @@ use Illuminate\View\View;
 
 class ExamSessionController extends Controller
 {
+    use HandlesPagination;
+
     public function index(Request $request): View
     {
         $query = ExamSession::query()->withCount('attempts');
@@ -33,7 +36,7 @@ class ExamSessionController extends Controller
         }
 
         return view('admin.sessions.index', [
-            'sessions' => $query->latest('id')->paginate(15)->withQueryString(),
+            'sessions' => $this->paginateQuery($query->latest('id'), $request),
             'filters' => [
                 'q' => $keyword,
                 'status' => $status,
@@ -172,7 +175,7 @@ class ExamSessionController extends Controller
             $query->where('session_id', (int) $sourceSessionId);
         }
 
-        $participants = $query->paginate(20)->withQueryString();
+        $participants = $this->paginateQuery($query, $request);
         $pageParticipantIds = $participants->getCollection()->pluck('id')->map(fn ($id) => (int) $id)->all();
         $activeAttemptParticipantIds = empty($pageParticipantIds)
             ? []

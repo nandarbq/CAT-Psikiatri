@@ -56,14 +56,16 @@ class ParticipantController extends Controller
         ]);
     }
 
-    public function history(Participant $participant): View
+    public function history(Request $request, Participant $participant): View
     {
-        $attempts = ExamAttempt::query()
-            ->with('session')
-            ->where('participant_id', $participant->id)
-            ->withCount('answers')
-            ->latest('id')
-            ->paginate(15);
+        $attempts = $this->paginateQuery(
+            ExamAttempt::query()
+                ->with('session')
+                ->where('participant_id', $participant->id)
+                ->withCount('answers')
+                ->latest('id'),
+            $request
+        );
 
         return view('admin.participants.history', [
             'participant' => $participant->load('session'),

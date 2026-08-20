@@ -9,6 +9,7 @@ use App\Http\Requests\ModuleRequest;
 use App\Http\Requests\StoreModuleRequest;
 use App\Models\Module;
 use App\Models\Question;
+use App\Support\Concerns\HandlesPagination;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +17,8 @@ use Illuminate\View\View;
 
 class ModuleController extends Controller
 {
+    use HandlesPagination;
+
     public function index(Request $request): View
     {
         $query = Module::query()->withCount(['questions', 'activeQuestions', 'examSessions']);
@@ -31,7 +34,7 @@ class ModuleController extends Controller
         }
 
         return view('admin.modules.index', [
-            'modules' => $query->orderBy('name')->paginate(20)->withQueryString(),
+            'modules' => $this->paginateQuery($query->orderBy('name'), $request),
             'filters' => [
                 'q' => $keyword,
                 'status' => $status,

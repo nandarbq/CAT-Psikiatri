@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ExamTokenRequest;
 use App\Models\ExamSession;
 use App\Models\ExamToken;
+use App\Support\Concerns\HandlesPagination;
 use App\Support\UniqueTokenGenerator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -19,6 +20,8 @@ use RuntimeException;
 
 class ExamTokenController extends Controller
 {
+    use HandlesPagination;
+
     public function index(Request $request): View
     {
         $query = ExamToken::query()->with('session');
@@ -39,7 +42,7 @@ class ExamTokenController extends Controller
         }
 
         return view('admin.tokens.index', [
-            'tokens' => $query->latest('id')->paginate(20)->withQueryString(),
+            'tokens' => $this->paginateQuery($query->latest('id'), $request),
             'sessionOptions' => ExamSession::query()->orderBy('start_time')->get(['id', 'title']),
             'filters' => [
                 'q' => $keyword,

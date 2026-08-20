@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AdminUserRequest;
 use App\Models\User;
+use App\Support\Concerns\HandlesPagination;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,6 +15,8 @@ use Illuminate\View\View;
 
 class UserController extends Controller
 {
+    use HandlesPagination;
+
     public function index(Request $request): View
     {
         $query = User::query()->where('role', User::ROLE_ADMIN);
@@ -28,7 +31,7 @@ class UserController extends Controller
         }
 
         return view('admin.users.index', [
-            'users' => $query->latest('id')->paginate(15)->withQueryString(),
+            'users' => $this->paginateQuery($query->latest('id'), $request),
             'filters' => [
                 'q' => $keyword,
             ],
