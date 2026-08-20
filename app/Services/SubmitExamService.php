@@ -16,8 +16,6 @@ class SubmitExamService
 
     public function submit(ExamAttempt $attempt): ExamAttempt
     {
-        $attempt->loadMissing(['participant', 'session']);
-
         return DB::transaction(function () use ($attempt): ExamAttempt {
             /**
              * Lock attempt terlebih dahulu.
@@ -27,14 +25,16 @@ class SubmitExamService
              */
             /** @var ExamAttempt $lockedAttempt */
             $lockedAttempt = ExamAttempt::query()
-                ->with(['participant', 'session'])
                 ->whereKey($attempt->id)
                 ->lockForUpdate()
                 ->firstOrFail();
 
+            $lockedAttempt->loadMissing(['participant', 'session']);
+
             if ($lockedAttempt->is_submitted) {
                 return $lockedAttempt;
             }
+
             $this->validateSessionService->ensureAttemptAccessible(
                 $lockedAttempt
             );
@@ -44,9 +44,9 @@ class SubmitExamService
                 'finished_at' => now(),
             ])->save();
 
-            $lockedAttempt->participant->forceFill([
+            $lockedAttempt->participant()->update([
                 'is_finished' => true,
-            ])->save();
+            ]);
 
             ExamToken::query()
                 ->where('session_id', $lockedAttempt->session_id)
@@ -55,10 +55,7 @@ class SubmitExamService
                     'last_used_at' => now(),
                 ]);
 
-            return $lockedAttempt->fresh([
-                'participant',
-                'session',
-            ]);
+            return $lockedAttempt->loadMissing(['participant', 'session']);
         });
     }
 }
