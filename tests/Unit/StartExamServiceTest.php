@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Services;
 
 use App\Models\ExamAttempt;
+use App\Models\ExamLocationSetting;
 use App\Models\ExamSession;
 use App\Models\ExamToken;
 use App\Models\Participant;
@@ -295,6 +296,119 @@ class StartExamServiceTest extends TestCase
 
         $this->assertNotNull(
             $token->fresh()->last_used_at
+        );
+    }
+
+    public function test_start_rejects_onsite_session_without_coordinates(): void
+    {
+        // Setting lokasi dibuat supaya penolakan benar-benar berasal dari
+        // logika koordinat (null → 0,0 → di luar radius), bukan dari cabang
+        // "konfigurasi radius belum diatur".
+        ExamLocationSetting::query()->create([
+            'center_latitude' => -8.219,
+            'center_longitude' => 114.369,
+            'allowed_radius_meters' => 500,
+        ]);
+        $session = ExamSession::factory()->onsiteRadius()->create();
+        $participant = Participant::factory()
+            ->forSession($session)
+            ->create();
+
+        Question::factory()
+            ->forModule($session->module)
+            ->create([
+                'is_active' => true,
+            ]);
+
+        ExamToken::factory()
+            ->forSession($session)
+            ->create([
+                'is_active' => true,
+                'expires_at' => now()->addHour(),
+            ]);
+
+        $token = ExamToken::query()->first()->token;
+
+        $this->expectException(ValidationException::class);
+
+        $this->service->startOrResume(
+            $participant,
+            $token,
+            $this->makeRequest(),
+        );
+    }
+
+    public function test_start_succeeds_for_onsite_session_with_valid_coordinates(): void
+    {
+        ExamLocationSetting::query()->create([
+            'center_latitude' => -8.219,
+            'center_longitude' => 114.369,
+            'allowed_radius_meters' => 500,
+        ]);
+        $session = ExamSession::factory()->onsiteRadius()->create();
+        $participant = Participant::factory()
+            ->forSession($session)
+            ->create();
+
+        Question::factory()
+            ->forModule($session->module)
+            ->create([
+                'is_active' => true,
+            ]);
+
+        ExamToken::factory()
+            ->forSession($session)
+            ->create([
+                'is_active' => true,
+                'expires_at' => now()->addHour(),
+            ]);
+
+        $token = ExamToken::query()->first()->token;
+
+        // ~50 meter dari pusat, masih di dalam radius 500m.
+        $attempt = $this->service->startOrResume(
+            $participant,
+            $token,
+            $this->makeRequest(-8.2194, 114.369, 10),
+        );
+
+        $this->assertInstanceOf(ExamAttempt::class, $attempt);
+        $this->assertSame($session->id, $attempt->session_id);
+        $this->assertSame($participant->id, $attempt->participant_id);
+        $this->assertFalse($attempt->is_submitted);
+        $this->assertNotNull($attempt->session_token);
+    }
+
+    public function test_start_rejects_token_from_different_session(): void
+    {
+        $session = ExamSession::factory()->create();
+        $participant = Participant::factory()
+            ->forSession($session)
+            ->create();
+
+        $otherSession = ExamSession::factory()->create();
+
+        Question::factory()
+            ->forModule($session->module)
+            ->create([
+                'is_active' => true,
+            ]);
+
+        ExamToken::factory()
+            ->forSession($otherSession)
+            ->create([
+                'is_active' => true,
+                'expires_at' => now()->addHour(),
+            ]);
+
+        $token = ExamToken::query()->first()->token;
+
+        $this->expectException(ValidationException::class);
+
+        $this->service->startOrResume(
+            $participant,
+            $token,
+            $this->makeRequest(),
         );
     }
 
