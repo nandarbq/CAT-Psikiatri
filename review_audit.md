@@ -48,7 +48,7 @@ Total 22 task dari hasil review, dibagi rata ke 3 sprint (bukan dikelompokkan pe
 - [x] **[N1]** Bersihkan trailing whitespace & tambahkan newline di akhir file-file baru.
 - [x] **[N2]** `pluralize()` di `BuildsAdminIndexViews` salah untuk kata seperti "users" → "userses" (tidak berlaku karena file sudah dihapus di Sprint 1).
 - [x] **[N3]** `jumpToQuestionNumber()`: input kosong + Enter bisa lempar peserta ke soal 1. **Fix:** validasi input kosong/null/<=0 sebelum `Number(...)`, lalu batasi indeks ke rentang soal yang valid.
-- [ ] **[N4]** Namespace test `Tests\Unit\Services` tidak sesuai lokasi folder `tests/Unit/` — pindahkan ke subfolder yang sesuai.
+- [x] **[N4]** Namespace test `Tests\Unit\Services` tidak sesuai lokasi folder `tests/Unit/` — pindahkan ke subfolder yang sesuai. **Fix:** file service test dipindahkan ke `tests/Unit/Services/` dan namespace cocok dengan struktur folder; suite `tests/Unit/Services` lulus.
 - [ ] **[N5]** `GeoDistanceTest` mewarisi `Tests\TestCase` padahal murni perhitungan matematika — cukup pakai `PHPUnit\Framework\TestCase`.
 
 ---
