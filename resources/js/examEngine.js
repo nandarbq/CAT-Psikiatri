@@ -336,12 +336,17 @@ export function examEngine(config) {
         },
 
         jumpToQuestionNumber() {
-            const target = Number(this.jumpQuestionNumber);
-            if (!Number.isFinite(target)) {
+            const rawValue = this.jumpQuestionNumber;
+            if (rawValue === null || rawValue === '' || typeof rawValue === 'undefined') {
                 return;
             }
 
-            const index = Math.max(1, Math.min(this.questions.length, Math.round(target))) - 1;
+            const target = Number(rawValue);
+            if (!Number.isFinite(target) || target < 1) {
+                return;
+            }
+
+            const index = Math.max(0, Math.min(this.questions.length - 1, Math.round(target) - 1));
             this.jumpQuestionNumber = index + 1;
             this.goToQuestion(index);
         },

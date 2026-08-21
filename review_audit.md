@@ -47,7 +47,7 @@ Total 22 task dari hasil review, dibagi rata ke 3 sprint (bukan dikelompokkan pe
 - [x] **[L7]** Frontend: deteksi error 401/419 (session/CSRF habis) saat autosave dan arahkan ke halaman login; pertimbangkan selisih jam client vs server untuk `deadlineAt`.
 - [x] **[N1]** Bersihkan trailing whitespace & tambahkan newline di akhir file-file baru.
 - [x] **[N2]** `pluralize()` di `BuildsAdminIndexViews` salah untuk kata seperti "users" → "userses" (tidak berlaku karena file sudah dihapus di Sprint 1).
-- [ ] **[N3]** `jumpToQuestionNumber()`: input kosong + Enter bisa lempar peserta ke soal 1.
+- [x] **[N3]** `jumpToQuestionNumber()`: input kosong + Enter bisa lempar peserta ke soal 1. **Fix:** validasi input kosong/null/<=0 sebelum `Number(...)`, lalu batasi indeks ke rentang soal yang valid.
 - [ ] **[N4]** Namespace test `Tests\Unit\Services` tidak sesuai lokasi folder `tests/Unit/` — pindahkan ke subfolder yang sesuai.
 - [ ] **[N5]** `GeoDistanceTest` mewarisi `Tests\TestCase` padahal murni perhitungan matematika — cukup pakai `PHPUnit\Framework\TestCase`.
 
