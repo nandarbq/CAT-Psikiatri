@@ -8,6 +8,7 @@
     $saveUrl = $saveUrl ?? route('exam.save-answer');
     $submitUrl = $submitUrl ?? route('exam.submit');
     $deadlineAt = $deadlineAt ?? now()->addMinutes(1)->toIso8601String();
+    $serverNow = $serverNow ?? now()->toIso8601String();
     $requiresLocation = (bool) ($requiresLocation ?? false);
     $backUrl = $backUrl ?? null;
     $backLabel = $backLabel ?? 'Kembali';
@@ -30,6 +31,7 @@
             saveUrl: @js($saveUrl),
             submitUrl: @js($submitUrl),
             deadlineAt: @js($deadlineAt),
+            serverNow: @js($serverNow),
             requiresLocation: @js($requiresLocation),
             finishButtonText: @js($finishButtonText),
             confirmSubmitTitle: @js($confirmSubmitTitle),

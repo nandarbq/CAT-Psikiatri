@@ -12,6 +12,12 @@
 
 export function examEngine(config) {
     const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+    const serverNowMs = Date.parse(config.serverNow);
+    const deadlineMs = Date.parse(config.deadlineAt);
+    const deadlineClockOffsetMs = Number.isFinite(serverNowMs) && Number.isFinite(deadlineMs)
+        ? Date.now() - serverNowMs
+        : 0;
+    const adjustedDeadlineAt = new Date(deadlineMs + deadlineClockOffsetMs);
     const isMobileDefault = window.matchMedia('(max-width: 768px)').matches;
     const questionNavOpenDefault = isMobileDefault ? false : (() => {
         try {
@@ -29,7 +35,9 @@ export function examEngine(config) {
         statusType: 'idle',
         isSaving: false,
         isSubmitting: false,
-        deadlineAt: new Date(config.deadlineAt),
+        // Gunakan selisih jam pada saat halaman dirender supaya timer tetap
+        // menunjukkan durasi yang benar ketika jam perangkat tidak sinkron.
+        deadlineAt: adjustedDeadlineAt,
         now: new Date(),
         timerId: null,
         animationTimerId: null,
@@ -338,6 +346,24 @@ export function examEngine(config) {
             this.goToQuestion(index);
         },
 
+        isAuthenticationExpired(response) {
+            return response.status === 401 || response.status === 419;
+        },
+
+        redirectToLogin() {
+            this.saveStatus = 'Sesi Anda telah berakhir. Mengarahkan ke halaman login...';
+            this.statusType = 'error';
+            window.__examSubmitted = true;
+            this.exitFullscreenIfActive();
+
+            if (this.timerId !== null) {
+                window.clearInterval(this.timerId);
+                this.timerId = null;
+            }
+
+            window.location.assign(config.loginUrl ?? '/login');
+        },
+
         async selectAnswer(answer) {
             if (!this.currentQuestion || this.isSaving || this.isSubmitting) {
                 return;
@@ -378,6 +404,11 @@ export function examEngine(config) {
                         answer: answer,
                     }),
                 });
+                if (this.isAuthenticationExpired(response)) {
+                    this.redirectToLogin();
+                    return;
+                }
+
                 const data = await response.json();
 
                 if (!response.ok || data.success !== true) {
@@ -525,6 +556,11 @@ export function examEngine(config) {
                         ...(location ? this.toLocationHeaders(location) : {}),
                     },
                 });
+
+                if (this.isAuthenticationExpired(response)) {
+                    this.redirectToLogin();
+                    return;
+                }
 
                 const data = await response.json();
 
