@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Support;
 
 use App\Support\GeoDistance;
-use PHPUnit\Framework\Attributes\RequiresPhpExtension;
-use Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Titik-titik uji di sini sengaja dipilih yang jaraknya bisa dihitung pasti
@@ -18,7 +17,6 @@ use Tests\TestCase;
  * - Kutub utara dari ekuator -> seperempat keliling bumi
  * - Titik antipodal (sisi berlawanan bumi) -> setengah keliling bumi
  */
-#[RequiresPhpExtension('pdo_sqlite')]
 class GeoDistanceTest extends TestCase
 {
     private const EARTH_RADIUS_METERS = 6_371_000;
