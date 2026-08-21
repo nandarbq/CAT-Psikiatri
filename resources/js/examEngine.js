@@ -1,6 +1,6 @@
 /**
  * Exam Engine — Alpine.js state management for participant exam UI
- * 
+ *
  * Handles:
  * - Question navigation and display
  * - Answer state management
@@ -574,11 +574,11 @@ export function examEngine(config) {
                 // konfirmasi native yang bisa membatalkan kepindahan halaman.
                 window.__examSubmitted = true;
                 this.exitFullscreenIfActive();
-                
+
                 if (this.timerId !== null) {
                     window.clearInterval(this.timerId);
                 }
-                
+
                 window.location.href = data.redirect;
             } catch (error) {
                 // M5: Jika force-submit by timer gagal, jangan show dialog.
@@ -586,12 +586,12 @@ export function examEngine(config) {
                 // loop popup error setiap detik.
                 if (forcedByTimer === true) {
                     window.__examSubmitted = true;
-                    
+
                     // Stop timer agar tidak retry
                     if (this.timerId !== null) {
                         window.clearInterval(this.timerId);
                     }
-                    
+
                     // Redirect ke login. Error akan dicatat server, participant
                     // bisa login ulang dan melanjutkan jika attempt belum submit.
                     window.location.href = '/participant/login';
