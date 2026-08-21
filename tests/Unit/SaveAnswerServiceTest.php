@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Tests\Unit\Services;
 
 use App\Models\ExamAttempt;
+use App\Models\ExamSession;
 use App\Models\Participant;
+use App\Models\ParticipantAnswer;
 use App\Models\Question;
 use App\Services\SaveAnswerService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -28,7 +30,7 @@ class SaveAnswerServiceTest extends TestCase
         $this->service = app(SaveAnswerService::class);
     }
 
-    public function test_save_creates_answer(): void
+    public function test_save_creates_answer_with_question_snapshot_and_answered_at(): void
     {
         $attempt = $this->createAttempt();
         $question = $this->createQuestion($attempt);
@@ -42,8 +44,16 @@ class SaveAnswerServiceTest extends TestCase
         $this->assertDatabaseHas('participant_answers', [
             'attempt_id' => $attempt->id,
             'question_id' => $question->id,
+            'question_snapshot' => $question->question,
             'answer' => 1,
         ]);
+
+        $savedAnswer = ParticipantAnswer::query()
+            ->where('attempt_id', $attempt->id)
+            ->where('question_id', $question->id)
+            ->firstOrFail();
+
+        $this->assertNotNull($savedAnswer->answered_at);
     }
 
     public function test_save_can_save_false_answer(): void
@@ -156,6 +166,31 @@ class SaveAnswerServiceTest extends TestCase
             $question,
             true,
         );
+    }
+
+    public function test_save_accepts_answer_when_attempt_duration_has_expired(): void
+    {
+        // Selaras dengan M5: server tetap menerima request yang terlambat
+        // selama sesi masih aktif, agar autosave tidak gagal di batas waktu.
+        $session = ExamSession::factory()->create([
+            'duration_minutes' => 30,
+        ]);
+        $participant = Participant::factory()->forSession($session)->create();
+        $attempt = ExamAttempt::factory()
+            ->forParticipant($participant)
+            ->create([
+                'started_at' => now()->subHour(),
+                'is_submitted' => false,
+            ]);
+        $question = $this->createQuestion($attempt);
+
+        $this->service->save($attempt, $question, true);
+
+        $this->assertDatabaseHas('participant_answers', [
+            'attempt_id' => $attempt->id,
+            'question_id' => $question->id,
+            'answer' => 1,
+        ]);
     }
 
     public function test_save_rejects_question_from_another_module(): void

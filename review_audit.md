@@ -43,7 +43,7 @@ Total 22 task dari hasil review, dibagi rata ke 3 sprint (bukan dikelompokkan pe
 
 ## Sprint 3 (7 task)
 
-- [ ] **[L6]** Test `SaveAnswerService`: tambahkan pengecekan kolom `question_snapshot` / `answered_at`, dan test saat durasi ujian sudah habis.
+- [x] **[L6]** Test `SaveAnswerService`: tambahkan pengecekan kolom `question_snapshot` / `answered_at`, dan test saat durasi ujian sudah habis.
 - [ ] **[L7]** Frontend: deteksi error 401/419 (session/CSRF habis) saat autosave dan arahkan ke halaman login; pertimbangkan selisih jam client vs server untuk `deadlineAt`.
 - [ ] **[N1]** Bersihkan trailing whitespace & tambahkan newline di akhir file-file baru.
 - [ ] **[N2]** `pluralize()` di `BuildsAdminIndexViews` salah untuk kata seperti "users" → "userses" (pakai `Str::plural()` — atau abaikan karena file ini sudah dihapus di Sprint 1).
