@@ -111,11 +111,37 @@ class ValidateSessionService
         $this->ensureSessionActive($attempt->session);
 
         /*
-         * M5 — Submit diizinkan meski melewati deadline.
-         * Pengecekan deadline dihapus agar submit yang telat tetap
-         * diterima server. Ini menghindari loop popup error di client
-         * (timer terus trigger submit → server reject → loop popup).
+         * M5 — Submit / autosave yang telat tetap diterima server selama
+         * sesi masih aktif. Pengecekan deadline sengaja TIDAK dilakukan
+         * di sini: batas waktu per-attempt hanya ditegakkan untuk aksi
+         * "menjawab" (lihat ensureAttemptAnswerable), bukan untuk submit.
+         * Ini mencegah loop popup error di client ketika timer terus
+         * mencoba submit melewati deadline.
          */
+    }
+
+    /**
+     * M5 — Penegakan deadline untuk aksi menjawab.
+     *
+     * Setelah effectiveDeadline (min(durasi attempt, akhir sesi))
+     * terlewati, peserta tidak boleh lagi menyimpan jawaban baru.
+     * Ini berbeda dengan submit yang tetap diizinkan lewat deadline
+     * (lihat ensureAttemptAccessible).
+     */
+    public function ensureAttemptAnswerable(
+        ExamAttempt $attempt
+    ): void {
+        $this->ensureAttemptAccessible($attempt);
+
+        if (
+            CarbonImmutable::now()->gt(
+                $this->effectiveDeadline($attempt)
+            )
+        ) {
+            throw ValidationException::withMessages([
+                'attempt' => 'Waktu tes sudah habis. Jawaban tidak bisa diubah lagi.',
+            ]);
+        }
     }
 
     public function effectiveDeadline(

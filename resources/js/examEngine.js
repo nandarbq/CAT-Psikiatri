@@ -352,7 +352,20 @@ export function examEngine(config) {
         },
 
         isAuthenticationExpired(response) {
-            return response.status === 401 || response.status === 419;
+            // 401/419 = sesi/auth Laravel berakhir. 403 dengan code
+            // "auth_expired" adalah sesi ujian tidak valid (dari exam.guard).
+            if (response.status === 401 || response.status === 419) {
+                return true;
+            }
+
+            if (response.status !== 403) {
+                return false;
+            }
+
+            return response.clone()
+                .json()
+                .then((data) => data?.code === 'auth_expired')
+                .catch(() => false);
         },
 
         redirectToLogin() {
@@ -409,7 +422,7 @@ export function examEngine(config) {
                         answer: answer,
                     }),
                 });
-                if (this.isAuthenticationExpired(response)) {
+                if (await this.isAuthenticationExpired(response)) {
                     this.redirectToLogin();
                     return;
                 }
@@ -455,7 +468,14 @@ export function examEngine(config) {
                 } else {
                     delete this.answers[question.id];
                 }
-                this.saveStatus = 'Gagal menyimpan. Coba lagi.';
+
+                // Tampilkan pesan asli dari server (mis. "Waktu tes sudah habis")
+                // agar tidak menyesatkan. Untuk error jaringan/timeout tanpa
+                // pesan server, baru pakai pesan generik yang bisa dicoba ulang.
+                const serverMessage = error instanceof Error && error.message
+                    ? error.message
+                    : 'Gagal menyimpan. Coba lagi.';
+                this.saveStatus = serverMessage;
                 this.statusType = 'error';
             } finally {
                 this.isSaving = false;
@@ -562,7 +582,7 @@ export function examEngine(config) {
                     },
                 });
 
-                if (this.isAuthenticationExpired(response)) {
+                if (await this.isAuthenticationExpired(response)) {
                     this.redirectToLogin();
                     return;
                 }
@@ -599,7 +619,9 @@ export function examEngine(config) {
 
                     // Redirect ke login. Error akan dicatat server, participant
                     // bisa login ulang dan melanjutkan jika attempt belum submit.
-                    window.location.href = '/participant/login';
+                    // Login route asli adalah /login (participant.login), bukan
+                    // /participant/login yang tidak terdaftar (404).
+                    window.location.href = config.loginUrl ?? '/login';
                     return;
                 }
 

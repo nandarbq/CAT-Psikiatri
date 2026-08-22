@@ -40,7 +40,8 @@ class ExamGuard
         if ($participantId === 0) {
             return $this->deny(
                 $request,
-                'Sesi peserta tidak valid. Silakan login ulang.'
+                'Sesi peserta tidak valid. Silakan login ulang.',
+                'auth_expired'
             );
         }
 
@@ -85,7 +86,8 @@ class ExamGuard
         ) {
             return $this->deny(
                 $request,
-                'Akses tes tidak valid. Silakan mulai lagi dari halaman akses tes.'
+                'Akses tes tidak valid. Silakan mulai lagi dari halaman akses tes.',
+                'auth_expired'
             );
         }
 
@@ -95,7 +97,8 @@ class ExamGuard
         ) {
             return $this->deny(
                 $request,
-                'Sesi tes tidak sesuai dengan sesi peserta.'
+                'Sesi tes tidak sesuai dengan sesi peserta.',
+                'auth_expired'
             );
         }
 
@@ -130,7 +133,8 @@ class ExamGuard
         ) {
             return $this->deny(
                 $request,
-                'Token sesi tidak valid. Silakan login ulang atau mulai ulang tes.'
+                'Token sesi tidak valid. Silakan login ulang atau mulai ulang tes.',
+                'auth_expired'
             );
         }
 
@@ -268,15 +272,20 @@ class ExamGuard
 
     /**
      * Menolak request.
+     *
+     * @param  string|null  $code  Kode semantik untuk response JSON
+     *                             (mis. "auth_expired"). Null = tidak ada kode.
      */
     private function deny(
         Request $request,
-        string $message
+        string $message,
+        ?string $code = null
     ): JsonResponse|RedirectResponse {
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => false,
                 'message' => $message,
+                'code' => $code,
             ], 403);
         }
 

@@ -168,10 +168,11 @@ class SaveAnswerServiceTest extends TestCase
         );
     }
 
-    public function test_save_accepts_answer_when_attempt_duration_has_expired(): void
+    public function test_save_rejects_answer_when_attempt_duration_has_expired(): void
     {
-        // Selaras dengan M5: server tetap menerima request yang terlambat
-        // selama sesi masih aktif, agar autosave tidak gagal di batas waktu.
+        // M5 — Menjawab dibatasi oleh deadline (ensureAttemptAnswerable),
+        // berbeda dari submit yang tetap diizinkan lewat deadline. Setelah
+        // durasi attempt habis, peserta tidak boleh lagi mengubah jawaban.
         $session = ExamSession::factory()->create([
             'duration_minutes' => 30,
         ]);
@@ -180,6 +181,26 @@ class SaveAnswerServiceTest extends TestCase
             ->forParticipant($participant)
             ->create([
                 'started_at' => now()->subHour(),
+                'is_submitted' => false,
+            ]);
+        $question = $this->createQuestion($attempt);
+
+        $this->expectException(ValidationException::class);
+
+        $this->service->save($attempt, $question, true);
+    }
+
+    public function test_save_accepts_answer_when_within_deadline(): void
+    {
+        // M5 — Selama masih dalam deadline, jawaban tetap bisa disimpan.
+        $session = ExamSession::factory()->create([
+            'duration_minutes' => 60,
+        ]);
+        $participant = Participant::factory()->forSession($session)->create();
+        $attempt = ExamAttempt::factory()
+            ->forParticipant($participant)
+            ->create([
+                'started_at' => now()->subMinutes(5),
                 'is_submitted' => false,
             ]);
         $question = $this->createQuestion($attempt);

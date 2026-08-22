@@ -15,7 +15,13 @@ class SaveAnswerService
     public function save(ExamAttempt $attempt, Question $question, bool $answer): void
     {
         $attemptWithSession = $attempt->relationLoaded('session') ? $attempt : $attempt->load('session');
-        $this->validateSessionService->ensureAttemptAccessible($attemptWithSession);
+
+        /*
+         * M5 — Menjawab dibatasi oleh deadline (ensureAttemptAnswerable),
+         * berbeda dari submit yang tetap diizinkan lewat deadline. Setelah
+         * waktu tes habis, peserta tidak boleh lagi mengubah jawaban.
+         */
+        $this->validateSessionService->ensureAttemptAnswerable($attemptWithSession);
 
         if (
             (int) $question->module_id !== (int) $attemptWithSession->session->module_id

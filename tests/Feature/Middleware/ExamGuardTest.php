@@ -108,4 +108,24 @@ class ExamGuardTest extends TestCase
             ->assertViewIs('exam.index')
             ->assertSessionMissing('errors');
     }
+
+    public function test_exam_guard_returns_auth_expired_code_for_json_request_when_participant_session_invalid(): void
+    {
+        /*
+         * Sesi peserta tidak valid (participant_id tidak ada di session)
+         * harus menghasilkan 403 dengan code "auth_expired" pada request JSON,
+         * agar client bisa membedakan sesi yang berakhir dari error lain
+         * (mis. geo yang bisa di-retry) dan mengarahkan ke login.
+         */
+        $response = $this->postJson('/exam/save-answer', [
+            'question_id' => 1,
+            'answer' => true,
+        ]);
+
+        $response->assertStatus(403)
+            ->assertJson([
+                'success' => false,
+                'code' => 'auth_expired',
+            ]);
+    }
 }

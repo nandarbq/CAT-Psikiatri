@@ -212,9 +212,9 @@ class ValidateSessionServiceTest extends TestCase
 
     public function test_ensure_attempt_accessible_accepts_when_duration_exceeded(): void
     {
-        // Tidak lagi reject saat duration exceeded. Submit diizinkan
-        // meski melewati deadline untuk mencegah loop popup error di client
-        // saat timer terus trigger submit.
+        // M5 — ensureAttemptAccessible (dipakai submit) tetap menerima attempt
+        // yang melewati deadline, selama sesi masih aktif. Ini mencegah loop
+        // popup error di client saat timer terus mencoba submit.
         $session = ExamSession::factory()->create([
             'duration_minutes' => 30,
             'start_time' => now()->subHours(2),
@@ -226,10 +226,47 @@ class ValidateSessionServiceTest extends TestCase
             ->create(['started_at' => now()->subMinutes(45)]); // melebihi durasi 30 menit
 
         // Tidak boleh throw exception, attempt yang melewati deadline
-        // tetap dianggap accessible.
+        // tetap dianggap accessible (untuk submit).
         $this->service->ensureAttemptAccessible($attempt->load('session'));
 
         $this->assertTrue(true);
+    }
+
+    public function test_ensure_attempt_answerable_accepts_when_within_deadline(): void
+    {
+        // M5 — Di dalam deadline, menjawab diperbolehkan.
+        $session = ExamSession::factory()->create([
+            'duration_minutes' => 60,
+            'start_time' => now()->subHour(),
+            'end_time' => now()->addHour(),
+        ]);
+        $participant = Participant::factory()->forSession($session)->create();
+        $attempt = ExamAttempt::factory()
+            ->forParticipant($participant)
+            ->create(['started_at' => now()->subMinutes(5)]);
+
+        $this->service->ensureAttemptAnswerable($attempt->load('session'));
+
+        $this->assertTrue(true);
+    }
+
+    public function test_ensure_attempt_answerable_rejects_when_duration_exceeded(): void
+    {
+        // M5 — Setelah deadline, peserta TIDAK boleh lagi menyimpan jawaban.
+        // Berbeda dengan submit yang tetap diizinkan lewat deadline.
+        $session = ExamSession::factory()->create([
+            'duration_minutes' => 30,
+            'start_time' => now()->subHours(2),
+            'end_time' => now()->addHours(2),
+        ]);
+        $participant = Participant::factory()->forSession($session)->create();
+        $attempt = ExamAttempt::factory()
+            ->forParticipant($participant)
+            ->create(['started_at' => now()->subMinutes(45)]); // melebihi durasi 30 menit
+
+        $this->expectException(ValidationException::class);
+
+        $this->service->ensureAttemptAnswerable($attempt->load('session'));
     }
 
     public function test_effective_deadline_uses_the_earlier_of_duration_or_session_end(): void
