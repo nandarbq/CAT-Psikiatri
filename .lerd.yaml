@@ -1,0 +1,12 @@
+domains:
+  - cat-psikiatri
+php_version: "8.2"
+framework: laravel
+framework_version: "12"
+secured: true
+services:
+  - mailpit
+  - mariadb-11-8:
+      preset: mariadb
+      version: "11.8"
+  - redis
