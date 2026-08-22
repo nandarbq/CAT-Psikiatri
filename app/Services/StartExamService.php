@@ -15,9 +15,7 @@ use Illuminate\Validation\ValidationException;
 
 class StartExamService
 {
-    public function __construct(private readonly ValidateSessionService $validateSessionService)
-    {
-    }
+    public function __construct(private readonly ValidateSessionService $validateSessionService) {}
 
     public function startOrResume(Participant $participant, string $token, Request $request): ExamAttempt
     {

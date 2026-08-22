@@ -7,19 +7,22 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ExamAttempt;
 use App\Models\Question;
+use App\Support\Concerns\HandlesPagination;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\Response;
 
 class ResultController extends Controller
 {
+    use HandlesPagination;
+
     public static function csvSafe(string $value): string
     {
         $value = trim($value);
 
         foreach (['=', '+', '-', '@', "\t", "\r"] as $prefix) {
             if ($value !== '' && str_starts_with($value, $prefix)) {
-                return ' ' . $value;
+                return ' '.$value;
             }
         }
 
@@ -31,21 +34,16 @@ class ResultController extends Controller
         $query = ExamAttempt::query()
             ->with(['participant', 'session'])
             ->withCount('answers');
-        
 
-        $perPage = (int) $request->query('per_page', 10);
-        
-        $perPage = in_array($perPage, [10, 25, 50, 100]) ? $perPage : 10;
-
-        $attempts = $query->latest('id')
-            ->paginate($perPage)
-            ->appends(request()->query());
+        $attempts = $this->paginateQuery(
+            $query->latest('id'),
+            $request
+        );
 
         return view('admin.results', [
             'attempts' => $attempts,
         ]);
     }
-
 
     public function show(ExamAttempt $attempt): View
     {

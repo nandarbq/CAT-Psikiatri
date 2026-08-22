@@ -71,15 +71,20 @@ class SystemSettingController extends Controller
 
     private function currentLocationSetting(): ExamLocationSetting
     {
-        // NOTE: approximate Banyuwangi town-center fallback used only when no
-        // row exists yet. Admin should verify the exact RSUD Blambangan pin
-        // on this page and save it for an accurate radius check.
+        // NOTE: koordinat fallback ini HANYA dipakai kalau belum ada baris
+        // pengaturan lokasi sama sekali. Admin tetap wajib memverifikasi &
+        // menyimpan titik RSUD Blambangan yang sebenarnya di halaman ini.
+        // Nilainya diambil dari config/exam.php (satu sumber yang sama
+        // dipakai juga oleh DatabaseSeeder) supaya tidak ada dua angka
+        // yang bisa diam-diam beda sendiri-sendiri.
+        $fallback = (array) config('exam.default_location_fallback', []);
+
         return ExamLocationSetting::query()->firstOrCreate(
             ['id' => 1],
             [
-                'center_latitude' => -8.2135000,
-                'center_longitude' => 114.3652000,
-                'allowed_radius_meters' => 500,
+                'center_latitude' => (float) ($fallback['center_latitude'] ?? -8.2135000),
+                'center_longitude' => (float) ($fallback['center_longitude'] ?? 114.3652000),
+                'allowed_radius_meters' => (int) ($fallback['allowed_radius_meters'] ?? 500),
             ],
         );
     }

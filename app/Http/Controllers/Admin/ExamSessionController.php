@@ -9,6 +9,7 @@ use App\Http\Requests\ExamSessionRequest;
 use App\Models\ExamSession;
 use App\Models\Module;
 use App\Models\Participant;
+use App\Support\Concerns\HandlesPagination;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
@@ -18,6 +19,8 @@ use Illuminate\View\View;
 
 class ExamSessionController extends Controller
 {
+    use HandlesPagination;
+
     public function index(Request $request): View
     {
         $query = ExamSession::query()->withCount('attempts');
@@ -33,7 +36,7 @@ class ExamSessionController extends Controller
         }
 
         return view('admin.sessions.index', [
-            'sessions' => $query->latest('id')->paginate(15)->withQueryString(),
+            'sessions' => $this->paginateQuery($query->latest('id'), $request),
             'filters' => [
                 'q' => $keyword,
                 'status' => $status,
@@ -44,7 +47,7 @@ class ExamSessionController extends Controller
     public function create(): View
     {
         return view('admin.sessions.form', [
-            'session' => new ExamSession(),
+            'session' => new ExamSession,
             'hasAttempts' => false,
             'isEdit' => false,
             'moduleOptions' => Module::query()->orderBy('name')->get(['id', 'name', 'status']),
@@ -172,7 +175,7 @@ class ExamSessionController extends Controller
             $query->where('session_id', (int) $sourceSessionId);
         }
 
-        $participants = $query->paginate(20)->withQueryString();
+        $participants = $this->paginateQuery($query, $request);
         $pageParticipantIds = $participants->getCollection()->pluck('id')->map(fn ($id) => (int) $id)->all();
         $activeAttemptParticipantIds = empty($pageParticipantIds)
             ? []
@@ -229,11 +232,13 @@ class ExamSessionController extends Controller
             foreach ($participants as $participant) {
                 if ((int) $participant->session_id === (int) $session->id) {
                     $skippedAlreadyInSession++;
+
                     continue;
                 }
 
                 if ($participant->attempts()->where('is_submitted', false)->exists()) {
                     $skippedActiveAttempt++;
+
                     continue;
                 }
 
@@ -245,6 +250,7 @@ class ExamSessionController extends Controller
 
                 if ($codeConflictExists) {
                     $skippedCodeConflict++;
+
                     continue;
                 }
 
@@ -256,6 +262,7 @@ class ExamSessionController extends Controller
 
                     if ((string) $errorCode === '23000') {
                         $skippedCodeConflict++;
+
                         continue;
                     }
 
@@ -323,5 +330,4 @@ class ExamSessionController extends Controller
             ->route('admin.instructions.index', ['session_id' => $session->id])
             ->with('success', 'Panduan tes berhasil dihapus.');
     }
-
 }

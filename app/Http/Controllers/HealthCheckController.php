@@ -15,8 +15,7 @@ class HealthCheckController extends Controller
     public function __construct(
         private readonly HealthCheckPayloadFactory $healthPayloadFactory,
         private readonly VersionInfoPayloadFactory $versionInfoPayloadFactory,
-    ) {
-    }
+    ) {}
 
     public function health(): JsonResponse
     {

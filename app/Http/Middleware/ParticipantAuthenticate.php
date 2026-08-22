@@ -7,18 +7,19 @@ namespace App\Http\Middleware;
 use App\Models\Participant;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class ParticipantAuthenticate
 {
     /**
-     * @param Closure(Request): Response $next
+     * @param  Closure(Request): Response  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
         $participantId = (int) $request->session()->get('participant_id', 0);
         if ($participantId <= 0) {
-            if (\Illuminate\Support\Facades\Auth::check()) {
+            if (Auth::check()) {
                 return redirect()->route('admin.results');
             }
 

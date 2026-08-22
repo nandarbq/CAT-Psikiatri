@@ -6,8 +6,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ModuleRequest;
+use App\Http\Requests\StoreModuleRequest;
 use App\Models\Module;
 use App\Models\Question;
+use App\Support\Concerns\HandlesPagination;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -15,6 +17,8 @@ use Illuminate\View\View;
 
 class ModuleController extends Controller
 {
+    use HandlesPagination;
+
     public function index(Request $request): View
     {
         $query = Module::query()->withCount(['questions', 'activeQuestions', 'examSessions']);
@@ -30,7 +34,7 @@ class ModuleController extends Controller
         }
 
         return view('admin.modules.index', [
-            'modules' => $query->orderBy('name')->paginate(20)->withQueryString(),
+            'modules' => $this->paginateQuery($query->orderBy('name'), $request),
             'filters' => [
                 'q' => $keyword,
                 'status' => $status,
@@ -41,21 +45,14 @@ class ModuleController extends Controller
     public function create(): View
     {
         return view('admin.modules.form', [
-            'module' => new Module(),
+            'module' => new Module,
             'isEdit' => false,
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(StoreModuleRequest $request): RedirectResponse
     {
-        $payload = $request->validate([
-            'name' => ['required', 'string', 'max:150'],
-            'description' => ['nullable', 'string', 'max:2000'],
-            'status' => ['required', 'boolean'],
-            'questions' => ['required', 'array', 'min:1'],
-            'questions.*.question' => ['required', 'string', 'max:10000'],
-            'questions.*.is_active' => ['required', 'boolean'],
-        ]);
+        $payload = $request->validated();
 
         $rows = array_values($payload['questions']);
 
@@ -111,27 +108,27 @@ class ModuleController extends Controller
 
         try {
             DB::transaction(function () use ($module): void {
-            // Lock the module row to avoid concurrent modifications.
-            $locked = Module::query()->whereKey($module->id)->lockForUpdate()->first();
+                // Lock the module row to avoid concurrent modifications.
+                $locked = Module::query()->whereKey($module->id)->lockForUpdate()->first();
 
-            if ($locked === null) {
-                throw new \RuntimeException('Modul tidak ditemukan saat akan dihapus.');
-            }
+                if ($locked === null) {
+                    throw new \RuntimeException('Modul tidak ditemukan saat akan dihapus.');
+                }
 
-            if ($locked->examSessions()->exists()) {
-                throw new \RuntimeException('Modul tidak dapat dihapus karena sudah dipakai pada sesi tes.');
-            }
+                if ($locked->examSessions()->exists()) {
+                    throw new \RuntimeException('Modul tidak dapat dihapus karena sudah dipakai pada sesi tes.');
+                }
 
-            $hasAnsweredQuestion = Question::query()
-                ->where('module_id', $locked->id)
-                ->whereHas('answers')
-                ->exists();
+                $hasAnsweredQuestion = Question::query()
+                    ->where('module_id', $locked->id)
+                    ->whereHas('answers')
+                    ->exists();
 
-            if ($hasAnsweredQuestion) {
-                throw new \RuntimeException('Modul tidak dapat dihapus karena soal di dalamnya sudah dipakai jawaban peserta.');
-            }
+                if ($hasAnsweredQuestion) {
+                    throw new \RuntimeException('Modul tidak dapat dihapus karena soal di dalamnya sudah dipakai jawaban peserta.');
+                }
 
-            // Safe to delete questions then module
+                // Safe to delete questions then module
                 $locked->questions()->delete();
                 $locked->delete();
             });

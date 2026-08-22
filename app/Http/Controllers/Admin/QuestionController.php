@@ -97,7 +97,6 @@ class QuestionController extends Controller
             ], 422);
         }
 
-
         // Use a transaction with row locking to prevent concurrent reorder races.
         try {
             DB::transaction(function () use ($moduleId, $ids): void {

@@ -1,0 +1,32 @@
+name: Laravel Pint
+
+on:
+  push:
+    branches:
+      - staging
+      - main
+  pull_request:
+    branches:
+      - staging
+      - main
+
+jobs:
+  pint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, xml, ctype, json
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Check Laravel Pint
+        run: vendor/bin/pint --test

@@ -35,4 +35,3 @@ class ParticipantProfileUpdateRequest extends FormRequest
         ];
     }
 }
-

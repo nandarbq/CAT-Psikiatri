@@ -119,5 +119,4 @@ class AdminExamSimulationTest extends TestCase
             ->assertRedirect(route('admin.simulation.index'))
             ->assertSessionHasErrors('simulation');
     }
-
 }

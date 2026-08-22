@@ -64,7 +64,7 @@
                             {{ $requiresLocation ? 'Meminta akses lokasi perangkat...' : 'Sesi online: akses lokasi tidak diperlukan.' }}
                         </p>
                         <button type="submit" class="btn btn-primary" id="exam-submit-btn" @disabled(! $canStartExam || $requiresLocation)>Mulai / Lanjutkan Tes</button>
-                        <button type="button" class="btn btn-ghost" id="exam-retry-location-btn" style="display: none;">Coba deteksi lokasi lagi</button>
+                        <button type="button" class="btn btn-ghost" id="exam-retry-location-btn" style="display: none;">Coba Lagi</button>
                     </form>
                 @endif
             </article>

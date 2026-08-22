@@ -4,6 +4,9 @@ import 'sweetalert2/dist/sweetalert2.min.css';
 
 window.Swal = Swal;
 
+import { examEngine } from './examEngine';
+window.examEngine = examEngine;
+
 (() => {
     const AJAX_STATE_KEY = '__admin_ajax_pagination';
 

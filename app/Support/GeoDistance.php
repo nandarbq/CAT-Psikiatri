@@ -22,4 +22,3 @@ class GeoDistance
         return self::EARTH_RADIUS_METERS * $c;
     }
 }
-

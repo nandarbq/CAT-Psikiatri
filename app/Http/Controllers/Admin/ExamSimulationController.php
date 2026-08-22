@@ -7,10 +7,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Module;
 use App\Models\Question;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -59,8 +59,8 @@ class ExamSimulationController extends Controller
         }
 
         $durationMinutes = (int) $payload['duration_minutes'];
-        $startedAt = now();
-        $deadlineAt = (clone $startedAt)->addMinutes($durationMinutes);
+        $startedAt = CarbonImmutable::now();
+        $deadlineAt = $startedAt->addMinutes($durationMinutes);
 
         $simulation = [
             'id' => (string) Str::uuid(),
@@ -106,10 +106,10 @@ class ExamSimulationController extends Controller
             'questions' => $questions,
             'answers' => is_array($simulation['answers'] ?? null) ? $simulation['answers'] : [],
             'currentIndex' => $currentIndex,
-            'deadlineAt' => (string) ($simulation['deadline_at'] ?? now()->addMinutes(1)->toIso8601String()),
+            'deadlineAt' => (string) ($simulation['deadline_at'] ?? CarbonImmutable::now()->addMinutes(1)->toIso8601String()),
             'durationMinutes' => (int) ($simulation['duration_minutes'] ?? 0),
             'questionCount' => (int) ($simulation['question_count'] ?? count($questions)),
-            'startedAt' => (string) ($simulation['started_at'] ?? now()->toIso8601String()),
+            'startedAt' => (string) ($simulation['started_at'] ?? CarbonImmutable::now()->toIso8601String()),
             'moduleName' => (string) ($simulation['module_name'] ?? 'Modul'),
         ]);
     }
@@ -135,7 +135,7 @@ class ExamSimulationController extends Controller
 
         if ($this->isExpired($simulation)) {
             $simulation['is_submitted'] = true;
-            $simulation['submitted_at'] = now()->toIso8601String();
+            $simulation['submitted_at'] = CarbonImmutable::now()->toIso8601String();
             $request->session()->put(self::SESSION_KEY, $simulation);
 
             return response()->json([
@@ -203,7 +203,7 @@ class ExamSimulationController extends Controller
         }
 
         $simulation['is_submitted'] = true;
-        $simulation['submitted_at'] = now()->toIso8601String();
+        $simulation['submitted_at'] = CarbonImmutable::now()->toIso8601String();
         $request->session()->put(self::SESSION_KEY, $simulation);
 
         return response()->json([
@@ -232,8 +232,8 @@ class ExamSimulationController extends Controller
         $unansweredCount = max(0, $questionCount - $answeredCount);
         $scorePercent = $questionCount > 0 ? (int) round(($answeredCount / $questionCount) * 100) : 0;
 
-        $startedAt = Carbon::parse((string) ($simulation['started_at'] ?? now()->toIso8601String()));
-        $submittedAt = Carbon::parse((string) ($simulation['submitted_at'] ?? now()->toIso8601String()));
+        $startedAt = CarbonImmutable::parse((string) ($simulation['started_at'] ?? CarbonImmutable::now()->toIso8601String()));
+        $submittedAt = CarbonImmutable::parse((string) ($simulation['submitted_at'] ?? CarbonImmutable::now()->toIso8601String()));
         $durationUsedSeconds = max(0, $submittedAt->diffInSeconds($startedAt));
 
         return view('admin.simulation.result', [
@@ -259,7 +259,7 @@ class ExamSimulationController extends Controller
     }
 
     /**
-     * @param array<string, mixed> $simulation
+     * @param  array<string, mixed>  $simulation
      */
     private function questionExists(array $simulation, int $questionId): bool
     {
@@ -275,7 +275,7 @@ class ExamSimulationController extends Controller
     }
 
     /**
-     * @param array<string, mixed> $simulation
+     * @param  array<string, mixed>  $simulation
      */
     private function isExpired(array $simulation): bool
     {
@@ -284,6 +284,6 @@ class ExamSimulationController extends Controller
             return true;
         }
 
-        return now()->greaterThanOrEqualTo(Carbon::parse($deadlineAt));
+        return CarbonImmutable::now()->greaterThanOrEqualTo(CarbonImmutable::parse($deadlineAt));
     }
 }

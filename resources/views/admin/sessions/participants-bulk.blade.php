@@ -35,6 +35,31 @@
         </div>
     </form>
 
+    {{-- Per Page Selector --}}
+    <div class="flex items-center justify-between mb-4 mt-4">
+        <div class="flex items-center space-x-2">
+            <label for="per_page" class="text-sm text-gray-700">Tampilkan</label>
+            <select id="per_page"
+                    name="per_page"
+                    class="input !w-auto min-w-[70px]"
+                    onchange="window.location.href = this.value">
+                @php
+                    $currentUrl = request()->fullUrlWithQuery(['per_page' => 'PER_PAGE']);
+                @endphp
+                @foreach([10, 25, 50, 100] as $size)
+                    <option value="{{ str_replace('PER_PAGE', $size, $currentUrl) }}"
+                            {{ request('per_page', 10) == $size ? 'selected' : '' }}>
+                        {{ $size }}
+                    </option>
+                @endforeach
+            </select>
+            <span class="text-sm text-gray-700">per halaman</span>
+        </div>
+        <div class="text-sm text-gray-500">
+            Total: <span class="font-medium">{{ $participants->total() }}</span> akun
+        </div>
+    </div>
+
     <section class="admin-form-card">
         <p><strong>Sesi Tujuan:</strong> {{ $session->title }}</p>
         <small class="field-help">Akun yang masih mengerjakan tes atau punya kode bentrok pada sesi tujuan akan otomatis dilewati.</small>

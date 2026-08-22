@@ -94,7 +94,7 @@ return new class extends Migration
             );
 
             return $result !== null;
-        } catch (\Throwable) {
+        } catch (Throwable) {
             return false;
         }
     }

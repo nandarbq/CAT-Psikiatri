@@ -8,15 +8,20 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ExamTokenRequest;
 use App\Models\ExamSession;
 use App\Models\ExamToken;
+use App\Support\Concerns\HandlesPagination;
+use App\Support\UniqueTokenGenerator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use RuntimeException;
 
 class ExamTokenController extends Controller
 {
+    use HandlesPagination;
+
     public function index(Request $request): View
     {
         $query = ExamToken::query()->with('session');
@@ -37,7 +42,7 @@ class ExamTokenController extends Controller
         }
 
         return view('admin.tokens.index', [
-            'tokens' => $query->latest('id')->paginate(20)->withQueryString(),
+            'tokens' => $this->paginateQuery($query->latest('id'), $request),
             'sessionOptions' => ExamSession::query()->orderBy('start_time')->get(['id', 'title']),
             'filters' => [
                 'q' => $keyword,
@@ -109,7 +114,7 @@ class ExamTokenController extends Controller
     public function create(Request $request): View
     {
         return view('admin.tokens.form', [
-            'tokenRecord' => new ExamToken(),
+            'tokenRecord' => new ExamToken,
             'sessions' => ExamSession::query()->orderBy('start_time')->get(['id', 'title']),
             'defaultSessionId' => (string) $request->query('session_id', ''),
             'isEdit' => false,
@@ -164,21 +169,16 @@ class ExamTokenController extends Controller
 
     private function generateUniqueToken(): string
     {
-        $maxAttempts = 1000;
-        $attempt = 0;
-
-        do {
-            $token = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-            $attempt++;
-        } while (ExamToken::query()->where('token', $token)->exists() && $attempt < $maxAttempts);
-
-        if ($attempt >= $maxAttempts) {
+        try {
+            return UniqueTokenGenerator::make(
+                candidate: fn (): string => str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT),
+                exists: fn (string $token): bool => ExamToken::query()->where('token', $token)->exists(),
+                maxAttempts: 1000,
+            );
+        } catch (RuntimeException) {
             throw ValidationException::withMessages([
                 'token' => 'Gagal membuat token unik 6 digit. Coba lagi.',
             ]);
         }
-
-        return $token;
     }
 }
-

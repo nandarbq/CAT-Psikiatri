@@ -18,16 +18,20 @@ class ExamGuard
 {
     public function __construct(
         private readonly ValidateSessionService $validateSessionService
-    ) {
-    }
+    ) {}
 
     /**
-     * @param Closure(Request): (Response) $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
         $participantId = (int) $request->session()->get('participant_id', 0);
-        $attemptId = (int) $request->session()->get('exam_attempt_id', 0);
+
+        $attemptId = (int) $request->session()->get(
+            'exam_attempt_id',
+            0
+        );
+
         $sessionToken = (string) $request->session()->get(
             'exam_session_token',
             ''
@@ -36,13 +40,20 @@ class ExamGuard
         if ($participantId === 0) {
             return $this->deny(
                 $request,
-                'Sesi peserta tidak valid. Silakan login ulang.'
+                'Sesi peserta tidak valid. Silakan login ulang.',
+                'auth_expired'
             );
         }
 
-        $relations = $request->expectsJson()
-            ? ['session.module']
-            : ['session.module', 'participant'];
+        /*
+         * Participant selalu di-load karena M11 membutuhkan
+         * session_id milik participant untuk dibandingkan dengan
+         * session_id milik ExamAttempt.
+         */
+        $relations = [
+            'session.module',
+            'participant',
+        ];
 
         $attempt = $attemptId > 0
             ? ExamAttempt::query()
@@ -50,6 +61,10 @@ class ExamGuard
                 ->find($attemptId)
             : null;
 
+        /*
+         * Jika attempt dari session sebelumnya tidak valid,
+         * cari attempt aktif terbaru milik participant.
+         */
         if (
             $attempt === null ||
             (int) $attempt->participant_id !== $participantId
@@ -62,17 +77,37 @@ class ExamGuard
                 ->first();
         }
 
+        /*
+         * Pastikan attempt memang milik participant yang sedang login.
+         */
         if (
             $attempt === null ||
             (int) $attempt->participant_id !== $participantId
         ) {
             return $this->deny(
                 $request,
-                'Akses tes tidak valid. Silakan mulai lagi dari halaman akses tes.'
+                'Akses tes tidak valid. Silakan mulai lagi dari halaman akses tes.',
+                'auth_expired'
             );
         }
 
-        $attemptSessionToken = is_string($attempt->session_token ?? null)
+        if (
+            (int) $attempt->session_id !==
+            (int) $attempt->participant->session_id
+        ) {
+            return $this->deny(
+                $request,
+                'Sesi tes tidak sesuai dengan sesi peserta.',
+                'auth_expired'
+            );
+        }
+
+        /*
+         * Pastikan attempt memiliki session token.
+         */
+        $attemptSessionToken = is_string(
+            $attempt->session_token ?? null
+        )
             ? trim((string) $attempt->session_token)
             : '';
 
@@ -84,18 +119,28 @@ class ExamGuard
             ])->save();
         }
 
+        /*
+         * Validasi session token.
+         */
         $isFirstRequestAfterLogin = $sessionToken === '';
 
         if (
             ! $isFirstRequestAfterLogin &&
-            ! hash_equals($attemptSessionToken, $sessionToken)
+            ! hash_equals(
+                $attemptSessionToken,
+                $sessionToken
+            )
         ) {
             return $this->deny(
                 $request,
-                'Token sesi tidak valid. Silakan login ulang atau mulai ulang tes.'
+                'Token sesi tidak valid. Silakan login ulang atau mulai ulang tes.',
+                'auth_expired'
             );
         }
 
+        /*
+         * Sinkronkan attempt dan token ke session Laravel.
+         */
         if (
             $attemptId !== (int) $attempt->id ||
             $sessionToken === ''
@@ -113,6 +158,13 @@ class ExamGuard
             $request->session()->save();
         }
 
+        /*
+         * Pastikan attempt masih dapat diakses:
+         *
+         * - belum submit
+         * - session masih aktif
+         * - durasi belum habis
+         */
         try {
             $this->validateSessionService
                 ->ensureAttemptAccessible($attempt);
@@ -125,7 +177,6 @@ class ExamGuard
             );
         }
 
-    
         $isSubmitRoute = $request->routeIs('exam.submit');
 
         if (! $isSubmitRoute) {
@@ -139,18 +190,23 @@ class ExamGuard
             }
         }
 
-        $request->attributes->set('examAttempt', $attempt);
+        $request->attributes->set(
+            'examAttempt',
+            $attempt
+        );
 
         return $next($request);
     }
-
 
     private function enforceLocationWithGracePeriod(
         Request $request,
         ExamAttempt $attempt
     ): JsonResponse|RedirectResponse|null {
-        [$latitude, $longitude, $accuracy] =
-            $this->extractLocation($request);
+        [
+            $latitude,
+            $longitude,
+            $accuracy
+        ] = $this->extractLocation($request);
 
         try {
             $this->validateSessionService
@@ -161,7 +217,10 @@ class ExamGuard
                     $accuracy
                 );
 
-            
+            /*
+             * Lokasi valid.
+             * Hapus penanda lokasi bermasalah.
+             */
             $request->session()->forget(
                 'exam_geo_out_of_range_since'
             );
@@ -169,7 +228,12 @@ class ExamGuard
             return null;
 
         } catch (ValidationException $exception) {
-
+            /*
+             * Beri masa toleransi: kegagalan GPS pertama tidak langsung
+             * menolak, supaya fluktuasi sinyal sesaat tidak memutus ujian.
+             * Penolakan baru terjadi jika lokasi terus bermasalah melebihi
+             * geo_grace_seconds (default 120 detik).
+             */
             $graceSeconds = (int) config(
                 'exam.geo_grace_seconds',
                 120
@@ -197,7 +261,6 @@ class ExamGuard
                 return null;
             }
 
-            
             return $this->deny(
                 $request,
                 collect($exception->errors())
@@ -207,14 +270,22 @@ class ExamGuard
         }
     }
 
+    /**
+     * Menolak request.
+     *
+     * @param  string|null  $code  Kode semantik untuk response JSON
+     *                             (mis. "auth_expired"). Null = tidak ada kode.
+     */
     private function deny(
         Request $request,
-        string $message
+        string $message,
+        ?string $code = null
     ): JsonResponse|RedirectResponse {
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => false,
                 'message' => $message,
+                'code' => $code,
             ], 403);
         }
 
@@ -230,9 +301,20 @@ class ExamGuard
             ]);
     }
 
-    
-    private function extractLocation(Request $request): array
-    {
+    /**
+     * Mengambil koordinat dari header.
+     * Jika header tidak tersedia, cache lokasi hanya boleh digunakan
+     * selama belum melewati TTL.
+     *
+     * @return array{
+     *     0: float|null,
+     *     1: float|null,
+     *     2: float|null
+     * }
+     */
+    private function extractLocation(
+        Request $request
+    ): array {
         $latitude = $this->toNullableFloat(
             $request->header('X-Exam-Latitude')
         );
@@ -245,7 +327,10 @@ class ExamGuard
             $request->header('X-Exam-Accuracy')
         );
 
-      
+        /*
+         * Jika request mengirim koordinat baru,
+         * simpan koordinat beserta timestamp-nya.
+         */
         if (
             $latitude !== null &&
             $longitude !== null
@@ -282,10 +367,16 @@ class ExamGuard
          * cache lokasi lama.
          */
         if ($request->expectsJson()) {
-            return [null, null, null];
+            return [
+                null,
+                null,
+                null,
+            ];
         }
 
-       
+        /*
+         * Ambil waktu terakhir cache lokasi.
+         */
         $cachedAt = $request->session()->get(
             'exam_geo_last_at'
         );
@@ -295,15 +386,24 @@ class ExamGuard
             90
         );
 
-        
+        /*
+         * Jika cache tidak ada atau sudah kedaluwarsa,
+         * anggap lokasi tidak tersedia.
+         */
         if (
             ! is_numeric($cachedAt) ||
             now()->timestamp - (int) $cachedAt > $ttlSeconds
         ) {
-            return [null, null, null];
+            return [
+                null,
+                null,
+                null,
+            ];
         }
 
-        
+        /*
+         * Cache masih valid.
+         */
         return [
             $this->toNullableFloat(
                 $request->session()->get(
@@ -323,8 +423,12 @@ class ExamGuard
         ];
     }
 
-    private function toNullableFloat(mixed $value): ?float
-    {
+    /**
+     * Konversi value menjadi float nullable.
+     */
+    private function toNullableFloat(
+        mixed $value
+    ): ?float {
         return is_numeric($value)
             ? (float) $value
             : null;

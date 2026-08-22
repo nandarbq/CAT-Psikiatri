@@ -149,7 +149,7 @@
                 </li>
                 <li class="ppage-step">
                     <span class="ppage-step-dot">3</span>
-                    <span class="ppage-step-label">Mulai Ujian</span>
+                    <span class="ppage-step-label">Mulai Tes</span>
                 </li>
             </ol>
         </section>

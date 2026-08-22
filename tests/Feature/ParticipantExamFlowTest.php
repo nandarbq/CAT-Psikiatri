@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use App\Models\ExamSession;
 use App\Models\ExamLocationSetting;
+use App\Models\ExamSession;
 use App\Models\ExamToken;
 use App\Models\Module;
 use App\Models\Participant;
@@ -167,7 +167,7 @@ class ParticipantExamFlowTest extends TestCase
             'question_id' => $blockedQuestion->id,
             'answer' => true,
         ])->assertStatus(404)
-            ->assertJsonPath('message', 'Soal tidak tersedia untuk sesi ujian ini.');
+            ->assertJsonPath('message', 'Soal tidak tersedia untuk sesi tes ini.');
 
         $this->assertDatabaseMissing('participant_answers', [
             'question_id' => $blockedQuestion->id,
@@ -321,6 +321,31 @@ class ParticipantExamFlowTest extends TestCase
             'longitude' => 106.8167000,
             'accuracy' => 20,
         ])->assertRedirect('/exam');
+
+        /*
+         * Kegagalan GPS pertama masih dalam masa toleransi (grace period),
+         * jadi request diteruskan dan penanda waktu out-of-range dicatat.
+         */
+        $this->withHeaders([
+            'X-Exam-Latitude' => '-6.2500000',
+            'X-Exam-Longitude' => '106.9000000',
+            'X-Exam-Accuracy' => '10',
+        ])->postJson('/exam/save-answer', [
+            'question_id' => $question->id,
+            'answer' => true,
+        ])->assertOk()->assertJson([
+            'success' => true,
+        ]);
+
+        $this->assertTrue(
+            $this->app['session']->has('exam_geo_out_of_range_since')
+        );
+
+        /*
+         * Setelah melewati batas toleransi geo_grace_seconds,
+         * lokasi yang masih di luar radius akhirnya menolak request.
+         */
+        $this->travel(10)->minutes();
 
         $this->withHeaders([
             'X-Exam-Latitude' => '-6.2500000',
