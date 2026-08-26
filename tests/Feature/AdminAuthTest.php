@@ -173,6 +173,37 @@ class AdminAuthTest extends TestCase
         $this->assertStringContainsString('.xls', (string) $excel->headers->get('content-disposition'));
     }
 
+    public function test_results_remain_available_after_participant_and_session_are_soft_deleted(): void
+    {
+        $this->actingAsAdmin();
+
+        $session = ExamSession::factory()->create([
+            'module_id' => $this->defaultModuleId(),
+            'title' => 'Sesi Historis',
+        ]);
+        $participant = Participant::factory()->create([
+            'session_id' => $session->id,
+            'name' => 'Peserta Historis',
+        ]);
+        ExamAttempt::factory()->create([
+            'participant_id' => $participant->id,
+            'session_id' => $session->id,
+        ]);
+
+        $participant->delete();
+        $session->delete();
+
+        $this->get(route('admin.results'))
+            ->assertOk()
+            ->assertSee('Peserta Historis')
+            ->assertSee('Sesi Historis');
+
+        $this->get(route('admin.results.export.excel'))
+            ->assertOk()
+            ->assertSee('Peserta Historis')
+            ->assertSee('Sesi Historis');
+    }
+
     public function test_admin_can_update_global_location_setting(): void
     {
         $this->actingAsAdmin();

@@ -50,8 +50,8 @@
             <tbody>
             @forelse ($attempts as $attempt)
                 <tr>
-                    <td>{{ $attempt->participant->name }}</td>
-                    <td>{{ $attempt->session->title }}</td>
+                    <td>{{ $attempt->participant?->name ?? 'Peserta tidak tersedia' }}</td>
+                    <td>{{ $attempt->session?->title ?? 'Sesi tidak tersedia' }}</td>
                     <td>{{ $attempt->started_at }}</td>
                     <td>{{ $attempt->finished_at ?? '-' }}</td>
                     <td>{{ $attempt->answers_count }}</td>

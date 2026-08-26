@@ -38,12 +38,12 @@ class ExamAttempt extends Model
 
     public function participant(): BelongsTo
     {
-        return $this->belongsTo(Participant::class, 'participant_id');
+        return $this->belongsTo(Participant::class, 'participant_id')->withTrashed();
     }
 
     public function session(): BelongsTo
     {
-        return $this->belongsTo(ExamSession::class, 'session_id');
+        return $this->belongsTo(ExamSession::class, 'session_id')->withTrashed();
     }
 
     public function answers(): HasMany

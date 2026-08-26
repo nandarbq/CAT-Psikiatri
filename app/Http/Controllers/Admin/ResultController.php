@@ -57,7 +57,7 @@ class ResultController extends Controller
         $moduleName = (string) ($attempt->session?->module?->name ?? 'Modul');
 
         $reviewQuestions = Question::query()
-            ->where('module_id', $attempt->session->module_id)
+            ->where('module_id', $attempt->session?->module_id)
             ->where('is_active', true)
             ->orderBy('order_no')
             ->get(['id', 'question', 'order_no'])
@@ -241,10 +241,10 @@ class ResultController extends Controller
                 <td>%s</td>
             </tr>',
             $attempt->id,
-            e($attempt->participant->name),
-            e($attempt->participant->username),
-            e($attempt->participant->nik),
-            e($attempt->session->title),
+            e($attempt->participant?->name ?? 'Peserta tidak tersedia'),
+            e($attempt->participant?->username ?? ''),
+            e($attempt->participant?->nik ?? ''),
+            e($attempt->session?->title ?? 'Sesi tidak tersedia'),
             e((string) $attempt->started_at),
             e((string) ($attempt->finished_at ?? '')),
             $attempt->answers_count,
